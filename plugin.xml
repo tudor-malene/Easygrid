@@ -1,0 +1,43 @@
+<plugin name='easygrid' version='0.9.8' grailsVersion='2.0 &gt; *'>
+  <author>Tudor Malene</author>
+  <authorEmail>tudor.malene@gmail.com</authorEmail>
+  <title>Easygrid Plugin</title>
+  <description>        EasyGrid provides a convenient and agile way of defining Data Grids.
+    </description>
+  <documentation>http://grails.org/plugin/easygrid</documentation>
+  <type>EasygridGrailsPlugin</type>
+  <resources>
+    <resource>EasygridGrailsPluginResources</resource>
+    <resource>spring.resources</resource>
+    <resource>org.grails.plugin.easygrid.TestDomainController</resource>
+    <resource>org.grails.plugin.easygrid.TestDomain</resource>
+    <resource>org.grails.plugin.easygrid.EasyGridExportService</resource>
+    <resource>org.grails.plugin.easygrid.EasygridService</resource>
+    <resource>org.grails.plugin.easygrid.datasource.CustomDatasourceService</resource>
+    <resource>org.grails.plugin.easygrid.datasource.GormDatasourceService</resource>
+    <resource>org.grails.plugin.easygrid.datasource.ListDatasourceService</resource>
+    <resource>org.grails.plugin.easygrid.grids.ClassicGridService</resource>
+    <resource>org.grails.plugin.easygrid.grids.DatatableGridService</resource>
+    <resource>org.grails.plugin.easygrid.grids.JqueryGridService</resource>
+    <resource>org.grails.plugin.easygrid.grids.TestGridService</resource>
+    <resource>org.grails.plugin.easygrid.grids.VisualizationGridService</resource>
+    <resource>org.codehaus.groovy.grails.plugins.easygrid.EasygridTagLib</resource>
+  </resources>
+  <repositories>
+    <repository name='grailsCentral' url='http://grails.org/plugins' />
+    <repository name='http://repo.grails.org/grails/core' url='http://repo.grails.org/grails/core/' />
+    <repository name='mavenCentral' url='http://repo1.maven.org/maven2/' />
+  </repositories>
+  <dependencies>
+    <compile>
+      <dependency group='com.google.visualization' name='visualization-datasource' version='1.1.1' />
+    </compile>
+  </dependencies>
+  <plugins />
+  <runtimePluginRequirements>
+    <plugin name='jquery-ui' version='1.8.14 &gt; *' />
+    <plugin name='export' version='1.3 &gt; *' />
+    <plugin name='google-visualization' version='0.5.2 &gt; *' />
+  </runtimePluginRequirements>
+  <behavior />
+</plugin>
