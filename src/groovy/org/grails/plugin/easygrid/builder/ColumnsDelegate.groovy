@@ -32,7 +32,7 @@ class ColumnsDelegate {
      * @param name
      */
     def propertyMissing(String name) {
-
+        assert gridConfig.labelPrefix || gridConfig.domainClass
         def prefix = gridConfig.labelPrefix ?: grails.util.GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
         assert prefix
 

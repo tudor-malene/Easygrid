@@ -25,6 +25,7 @@ log4j = {
 }
 
 // Added by Easygrid:
+
 easygrid {
 
     //default values added to each defined grid
@@ -38,7 +39,7 @@ easygrid {
 
         //jqgrid default properties
         jqgrid {
-            width = '100%'
+            width = '"100%"'
             height = 250
         }
 
@@ -98,6 +99,7 @@ easygrid {
             editRenderer = '/templates/jqGridEditResponse'
             formats = [
                     (Date.class): {it.format("dd/MM/yyyy")},
+                    (Calendar.class): {Calendar cal ->cal.format("dd/MM/yyyy")},
                     (Boolean.class): { it ? "Yes" : "No" }
             ]
         }
@@ -140,7 +142,7 @@ easygrid {
                 width = "'100%'"
             }
             export {
-                width = 30
+                width = 25
             }
         }
 
@@ -158,6 +160,9 @@ easygrid {
                 }
                 visualization {
                     valueType = com.google.visualization.datasource.datatable.value.ValueType.NUMBER
+                }
+                export {
+                    width = 10
                 }
 
             }

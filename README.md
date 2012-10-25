@@ -307,6 +307,7 @@ For a showcase application [please download](http://example.com/ "Title") .
 Next features:
 -----------------------
 
+- add search capabilities to all grids
 - other grid implementations ( like TreeGrid , Yui datatable)
 - users should be able to select the columns they want to see ( & store these settings)
 

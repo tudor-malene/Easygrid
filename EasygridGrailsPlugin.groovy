@@ -7,7 +7,7 @@ import org.grails.plugin.easygrid.EasygridContextHolder
 
 class EasygridGrailsPlugin {
     // the plugin version
-    def version = "0.9.8"
+    def version = "0.9.9"
 
     static JQGRID_VERSION = "4.4.0"
     static DATATABLES_VERSION = "1.9.3"

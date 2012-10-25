@@ -67,6 +67,14 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
                         def getGridsConfig(){
                             easygridService.initGrids(${source.nameWithoutPackage})
                         }
+
+                        //remove the stored params
+                        def afterInterceptor = { model ->
+                           org.grails.plugin.easygrid.EasygridContextHolder.resetParams()
+                        }
+                        def getAfterInterceptor(){
+                            afterInterceptor
+                        }
                     }
                     /$)
 

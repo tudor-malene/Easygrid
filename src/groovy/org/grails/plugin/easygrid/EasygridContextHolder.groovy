@@ -32,6 +32,10 @@ class EasygridContextHolder {
         restoredParamsHolder.set(params)
     }
 
+    def static resetParams() {
+        restoredParamsHolder.remove()
+    }
+
     static def getParams() {
         def params = restoredParamsHolder.get()
         params ? params : RequestContextHolder.currentRequestAttributes().params
