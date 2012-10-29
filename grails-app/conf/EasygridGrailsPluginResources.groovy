@@ -1,8 +1,8 @@
-def appCtx = org.codehaus.groovy.grails.commons.ApplicationHolder.application.mainContext
-def plugin = appCtx.pluginManager.getGrailsPlugin('easygrid')
+//def appCtx = org.codehaus.groovy.grails.commons.ApplicationHolder.application.mainContext
+//def plugin = appCtx.pluginManager.getGrailsPlugin('easygrid')
 
-def jqgridVer = plugin.instance.JQGRID_VERSION
-def datatablesVer = plugin.instance.DATATABLES_VERSION
+def jqgridVer = "4.4.0"
+def datatablesVer = "1.9.3"
 
 modules = {
     'easygrid-jqgrid-theme' {

@@ -9,13 +9,15 @@ class EasygridGrailsPlugin {
     // the plugin version
     def version = "0.9.9"
 
-    static JQGRID_VERSION = "4.4.0"
-    static DATATABLES_VERSION = "1.9.3"
+//    static JQGRID_VERSION = "4.4.0"
+//    static DATATABLES_VERSION = "1.9.3"
 
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.0 > *"
     // the other plugins this plugin depends on
-    def dependsOn = ['jquery-ui': "1.8.14 > *", 'export': "1.3 > *", 'google-visualization': "0.5.2 > *"]
+//    todo?
+//    def dependsOn = ['jquery-ui': "1.8.14 > *", 'export': "1.3 > *", 'google-visualization': "0.5.2 > *"]
+    def dependsOn = [:]
 
     def loadAfter = ['services', 'controllers']
 
@@ -58,7 +60,7 @@ class EasygridGrailsPlugin {
 //    def issueManagement = [ system: "JIRA", url: "http://jira.grails.org/browse/GPMYPLUGIN" ]
 
     // Online location of the plugin's browseable source code.
-//    def scm = [ url: "http://svn.grails-plugins.codehaus.org/browse/grails-plugins/" ]
+    def scm = [ url: "https://github.com/tudor-malene/Easygrid" ]
 
     def doWithWebDescriptor = { xml ->
     }
