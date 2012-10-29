@@ -300,7 +300,7 @@ How to :
 Example application
 -------------------------
 
-For a showcase application [please download](http://example.com/ "Title") .
+For a showcase application [Easygrid Showcase](http://199.231.186.169:8080/easygrid ) .
 
 
 
