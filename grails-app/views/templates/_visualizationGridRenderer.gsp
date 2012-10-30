@@ -1,7 +1,9 @@
 <script type="text/javascript">
     google.load('visualization', '1', {'packages':['table']});
     google.setOnLoadCallback(init${gridConfig.id});
-    var dataSourceUrl = '${g.createLink(action: "${gridConfig.id}Rows")}';
+    var baseDataSourceUrl = '${g.createLink(action: "${gridConfig.id}Rows")}';
+    var dataSourceUrl = baseDataSourceUrl;
+
     var query, options, container;
 
     function init${gridConfig.id}() {
@@ -26,6 +28,7 @@
     }
 
     function handleQueryResponse(response) {
+//        console.log(response);
         if (response.isError()) {
             alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
             return;
@@ -43,8 +46,37 @@
      }
      */
 
+
+    function rewriteDatasource(form) {
+        var ser = jQuery(form).serialize();
+        console.log(ser);
+        dataSourceUrl = baseDataSourceUrl + "?" + ser;
+        init${gridConfig.id}();
+        return false;
+    }
+
 </script>
 
+
+<div id="${gridConfig.id}_FilterDiv">
+    %{--<g:formRemote name="${gridConfig.id}_FilterForm"  onSuccess="_reloadGrid(data,textStatus)" url='[action:"${gridConfig.id}Rows"]'>--}%
+    <form name="${gridConfig.id}_FilterForm" onsubmit="return rewriteDatasource(this)" action="${gridConfig.id}Rows">
+        <fieldset class="form">
+            <g:hiddenField name="_filter" value="true"/>
+            <g:findAll in="${gridConfig.columns}"   expr="${it.visualization.search}">
+                <div>
+                    <label for="${it.visualization.name}">
+                        <g:message code="${it.label}" default="${it.label}"/>
+                    </label>
+                    %{--//todo - type--}%
+                    <g:field name="${it.visualization.name}" type="${it.visualization.searchType}"/>
+                </div>
+            </g:findAll>
+            <g:submitButton name="Filter"/>
+        </fieldset>
+    </form>
+
+</div>
 
 <div id="${gridConfig.id}_div"></div>
 

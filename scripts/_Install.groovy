@@ -4,11 +4,13 @@ if (configFile.exists() && configFile.text.indexOf("easygrid") == -1) {
     configFile.withWriterAppend {
         it.writeLine '\n// Added by Easygrid:'
         it.writeLine '''
+
 easygrid {
 
     //default values added to each defined grid
     defaults {
         defaultMaxRows = 20
+        labelFormat = new SimpleTemplateEngine().createTemplate('${prefix}.${column}.label')
         //called before inline editing : transforms the parameters into the actual object to be stored
         beforeSave = {params -> params}
         gridImpl = 'jqgrid'
@@ -16,9 +18,26 @@ easygrid {
 
         //jqgrid default properties
         jqgrid {
-            width = '100%'
+            width = '"100%"'
             height = 250
         }
+
+        // spring security implementation
+        securityProvider = { grid, oper ->
+            if (!grid.roles) {
+                return true
+            }
+            def grantedRoles
+            if (Map.class.isAssignableFrom(grid.roles.getClass())) {
+                grantedRoles = grid.roles.findAll {op, role -> oper == op}.collect {op, role -> role}
+            } else if (List.class.isAssignableFrom(grid.roles.class)) {
+                grantedRoles = grid.roles
+            } else {
+                grantedRoles = [grid.roles]
+            }
+            SpringSecurityUtils.ifAllGranted(grantedRoles.inject('') {roles, role -> "${roles},${role}"})
+        }
+
     }
 
     // each grid has a "type" - which must be one of the datasources
@@ -32,7 +51,6 @@ easygrid {
             //mandatory attributes: context, attributeName
             dataSourceService = org.grails.plugin.easygrid.datasource.ListDatasourceService
         }
-
 
         custom {
             // mandatory attributes: 'dataProvider', 'dataCount'
@@ -60,6 +78,7 @@ easygrid {
             editRenderer = '/templates/jqGridEditResponse'
             formats = [
                     (Date.class): {it.format("dd/MM/yyyy")},
+                    (Calendar.class): {Calendar cal ->cal.format("dd/MM/yyyy")},
                     (Boolean.class): { it ? "Yes" : "No" }
             ]
         }
@@ -79,9 +98,10 @@ easygrid {
             gridRenderer = '/templates/visualizationGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date.class): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(TimeZone.getTimeZone("GMT")); cal}, //wtf?
+                    (Date.class): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal}, //wtf?
             ]
         }
+
     }
 
     columns {
@@ -91,10 +111,19 @@ easygrid {
             jqgrid {
                 editable = true
             }
-            export {
-                width = 40
-            }
             classic {
+                sortable = true
+            }
+            visualization {
+                search = false
+                searchType = 'text'
+                valueType = com.google.visualization.datasource.datatable.value.ValueType.TEXT
+            }
+            datatable {
+                width = "'100%'"
+            }
+            export {
+                width = 25
             }
         }
 
@@ -110,6 +139,44 @@ easygrid {
                     editable = false
 //                formatter = 'editFormatter'
                 }
+                visualization {
+                    valueType = com.google.visualization.datasource.datatable.value.ValueType.NUMBER
+                }
+                export {
+                    width = 10
+                }
+
+            }
+
+            actions {
+                value = {''}
+                jqgrid {
+                    name = 'actions'
+                    formatter = '"actions"'
+                    editable = false
+                    sortable = false
+                    resizable = false
+                    fixed = true
+                    width = 60
+                    search = false
+                    formatoptions = '{"keys":true}'
+                }
+                export {
+                    hidden = true
+                }
+            }
+
+            version {
+                property = 'version'
+                jqgrid {
+                    hidden = true
+                }
+                export {
+                    hidden = true
+                }
+                visualization {
+                    valueType = com.google.visualization.datasource.datatable.value.ValueType.NUMBER
+                }
             }
         }
     }
@@ -120,15 +187,13 @@ easygrid {
             it.format("dd/MM/yyyy")
         }
         visualizationDateFormatter = {
-            def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(TimeZone.getTimeZone("GMT")); cal
+            def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(java.util.TimeZone.getTimeZone("GMT")); cal
         }
         stdBoolFormatter = {
             it ? "Yes" : "No"
         }
     }
-
 }
-
 
 '''
     }
