@@ -68,7 +68,6 @@
                     <label for="${it.visualization.name}">
                         <g:message code="${it.label}" default="${it.label}"/>
                     </label>
-                    %{--//todo - type--}%
                     <g:field name="${it.visualization.name}" type="${it.visualization.searchType}"/>
                 </div>
             </g:findAll>
