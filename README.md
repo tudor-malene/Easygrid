@@ -17,12 +17,12 @@ Overview
 
 The issues that Easygrid tackles are:
 
-- big learning curve for each javascript framework
-- each grid resides in multiple places ( Controller, gsp ). Usually, in the controller, there's a different method for each aspect ( search, export, security, etc)
+- big learning curve for each javascript ( Grid ) framework
+- the logic for each grid resides in multiple places ( Controller, gsp ). Usually, in the controller, there's a different method for each aspect ( search, export, security, etc)
 - a lot of concerns are addressed programmatically, instead of declaratively (like search, formats )
 - duplicated code (javascript, gsp, controllers). Each project has to create individual mechanisms to address it.
 
-
+[Online demo](http://199.231.186.169:8080/easygrid/author )
 
 Easygrid solves these problems by proposing a solution based on declarations & conventions.
 
@@ -214,7 +214,7 @@ If you want to create your own datasource:
 
 
 #### Columns section
-The label of each column (displayed in the header )will be the actual name of the closure.
+The label of each column (displayed in the header ) will be the actual name of the closure.
 
 - Column Value:
 For each column you have to define the value that will be displayed.
@@ -307,10 +307,9 @@ For a showcase application [Easygrid Showcase](http://199.231.186.169:8080/easyg
 Next features:
 -----------------------
 
-- add search capabilities to all grids
 - other grid implementations ( like TreeGrid , Yui datatable)
 - users should be able to select the columns they want to see ( & store these settings)
-
+- selection component ( drop down replacement )
 
 License
 -------
