@@ -22,7 +22,7 @@ The issues that Easygrid tackles are:
 - a lot of concerns are addressed programmatically, instead of declaratively (like search, formats )
 - duplicated code (javascript, gsp, controllers). Each project has to create individual mechanisms to address it.
 
-[Online demo](http://199.231.186.169:8080/easygrid/author )
+[Online demo](http://199.231.186.169:8080/easygrid/author/list?impl=datatables )
 
 Easygrid solves these problems by proposing a solution based on declarations & conventions.
 
