@@ -2,7 +2,7 @@
     jQuery("#${gridConfig.id}_table").jqGrid(
             {
         datatype: 'json',
-        url: '${g.createLink(action: "${gridConfig.id}Rows", params: [selectionComp:params.selectionComp])}',
+        url: '${g.createLink(action: "${gridConfig.id}Rows", params: params)}',
     <g:each in="${gridConfig.jqgrid}" var="property">
         "${property.key}":${property.value},
     </g:each>

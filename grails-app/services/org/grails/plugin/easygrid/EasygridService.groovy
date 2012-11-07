@@ -222,6 +222,12 @@ class EasygridService {
                 def filters = implService.filters()
                 def listParams = implService.listParams()
 
+
+                if(params.selectionComp){
+                    //add a new criteria
+                    filters.add gridConfig.autocomplete.constraintsSearchClosure
+                }
+
                 def rows = dataSourceService.list(listParams, filters)
 
                 def nrRecords = dataSourceService.countRows(filters)

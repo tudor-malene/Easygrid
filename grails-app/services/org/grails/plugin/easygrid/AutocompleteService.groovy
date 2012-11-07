@@ -28,7 +28,7 @@ class AutocompleteService {
             setLocalGridConfig(grid)
 
 //            [rowOffset: params.iDisplayStart as int, maxRows: maxRows, sort: sort, order: order]
-            easygridService.dataSourceService.list([rowOffset: 0, maxRows: 10], [grid.autocomplete.textBoxSearchClosure]).collect {
+            easygridService.dataSourceService.list([rowOffset: 0, maxRows: 10], [grid.autocomplete.textBoxSearchClosure, grid.autocomplete.constraintsSearchClosure ]).collect {
                 [
                         value: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.codeProp, it),
                         label: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.labelProp, it),

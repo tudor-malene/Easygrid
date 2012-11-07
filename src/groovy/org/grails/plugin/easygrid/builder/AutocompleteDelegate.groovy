@@ -18,6 +18,10 @@ class AutocompleteDelegate {
         autocomplete.textBoxSearchClosure = implClosure
     }
 
+    def constraintsSearchClosure(implClosure) {
+        autocomplete.constraintsSearchClosure = implClosure
+    }
+
     def methodMissing(String property, value) {
         autocomplete[property] = value[0]
     }

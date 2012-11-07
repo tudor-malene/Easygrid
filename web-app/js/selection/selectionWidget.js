@@ -152,6 +152,7 @@ $(function() {
             tag.attr('title', thisWidget.options.title);
             $.ajax({
                 url: this.options.urlAjaxGrid,
+                data: $.extend({}, thisWidget.options.staticConstraints, {selectionComp:true}, objectMap(thisWidget.options.dynamicConstraints, function (k,v) {return {key:k,value:jQuery(v).val()}})),
                 dataType : "html",
                 success: function(data) {
                     tag.dialog({

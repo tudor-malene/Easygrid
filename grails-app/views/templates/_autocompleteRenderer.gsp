@@ -6,7 +6,7 @@
         $( "#${attrs.id}" ).selectionComp({
             urlAjaxAutocomp: "${createLink(controller: attrs.controller, action: "${attrs.gridName}AutocompleteResult")}",
             urlAjaxSelLabel: "${createLink(controller: attrs.controller, action: "${attrs.gridName}SelectionLabel")}",
-            urlAjaxGrid:    "${createLink(controller: attrs.controller, action: "${attrs.gridName}Html", params: [selectionComp:true])}",
+            urlAjaxGrid:    "${createLink(controller: attrs.controller, action: "${attrs.gridName}Html")}",
             gridName: "${attrs.gridName}" ,
             showAutocompleteBox: ${attrs.showAutocompleteBox},
             staticConstraints: {
