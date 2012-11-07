@@ -30,8 +30,7 @@ class AutocompleteService {
 //            [rowOffset: params.iDisplayStart as int, maxRows: maxRows, sort: sort, order: order]
             easygridService.dataSourceService.list([rowOffset: 0, maxRows: 10], [grid.autocomplete.textBoxSearchClosure, grid.autocomplete.constraintsSearchClosure ]).collect {
                 [
-                        value: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.codeProp, it),
-                        label: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.labelProp, it),
+                        label: getLabel(it),
                         id: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.idProp, it)
                 ]
             } as JSON
@@ -39,7 +38,7 @@ class AutocompleteService {
     }
 
     def label(Grid grid) {
-        assert grid.autocomplete.labelProp
+        assert grid.autocomplete.labelProp ||grid.autocomplete.labelValue
 
         easygridService.guard(grid) {
 
@@ -48,9 +47,24 @@ class AutocompleteService {
 
             easygridService.dataSourceService.getById(params.id).collect {
                 [
-                        label: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.labelProp, it),
+                        label: getLabel(it)
                 ]
             } as JSON
+        }
+    }
+
+
+    def getLabel(element){
+        if(gridConfig.autocomplete.labelProp){
+            GridUtils.getNestedPropertyValue(gridConfig.autocomplete.labelProp, element)
+        }else{
+            assert gridConfig.autocomplete.labelValue
+            switch (gridConfig.autocomplete.labelValue?.parameterTypes?.size()) {
+                case 1:
+                    return gridConfig.autocomplete.labelValue.call(element)
+                case 2:
+                    return gridConfig.autocomplete.labelValue.call(element, params)
+            }
         }
     }
 

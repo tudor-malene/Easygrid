@@ -209,7 +209,9 @@ function objectMap(initial, callback){
     var newObject = {};
     jQuery.each(initial, function(k,v){
         var result = callback.call({},k,v);
-        newObject[result.key]=result.value;
+        if(result.value != ''){
+            newObject[result.key]=result.value;
+        }
     });
     return newObject
 }

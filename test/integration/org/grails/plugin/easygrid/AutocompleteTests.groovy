@@ -28,7 +28,7 @@ class AutocompleteTests extends AbstractServiceTest {
             gridImpl 'jqgrid'
             autocomplete {
                 idProp 'id'                // evident e idul - in loc de selectbox - ar trebui sa fie default
-                codeProp 'testStringProperty'                // valoarea care sa se afiseze - codul
+//                codeProp 'testStringProperty'                // valoarea care sa se afiseze - codul
                 labelProp 'testStringProperty'                // daca vrei sa afisezi o descriere
                 textBoxSearchClosure { params ->
 
@@ -41,7 +41,7 @@ class AutocompleteTests extends AbstractServiceTest {
     void testAutocompleteInit() {
 
         assertEquals 'id', autocompleteGridConfig.autocomplete.idProp
-        assertEquals 'testStringProperty', autocompleteGridConfig.autocomplete.codeProp
+//        assertEquals 'testStringProperty', autocompleteGridConfig.autocomplete.codeProp
         assertEquals 'testStringProperty', autocompleteGridConfig.autocomplete.labelProp
         assertNotNull autocompleteGridConfig.autocomplete.textBoxSearchClosure
 

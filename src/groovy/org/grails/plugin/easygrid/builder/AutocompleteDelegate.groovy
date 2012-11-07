@@ -13,9 +13,12 @@ class AutocompleteDelegate {
     def gridConfig
     def autocomplete
 
-    //the value closure
     def textBoxSearchClosure(implClosure) {
         autocomplete.textBoxSearchClosure = implClosure
+    }
+
+    def labelValue(implClosure) {
+        autocomplete.labelValue = implClosure
     }
 
     def constraintsSearchClosure(implClosure) {
