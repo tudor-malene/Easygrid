@@ -148,6 +148,7 @@ class EasygridService {
             }
 
             // copy the properties for the grid implementation & for the export
+            GridUtils.copyProperties defaultValues?.columns?.defaults, column, 0
             GridUtils.copyProperties defaultValues?.columns?.defaults[gridConfig.gridImpl], column[gridConfig.gridImpl]
             GridUtils.copyProperties defaultValues?.columns?.defaults?.export, column.export
 
@@ -182,6 +183,11 @@ class EasygridService {
             if (implService?.respondsTo('htmlGridDefinition')) {
                 implService.htmlGridDefinition(gridConfig)
             } else {
+                //disable inline editing in selection Mode
+                if(params.selectionComp){
+                    gridConfig.inlineEdit = false
+                }
+
                 //return a map with the gridConfig
                 [gridConfig: gridConfig]
             }

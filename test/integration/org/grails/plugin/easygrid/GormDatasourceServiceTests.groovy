@@ -4,10 +4,11 @@ import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.junit.Before
 import static org.junit.Assert.*
+
 /**
- * User: Tudor
- * Date: 05.10.2012
- * Time: 15:44
+ * test the Gorm impl
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Mock(TestDomain)
 @TestFor(TestDomainController)

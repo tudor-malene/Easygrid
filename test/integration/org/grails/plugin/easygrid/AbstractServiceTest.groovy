@@ -4,9 +4,9 @@ import static org.junit.Assert.*
 import groovy.time.TimeCategory
 
 /**
- * User: Tudor
- * Date: 27.09.2012
- * Time: 18:56
+ * base class for integration tests
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 abstract class AbstractServiceTest {
 

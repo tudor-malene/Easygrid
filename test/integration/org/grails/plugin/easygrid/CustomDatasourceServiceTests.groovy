@@ -5,9 +5,9 @@ import org.junit.Before
 import grails.test.mixin.TestFor
 
 /**
- * User: Tudor
- * Date: 05.10.2012
- * Time: 15:45
+ * test for the custom datasource
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @TestFor(TestDomainController)
 class CustomDatasourceServiceTests extends AbstractServiceTest {

@@ -6,9 +6,9 @@ import org.junit.Before
 import static org.junit.Assert.*
 
 /**
- * User: Tudor
- * Date: 27.09.2012
- * Time: 18:50
+ * test for the classic grid impl
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Mock(TestDomain)
 @TestFor(TestDomainController)
@@ -19,7 +19,6 @@ class ClassicGridServiceTests extends  AbstractServiceTest{
     @Before
     void setUp(){
         super.setup()
-
 
         classicDomainGridConfig = generateConfigForGrid {
             id 'classicTestDomainGrid'

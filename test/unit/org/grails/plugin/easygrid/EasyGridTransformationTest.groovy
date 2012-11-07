@@ -1,10 +1,9 @@
 package org.grails.plugin.easygrid
 
 /**
- * User: Tudor
- * Date: 06.10.2012
- * Time: 11:26
  * test class for the EasyGridASTTransformation transformation
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 class EasyGridTransformationTest extends GroovyTestCase {
 
@@ -52,6 +51,12 @@ class EasyGridTransformationTest extends GroovyTestCase {
 
         assert instance.respondsTo('testGridInlineEdit')
         assert instance.respondsTo('visGridInlineEdit')
+
+        assert instance.respondsTo('testGridAutocompleteResult')
+        assert instance.respondsTo('visGridAutocompleteResult')
+
+        assert instance.respondsTo('testGridHtml')
+        assert instance.respondsTo('visGridHtml')
 
     }
 

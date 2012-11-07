@@ -64,6 +64,14 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
                             this.easygridService=easygridService;
                         }
 
+                        def autocompleteService
+                        public AutocompleteService getAutocompleteService(){
+                            return autocompleteService;
+                        }
+                        public void setAutocompleteService(AutocompleteService autocompleteService){
+                            this.autocompleteService=autocompleteService;
+                        }
+
                         def getGridsConfig(){
                             easygridService.initGrids(${source.nameWithoutPackage})
                         }
@@ -97,6 +105,15 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
 
                     class ${source.nameWithoutPackage} {
 
+                        // renders the html code
+                        def ${gridName}Html () {
+                            def gridConfig = gridsConfig['${gridName}']
+                            def model = easygridService.htmlGridDefinition(gridConfig)
+                            if (model) {
+                                render(template: gridConfig.gridRenderer, model: model)
+                            }
+                        }
+
                         // renders the elements to be displayed by the grid
                         def ${gridName}Rows () {
                             render easygridService.gridData(gridsConfig['${gridName}'])
@@ -114,9 +131,28 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
 //                               render(template: gridsConfig['${gridName}'].editRenderer, model: result?.model)
                                render(template: gridsConfig['${gridName}'].editRenderer)
                           }else{
-                            throw new UnsupportedOperationException("Inline edit not available for this type of grid");
+                            throw new UnsupportedOperationException("Inline edit not available for this type of grid: ${gridName}");
                           }
                         }
+
+                        //autocomplete
+                        def ${gridName}AutocompleteResult (){
+                          if(autocompleteService.supportsAutocomplete(gridsConfig['${gridName}'])){
+                              render autocompleteService.response(gridsConfig['${gridName}'])
+                          }else{
+                            throw new UnsupportedOperationException("Autocomplete not available for this grid: ${gridName}");
+                          }
+                        }
+
+                        def ${gridName}SelectionLabel (){
+                          if(autocompleteService.supportsAutocomplete(gridsConfig['${gridName}'])){
+                              render autocompleteService.label(gridsConfig['${gridName}'])
+                          }else{
+                            throw new UnsupportedOperationException("Autocomplete not available for this grid: ${gridName}");
+                          }
+                        }
+
+
                     }
                     /$)
                 gridAst[1].methods.each {

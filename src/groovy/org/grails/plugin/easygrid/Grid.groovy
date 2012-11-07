@@ -12,6 +12,8 @@ class Grid {
     // the columns
     List<Column> columns  =[]
 
+    Map autocomplete = [:]
+
     // the datasource
     String dataSourceType
     Class dataSourceService  // the datasource

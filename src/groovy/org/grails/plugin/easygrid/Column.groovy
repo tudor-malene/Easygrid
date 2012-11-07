@@ -17,6 +17,8 @@ class Column {
     String formatName // one of the predefined formatters
     Closure formatter  //
 
+    def showInSelection
+
     //dynamic
     Map properties = [:]
     def propertyMissing(String name, value) { properties[name] = value }

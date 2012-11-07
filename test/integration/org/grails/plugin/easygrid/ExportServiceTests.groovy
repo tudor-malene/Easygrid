@@ -9,9 +9,9 @@ import org.junit.Before
 import static org.junit.Assert.*
 
 /**
- * User: Tudor
- * Date: 27.09.2012
- * Time: 19:08
+ * test the export feature
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Mock(TestDomain)
 @TestFor(TestDomainController)

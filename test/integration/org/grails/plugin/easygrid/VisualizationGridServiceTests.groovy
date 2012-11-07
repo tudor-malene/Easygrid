@@ -11,9 +11,9 @@ import com.google.visualization.datasource.datatable.value.DateTimeValue
 import com.ibm.icu.util.TimeZone
 
 /**
- * User: Tudor
- * Date: 27.09.2012
- * Time: 18:50
+ * google visualization impl tests
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Mock(TestDomain)
 @TestFor(TestDomainController)

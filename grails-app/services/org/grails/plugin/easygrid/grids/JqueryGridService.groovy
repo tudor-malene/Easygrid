@@ -8,6 +8,7 @@ import org.springframework.validation.ObjectError
 
 import org.grails.plugin.easygrid.Column
 import org.grails.plugin.easygrid.EasygridContextHolder
+import org.grails.plugin.easygrid.GridUtils
 
 @Log4j
 @Mixin(EasygridContextHolder)
@@ -77,9 +78,16 @@ class JqueryGridService {
         // transform the list of elements to a jqGrid format
         def results = rows.collect { element ->
             def cell = []
+/*
             gridConfig.columns.eachWithIndex {  column, row ->
                 cell.add easygridService.valueOfColumn(column, element, row + 1)
             }
+*/
+//            gridConfig.columns.findAll {col -> (params.selectionComp) ? col.showInSelection : true}.eachWithIndex { column, row ->
+            GridUtils.eachColumn(gridConfig){column, row ->
+                cell.add easygridService.valueOfColumn(column, element, row + 1)
+            }
+
             [id: element.id, cell: cell]
         }
 

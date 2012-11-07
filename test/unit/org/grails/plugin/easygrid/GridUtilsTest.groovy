@@ -5,9 +5,9 @@ import javax.servlet.http.HttpSession
 import org.springframework.mock.web.MockHttpSession
 
 /**
- * User: Tudor
- * Date: 08.10.2012
- * Time: 14:12
+ * tests for util methods
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 class GridUtilsTest extends GroovyTestCase {
 

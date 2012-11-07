@@ -7,9 +7,9 @@ import grails.test.mixin.TestFor
 import org.codehaus.groovy.control.ConfigurationException
 
 /**
- * User: Tudor Malene
- * Date: 20.07.2012
- * Time: 19:56
+ * tests for the central service
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Mock(TestDomain)
 @TestFor(TestDomainController)

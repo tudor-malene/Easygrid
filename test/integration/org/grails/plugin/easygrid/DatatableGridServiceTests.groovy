@@ -5,9 +5,9 @@ import grails.test.mixin.TestFor
 import static org.junit.Assert.*
 
 /**
- * User: Tudor
- * Date: 27.09.2012
- * Time: 18:50
+ * tests for datatable
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Mock(TestDomain)
 @TestFor(TestDomainController)

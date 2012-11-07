@@ -13,10 +13,9 @@ import org.grails.plugin.easygrid.datasource.GormDatasourceService
 import org.grails.plugin.easygrid.datasource.ListDatasourceService
 
 /**
- * User: Tudor
- * Date: 14.09.2012
- * Time: 14:02
- * See the API for {@link grails.test.mixin.web.GroovyPageUnitTestMixin} for usage instructions
+ * tests the taglib
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @TestFor(EasygridTagLib)
 class EasygridTagLibTests {

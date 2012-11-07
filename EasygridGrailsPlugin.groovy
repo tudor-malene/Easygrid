@@ -4,6 +4,7 @@ import org.grails.plugin.easygrid.builder.GridDelegate
 import org.grails.plugin.easygrid.builder.GridsDelegate
 import org.grails.plugin.easygrid.GridUtils
 import org.grails.plugin.easygrid.EasygridContextHolder
+import org.grails.plugin.easygrid.builder.AutocompleteDelegate
 
 class EasygridGrailsPlugin {
     // the plugin version
@@ -75,9 +76,14 @@ class EasygridGrailsPlugin {
             grailsApplication = ref('grailsApplication')
             it.scope = 'prototype'
         }
+        autocompleteDelegate(AutocompleteDelegate) {
+            grailsApplication = ref('grailsApplication')
+            it.scope = 'prototype'
+        }
         gridDelegate(GridDelegate) {
             grailsApplication = ref('grailsApplication')
             columnsDelegate = ref('columnsDelegate')
+            autocompleteDelegate = ref('autocompleteDelegate')
             it.scope = 'prototype'
         }
         gridsDelegate(GridsDelegate) {

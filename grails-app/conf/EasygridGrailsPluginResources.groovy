@@ -57,5 +57,12 @@ modules = {
                 nominify: true, disposition: 'head'
     }
 
+    'easygrid-selection' {
+        dependsOn 'easygrid-jqgrid'
+
+        resource id: 'js-selection', url: [plugin: 'easygrid', dir: "js/selection", file: "selectionWidget.js"],
+                nominify: true, disposition: 'head'
+    }
+
 
 }

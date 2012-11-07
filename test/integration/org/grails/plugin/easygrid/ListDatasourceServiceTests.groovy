@@ -5,9 +5,9 @@ import org.junit.Before
 import grails.test.mixin.TestFor
 
 /**
- * User: Tudor
- * Date: 05.10.2012
- * Time: 15:44
+ * list impl tests
+ *
+ * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @TestFor(TestDomainController)
 class ListDatasourceServiceTests extends AbstractServiceTest{

@@ -16,25 +16,6 @@ import org.codehaus.groovy.control.ConfigurationException
  */
 class GridUtils {
 
-/*
-    public static function encode($value)
-    {
-        if (is_string($value)) {
-            if (strpos($value, 'js:') === 0) return substr($value, 3); else   return '"' . self::quote($value) . '"';
-        } else if ($value === null) return "null"; else if (is_bool($value)) return $value ? "true" : "false"; else if (is_integer($value)) return "$value"; else if (is_float($value)) {
-            if ($value === -INF) return 'Number.NEGATIVE_INFINITY'; else if ($value === INF) return 'Number.POSITIVE_INFINITY'; else   return "$value";
-        } else if (is_object($value)) return self::encode(get_object_vars($value)); else if (is_array($value)) {
-        $es = array();
-        if (($n = count($value)) > 0 && array_keys($value) !== range(0, $n - 1)) {
-            foreach ($value as $prop => $val) $es[] = '"' . self::quote($prop) . '":' . self::encode($val);
-            return "{" . implode(',', $es) . "}";
-        } else {
-            foreach ($value as $val) $es[] = self::encode($val);
-            return "[" . implode(',', $es) . "]";
-        }
-    } else   return "";
-    }
-*/
 
     /**
      * copy the values from the first map to the second only if they are not defined first
@@ -129,6 +110,23 @@ class GridUtils {
      */
     static def getNestedPropertyValue(String expression, object) {
         expression.tokenize('.').inject object, {obj, prop -> obj[prop]}
+    }
+
+    /**
+     * iterates columns -
+     * @param grid
+     * @param closure
+     * @return
+     */
+    static def eachColumn(Grid grid, Closure closure){
+        grid.columns.findAll {col -> (EasygridContextHolder.params.selectionComp) ? col.showInSelection : true}.eachWithIndex { col, idx ->
+            switch (closure?.parameterTypes?.size()) {
+                case 1:
+                    return closure.call(col)
+                case 2:
+                    return closure.call(col, idx)
+            }
+        }
     }
 
 }

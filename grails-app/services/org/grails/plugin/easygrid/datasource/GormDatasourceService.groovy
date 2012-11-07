@@ -81,7 +81,7 @@ class GormDatasourceService {
 
             domainClass.properties.findAll {!(it.name in ['id', 'version'])}.sort {a, b -> a.name <=> b.name}
                     .each { GrailsDomainClassProperty prop ->
-                if(prop.isAssociation()){
+                if (prop.isAssociation()) {
                     return
                 }
                 def column = new Column()
@@ -117,6 +117,14 @@ class GormDatasourceService {
             createCriteria(filters).list(max: maxRows, offset: rowOffset, sort: sort, order: order)
         }
 
+    }
+
+    /**
+     * returns an element by id
+     * @param id
+     */
+    def getById(id) {
+        createCriteria([{params -> eq('id', params.id as long)}]).find()
     }
 
     /**
