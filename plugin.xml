@@ -11,6 +11,7 @@
     <resource>spring.resources</resource>
     <resource>org.grails.plugin.easygrid.TestDomainController</resource>
     <resource>org.grails.plugin.easygrid.TestDomain</resource>
+    <resource>org.grails.plugin.easygrid.AutocompleteService</resource>
     <resource>org.grails.plugin.easygrid.EasyGridExportService</resource>
     <resource>org.grails.plugin.easygrid.EasygridService</resource>
     <resource>org.grails.plugin.easygrid.datasource.CustomDatasourceService</resource>
@@ -38,14 +39,14 @@
       <plugin group='org.grails.plugins' name='cache' version='1.0.0' />
     </compile>
     <runtime>
-      <plugin group='org.grails.plugins' name='hibernate' version='2.1.0' />
-      <plugin group='org.grails.plugins' name='spring-security-core' version='1.2.7.3' />
       <plugin group='org.grails.plugins' name='export' version='1.5' />
-      <plugin group='org.grails.plugins' name='resources' version='1.1.6' />
-      <plugin group='org.grails.plugins' name='google-visualization' version='0.5.6' />
-      <plugin group='org.grails.plugins' name='jquery' version='1.7.2' />
-      <plugin group='org.grails.plugins' name='database-migration' version='1.1' />
       <plugin group='org.grails.plugins' name='jquery-ui' version='1.8.24' />
+      <plugin group='org.grails.plugins' name='spring-security-core' version='1.2.7.3' />
+      <plugin group='org.grails.plugins' name='google-visualization' version='0.5.6' />
+      <plugin group='org.grails.plugins' name='hibernate' version='2.1.0' />
+      <plugin group='org.grails.plugins' name='database-migration' version='1.1' />
+      <plugin group='org.grails.plugins' name='resources' version='1.1.6' />
+      <plugin group='org.grails.plugins' name='jquery' version='1.7.2' />
     </runtime>
     <build>
       <plugin group='org.grails.plugins' name='tomcat' version='2.1.0' />
