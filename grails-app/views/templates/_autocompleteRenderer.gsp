@@ -1,15 +1,30 @@
-%{--//todo - de pus numele calumea --}%
-<g:hiddenField id="${gridConfig.id}" name="${gridConfig.id}.id" value="${attrs.idValue}"/>
+<g:hiddenField id="${attrs.id}" name="${attrs.name}" />
 
 <script type="text/javascript">
     $(function() {
         // initialize with two customized options
-        $( "#${gridConfig.id}" ).selectionComp({
-            url_ajax_autocomp: "${createLink(controller: attrs.controller, action: "${gridConfig.id}AutocompleteResult")}",
-            url_ajax_selLabel: "${createLink(controller: attrs.controller, action: "${gridConfig.id}SelectionLabel")}",
-            url_ajax_tabel:    "${createLink(controller: attrs.controller, action: "${gridConfig.id}Html", params: [selectionComp:true])}",
-            gridName: "${gridConfig.id}"    ,
-            showAutocompleteBox: true
+        $( "#${attrs.id}" ).selectionComp({
+            urlAjaxAutocomp: "${createLink(controller: attrs.controller, action: "${attrs.gridName}AutocompleteResult")}",
+            urlAjaxSelLabel: "${createLink(controller: attrs.controller, action: "${attrs.gridName}SelectionLabel")}",
+            urlAjaxGrid:    "${createLink(controller: attrs.controller, action: "${attrs.gridName}Html", params: [selectionComp:true])}",
+            gridName: "${attrs.gridName}" ,
+            showAutocompleteBox: ${attrs.showAutocompleteBox},
+            staticConstraints: {
+                <g:each in="${attrs.staticConstraints}" >
+                    "${it.key}": "${it.value}",
+                </g:each>
+            },
+            dynamicConstraints: {
+                <g:each in="${attrs.dynamicConstraints}">
+                    "${it.key}": "${it.value}",
+                </g:each>
+            } ,
+            change: function(){
+                ${attrs.onChange}
+            },
+            title: '${message(code: attrs.title)}' ,
+            width: '${attrs.width}',
+            height: '${attrs.height}'
         });
     });
 </script>
