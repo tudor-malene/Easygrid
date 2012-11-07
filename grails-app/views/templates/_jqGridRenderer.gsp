@@ -1,9 +1,8 @@
 <jq:jquery>
-
-    jQuery("#${gridConfig.id}").jqGrid(
+    jQuery("#${gridConfig.id}_table").jqGrid(
             {
         datatype: 'json',
-        url: '${g.createLink(action: "${gridConfig.id}Rows")}',
+        url: '${g.createLink(action: "${gridConfig.id}Rows", params: [selectionComp:params.selectionComp])}',
     <g:each in="${gridConfig.jqgrid}" var="property">
         "${property.key}":${property.value},
     </g:each>
@@ -12,36 +11,37 @@
         cellurl: '${g.createLink(action: "${gridConfig.id}InlineEdit")}',
     </g:if>
     colNames: [
-    <g:each in="${gridConfig.columns}" var="col" status="idx">
-        '${message(code: col.label, default: col.label)}'<g:if test="${idx < gridConfig.columns.size() - 1}">,</g:if>
-    </g:each>
+    <grid:eachColumn gridConfig="${gridConfig}" >
+        '${message(code: col.label, default: col.label)}'<g:if test="${!last}">,</g:if>
+    </grid:eachColumn>
     ],
    colModel: [
-    <g:each in="${gridConfig.columns}" var="column">
-        {name:'${column.jqgrid.name}',
-        <g:findAll in="${column.jqgrid}" expr="${!(it.key in ['name', 'searchClosure'])}">
+    <grid:eachColumn gridConfig="${gridConfig}" >
+        {name:'${col.jqgrid.name}',
+        <g:findAll in="${col.jqgrid}" expr="${!(it.key in ['name', 'searchClosure'])}">
             "${it.key}":${it.value},
         </g:findAll>
         },
-    </g:each>
+    </grid:eachColumn>
     ],
    viewrecords: true,
    pager: '#${gridConfig.id}Pager',
     <g:if test="${gridConfig.inlineEdit}">
         onSelectRow: function(id){
-        jQuery("#${gridConfig.id}").jqGrid('editRow', id //, true
+
+            jQuery("#${gridConfig.id}_table").jqGrid('editRow', id //, true
                 , {
                     keys:true,
                     aftersavefunc:function (rowid, response) {
                     //todo
                     }
                 }
-        );
-    }
+            );
+        }
     </g:if>
     });
 
-    jQuery('#${gridConfig.id}').navGrid('#${gridConfig.id}Pager',
+    jQuery('#${gridConfig.id}_table').navGrid('#${gridConfig.id}Pager',
         {
             add: false,
             edit:false,
@@ -51,7 +51,7 @@
         });
 
 
-    jQuery('#${gridConfig.id}').filterToolbar(
+    jQuery('#${gridConfig.id}_table').filterToolbar(
         {
             autosearch: true,
             searchOnEnter: true
@@ -59,7 +59,6 @@
 
 </jq:jquery>
 
-<table id="${gridConfig.id}"></table>
-
+<table id="${gridConfig.id}_table"></table>
 <div id="${gridConfig.id}Pager"></div>
 
