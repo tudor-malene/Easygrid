@@ -1,8 +1,8 @@
 Easygrid
 =======================
 
-This plugin provides a convenient and agile way of defining a DataGrid
-
+This plugin provides a convenient and agile way of defining a DataGrid.
+It also provides a powerful selection widget ( a direct replacement for drop-boxes )
 
 
 Installation
@@ -21,8 +21,11 @@ The issues that Easygrid tackles are:
 - the logic for each grid resides in multiple places ( Controller, gsp ). Usually, in the controller, there's a different method for each aspect ( search, export, security, etc)
 - a lot of concerns are addressed programmatically, instead of declaratively (like search, formats )
 - duplicated code (javascript, gsp, controllers). Each project has to create individual mechanisms to address it.
+- combo-boxes are suitable only when the selected dataset is small. Easygrid proposes a custom widget based on the same mechanism of defining grids, where for selecting an element you open a grid (with pagination & filtering) in a dialog and select the desired element
 
-[Online demo](http://199.231.186.169:8080/easygrid/author/list?impl=datatables )
+
+[Online demo for different grids](http://199.231.186.169:8080/easygrid/author/list?impl=datatables )
+[Online demo for the selection component](http://199.231.186.169:8080/easygrid/book/create )
 
 Easygrid solves these problems by proposing a solution based on declarations & conventions.
 
@@ -38,6 +41,7 @@ Easygrid solves these problems by proposing a solution based on declarations & c
 - customizable html/javascript grid templates
 - built-in support for exporting to XLS ( using the exporter plugin )
 
+- Jquery-ui widget and custom tag for a powerful selection widget
 
 
 Concepts
@@ -266,14 +270,38 @@ Easygrid comes by default with a spring security implementation
 You can customize every aspect of the grid - because everything is a property and can be overriden
 
 
+#### Selection widget
+
+( currently works only for JqGrid & Gorm )
+
+You can expose any grid to be used to select elements by configuring an "autocomplete" section
+
+    autocomplete {
+        idProp 'id'                             // the id property
+        // labelProp 'name'                     // the label property
+        labelValue { val, params ->             //  or a closure
+            "${val.name} (${val.nationality})"
+        }
+        textBoxSearchClosure { params ->        // the closure called when a user inputs a text in the autocomplete input
+            ilike('name', "%${params.term}%")
+        }
+        constraintsSearchClosure { params ->    // the closure that will handle constraints defined in the taglib ( see example)
+            if (params.nationality) {
+                eq('nationality', params.nationality)
+            }
+        }
+    }
+
 
 Tablib:
 -------------
 
-Easygrid provies 2 taglibs:
+Easygrid provies the following tags:
 
 - <grid:grid id="grid id"> - will render the taglib
 - <grid:exportButton id="grid id"> - the export button
+
+- <grid:selection > - renders a powerful replacement for the standard combo-box see the taglib document
 
 
 Testing:
@@ -289,12 +317,6 @@ Testing:
 
 
 
-How to :
-----------
-
-1)
-
-2)
 
 
 Example application
@@ -309,7 +331,6 @@ Next features:
 
 - other grid implementations ( like TreeGrid , Yui datatable)
 - users should be able to select the columns they want to see ( & store these settings)
-- selection component ( drop down replacement )
 
 License
 -------

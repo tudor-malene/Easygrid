@@ -56,7 +56,7 @@ class EasygridTagLib {
      * @attr dynamicConstraints - a key-value pair of dynamic constraints that will be sent to the server ( the value will be a jquery selector - on which - at runtime the .val() method is called -and that is sent to the server.)
      * @attr disabled - disables the component
      */
-    def selectionComp = { attrs, body ->
+    def selection = { attrs, body ->
         attrs.disabled = attrs.disabled ? true : false;
         attrs.id = attrs.id ?: attrs.name;
         attrs.title = attrs.title ?: 'default.selectionComponent.title';
