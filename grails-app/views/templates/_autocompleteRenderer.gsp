@@ -1,4 +1,4 @@
-<g:hiddenField id="${attrs.id}" name="${attrs.name}" />
+<g:hiddenField id="${attrs.id}" name="${attrs.name}" value="${attrs.value}"/>
 
 <script type="text/javascript">
     $(function() {
@@ -26,5 +26,9 @@
             width: '${attrs.width}',
             height: '${attrs.height}'
         });
+
+        if($('#${attrs.id}').val()){
+            $( "#${attrs.id}" ).selectionComp('setLabel', $('#${attrs.id}').val());
+        }
     });
 </script>

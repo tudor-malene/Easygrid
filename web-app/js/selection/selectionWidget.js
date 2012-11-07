@@ -169,26 +169,32 @@ $(function() {
                     $('#'+thisWidget.options.gridName+'_table').jqGrid('setGridParam', {
                         onSelectRow: function(id){
                             //only for GORM
-                            jQuery.ajax({
-                                url:thisWidget.options.urlAjaxSelLabel,
-                                dataType: 'json',
-                                data:{
-                                    id:id
-                                },
-                                success:function (data) {
-                                    thisWidget.setValue(id, data[0].label);
-
-                                }, //over success
-                                error:function (error) {
-                                }
-                            });
+                            thisWidget.setLabel(id);
                             tag.dialog('close');
                             tag.remove();
                         }
                     });
                 }
             });
+        },
+
+        setLabel: function(id ){
+            var thisWidget = this;
+            jQuery.ajax({
+                url:this.options.urlAjaxSelLabel,
+                dataType: 'json',
+                data:{
+                    id:id
+                },
+                success:function (data) {
+                    thisWidget.setValue(id, data[0].label);
+
+                }, //over success
+                error:function (error) {
+                }
+            });
         }
+
     }); // end widget declaration
 });
 

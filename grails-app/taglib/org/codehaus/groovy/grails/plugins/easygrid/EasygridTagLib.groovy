@@ -43,6 +43,7 @@ class EasygridTagLib {
      * and a button which opens a dialog with a full grid ( with filtering) where you can select your desired value
      *
      * @attr name REQUIRED- the form property
+     * @attr value - the value of the form property ( the id )
      * @attr id -  the id of the hidden field( on which the jquery widget is attached)
      * @attr gridName REQUIRED-  the name of the grid to be used
      * @attr controller REQUIRED- the controller
