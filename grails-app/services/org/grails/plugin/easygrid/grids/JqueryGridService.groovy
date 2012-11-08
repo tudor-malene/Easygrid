@@ -3,12 +3,11 @@ package org.grails.plugin.easygrid.grids
 import grails.converters.JSON
 import groovy.util.logging.Log4j
 
-import org.springframework.validation.Errors
-import org.springframework.validation.ObjectError
-
 import org.grails.plugin.easygrid.Column
 import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.GridUtils
+import org.springframework.validation.Errors
+import org.springframework.validation.ObjectError
 
 @Log4j
 @Mixin(EasygridContextHolder)
@@ -110,13 +109,13 @@ class JqueryGridService {
         switch (params.oper) {
             case 'add':
                 oper = gridConfig.save ?: easygridService.dataSourceService.saveRow
-                break;
+                break
             case 'edit':
                 oper = gridConfig.update ?: easygridService.dataSourceService.updateRow
-                break;
+                break
             case 'del':
                 oper = gridConfig.del ?: easygridService.dataSourceService.delRow
-                break;
+                break
             default:
                 throw new RuntimeException("unknown oper: ${params.oper}")
         }
@@ -127,7 +126,7 @@ class JqueryGridService {
         def result = easygridService.guard(gridConfig, params.oper, oper)
 
         if (result != null) {
-            if (Errors.isAssignableFrom(result.class)) {
+            if (Errors.isAssignableFrom(result.getClass())) {
                 Errors errors = result
                 if (errors.hasErrors()) {
                     def err = []
@@ -141,5 +140,4 @@ class JqueryGridService {
             }
         }
     }
-
 }

@@ -3,20 +3,17 @@ package org.grails.plugin.easygrid.datasource
 import groovy.util.logging.Log4j
 
 import org.grails.plugin.easygrid.EasygridContextHolder
-import org.springframework.web.servlet.support.RequestContext
 import org.springframework.web.context.request.RequestContextHolder
 
 /**
  * Datasource implementation
  * the rows are stored in a context ( by default 'session')
  *
- *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Log4j
 @Mixin(EasygridContextHolder)
 class ListDatasourceService {
-
 
     def verifyGridConstraints(gridConfig) {
         def errors = []
@@ -142,5 +139,4 @@ class ListDatasourceService {
 
         ctx[gridConfig.attributeName]
     }
-
 }

@@ -1,7 +1,8 @@
 package org.grails.plugin.easygrid
 
-import org.codehaus.groovy.control.ConfigurationException
 import javax.servlet.http.HttpSession
+
+import org.codehaus.groovy.control.ConfigurationException
 import org.springframework.mock.web.MockHttpSession
 
 /**
@@ -11,8 +12,7 @@ import org.springframework.mock.web.MockHttpSession
  */
 class GridUtilsTest extends GroovyTestCase {
 
-
-    public void testCopyProperties() {
+    void testCopyProperties() {
 
         def to = [a: 1]
         GridUtils.copyProperties([a: 2, b: 2], to)
@@ -56,14 +56,13 @@ class GridUtilsTest extends GroovyTestCase {
 
     }
 
-    public void nestedPropertyValueTest(){
+    void nestedPropertyValueTest(){
         assertEquals 2, GridUtils.getNestedPropertyValue('b.ba',[a: 1, b: [ba: 2, bc: 3]])
         assertEquals 1, GridUtils.getNestedPropertyValue('a',[a: 1, b: [ba: 2, bc: 3]])
         assertEquals 1, GridUtils.getNestedPropertyValue('b.bb.bbb',[a: 1, b: [ba: 2, bc: 3, bb: [bbb: 1]]])
     }
 
-
-    public void testRestoreSearchParams(){
+    void testRestoreSearchParams(){
         HttpSession session = new MockHttpSession()
 
         //simulates a series of requests
@@ -82,9 +81,5 @@ class GridUtilsTest extends GroovyTestCase {
         params = 4
         assertEquals 4, GridUtils.restoreSearchParams(session, params, 'grid1')
 */
-
-
-
     }
-
 }

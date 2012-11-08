@@ -107,7 +107,7 @@ abstract class AbstractServiceTest {
             }
         }
 
-        EasygridContextHolder.session.listData = (1..200).collect {[col1: it, col2: "$it"]}
+        EasygridContextHolder.session.setAttribute('listData', (1..200).collect {[col1: it, col2: "$it"]})
 
         //initialize the list grid
         listGridConfig = generateConfigForGrid {

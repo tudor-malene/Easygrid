@@ -1,9 +1,10 @@
 package org.grails.plugin.easygrid
 
+import static org.junit.Assert.*
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
+
 import org.junit.Before
-import static org.junit.Assert.*
 
 /**
  * jqgrid impl tests
@@ -18,7 +19,6 @@ class JqgridServiceTests extends AbstractServiceTest {
     def domainGridConfig
     def testListGridSize = 200
 
-
     @Before
     void setUp() {
         super.setup()
@@ -31,7 +31,6 @@ class JqgridServiceTests extends AbstractServiceTest {
         }
     }
 
-
     void testJQGridConfig() {
         def controller = new TestDomainController()
 
@@ -43,7 +42,6 @@ class JqgridServiceTests extends AbstractServiceTest {
 //        assertEquals "'testDomain.id.label','testDomain.testIntProperty.label','testDomain.testStringProperty.label'", colNames
 //        assertEquals "{name:'id', width:40,fixed:true,editable:false,},{name:'testIntProperty', editable:true,},{name:'testStringProperty', editable:true,}", colModel
 //        assertEquals "width:300,height:150,", jqgridProperties
-
     }
 
     void testEditRow() {
@@ -99,8 +97,6 @@ class JqgridServiceTests extends AbstractServiceTest {
 //        assertEquals 5, gridElements.target.rows.size()
 //        assertEquals 111, gridElements.target.rows[0].cell[0]
 
-
-
         params.clear()
         easygridService.addDefaultValues(customGridConfig, defaultValues)
         gridElements = easygridService.gridData(customGridConfig)
@@ -131,19 +127,14 @@ class JqgridServiceTests extends AbstractServiceTest {
         assertEquals 10, gridElements.target.rows.size()
         assertEquals 11, gridElements.target.rows[0].cell[0]
         assertEquals 11, gridElements.target.rows[0].id
-
-
     }
-
 
     void testHtmlGridDefinition() {
         easygridService.addDefaultValues(customGridConfig, defaultValues)
-        def model = easygridService.htmlGridDefinition(customGridConfig);
+        def model = easygridService.htmlGridDefinition(customGridConfig)
         assertNotNull model
 
         assertNotNull model
         assertEquals customGridConfig, model.gridConfig
     }
-
-
 }

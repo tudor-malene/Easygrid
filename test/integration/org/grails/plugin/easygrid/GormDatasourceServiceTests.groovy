@@ -1,9 +1,10 @@
 package org.grails.plugin.easygrid
 
+import static org.junit.Assert.*
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
+
 import org.junit.Before
-import static org.junit.Assert.*
 
 /**
  * test the Gorm impl
@@ -82,9 +83,7 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
         }
 
         populateTestDomain(N)
-
     }
-
 
     void testCriteriaDataSource() {
         easygridService.addDefaultValues(criteriaGridConfig, defaultValues)
@@ -105,7 +104,6 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
         assertEquals 31, domainRows[0].testIntProperty
     }
 
-
     void testDomainDataSource() {
         easygridService.addDefaultValues(domainGridConfig, defaultValues)
 
@@ -125,7 +123,6 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
         assertEquals 41, domainRows[0].testIntProperty
     }
 
-
     void testGormSearch() {
         easygridService.addDefaultValues(domainGridConfig, defaultValues)
 
@@ -138,14 +135,11 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
                 gormDatasourceService.list([maxRows: 5, rowOffset: 5, sort: 'testIntProperty'], [domainGridConfig.columns[1].filterClosure]).collect {it.testIntProperty}.toArray()
         )
 
-
         params.testIntProperty = 100
         assertArrayEquals(
                 [100].toArray(),
                 gormDatasourceService.list([maxRows: 5,  sort: 'testIntProperty'], [domainGridConfig.columns[1].filterClosure, domainGridConfig.columns[2].filterClosure,]).collect {it.testIntProperty}.toArray())
-
     }
-
 
     void testGormDelete() {
         easygridService.addDefaultValues(domainGridConfig, defaultValues)
@@ -172,7 +166,6 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
         def instance = TestDomain.get(2)
         assertEquals(-2, instance.testIntProperty)
         assertEquals 'two', instance.testStringProperty
-
     }
 
     //add
@@ -189,5 +182,4 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
         def instance = TestDomain.get(101)
         assertEquals(101, instance.testIntProperty)
     }
-
 }

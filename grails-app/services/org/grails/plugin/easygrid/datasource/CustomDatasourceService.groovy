@@ -72,7 +72,5 @@ class CustomDatasourceService {
             default:
                 throw new IllegalArgumentException("illegal number of arguments for the dataCount closure: ${closure.parameterTypes?.size()}  ")
         }
-
     }
-
 }

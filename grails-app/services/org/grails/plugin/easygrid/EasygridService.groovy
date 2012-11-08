@@ -3,8 +3,6 @@ package org.grails.plugin.easygrid
 import groovy.util.logging.Log4j
 
 import org.codehaus.groovy.control.ConfigurationException
-import groovy.transform.WithWriteLock
-import groovy.transform.WithReadLock
 
 /**
  * main service class
@@ -13,7 +11,6 @@ import groovy.transform.WithReadLock
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-
 @Log4j
 @Mixin(EasygridContextHolder)
 class EasygridService {
@@ -23,14 +20,14 @@ class EasygridService {
     def grailsApplication
     def gridsDelegate
 
-    static def gridsCacheClosure
+    static gridsCacheClosure
 
     /**
      * constructs the configuration from the builder
      * @param controller - the annotated class which
      * @return
      */
-    def initGrids(controller) {
+    void initGrids(controller) {
         if (reloadGrids()) {
             log.debug('clear cache')
             gridsCacheClosure = initGridsClosure.memoize()
@@ -271,7 +268,7 @@ class EasygridService {
         }
 
         // apply the default value formats
-        def formatClosure = gridConfig.formats.find {clazz, closure -> clazz.isAssignableFrom(val.class)}?.value
+        def formatClosure = gridConfig.formats.find {clazz, closure -> clazz.isAssignableFrom(val.getClass())}?.value
         formatClosure ? formatClosure.call(val) : val
     }
 
@@ -308,9 +305,8 @@ class EasygridService {
         if (implService?.respondsTo('inlineEdit')) {
             implService.inlineEdit()
         } else {
-            throw new UnsupportedOperationException("Inline edit not implemented for ${gridConfig.gridImpl}");
+            throw new UnsupportedOperationException("Inline edit not implemented for ${gridConfig.gridImpl}")
         }
-
     }
 
     def export(gridConfig) {
@@ -382,7 +378,5 @@ class EasygridService {
         if (display) {
             action()
         }
-
     }
-
 }

@@ -1,10 +1,10 @@
 package org.grails.plugin.easygrid
 
+import static org.junit.Assert.*
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
-import org.junit.Before
 
-import static org.junit.Assert.*
+import org.junit.Before
 
 /**
  * tests the autocomplete feature
@@ -35,7 +35,6 @@ class AutocompleteTests extends AbstractServiceTest {
                 }
             }
         }
-
     }
 
     void testAutocompleteInit() {
@@ -44,7 +43,5 @@ class AutocompleteTests extends AbstractServiceTest {
 //        assertEquals 'testStringProperty', autocompleteGridConfig.autocomplete.codeProp
         assertEquals 'testStringProperty', autocompleteGridConfig.autocomplete.labelProp
         assertNotNull autocompleteGridConfig.autocomplete.textBoxFilterClosure
-
     }
-
 }

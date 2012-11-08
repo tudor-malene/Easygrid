@@ -1,8 +1,8 @@
 package org.grails.plugin.easygrid
 
+import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import org.springframework.core.NamedThreadLocal
 import org.springframework.web.context.request.RequestContextHolder
-import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 
 /**
  * utility class
@@ -15,45 +15,45 @@ import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 class EasygridContextHolder {
 
     // used to store the gridConfig between method calls
-    private static final ThreadLocal<Grid> gridConfigHolder = new NamedThreadLocal<Grid>("gridConfigHolder");
+    private static final ThreadLocal<Grid> gridConfigHolder = new NamedThreadLocal<Grid>("gridConfigHolder")
 
     // in case we need to work with an old set of parameters ( ex: exporting data already filtered , or returning from an add/update page )
-    private static final ThreadLocal restoredParamsHolder = new NamedThreadLocal("restoredParamsHolder");
+    private static final ThreadLocal restoredParamsHolder = new NamedThreadLocal("restoredParamsHolder")
 
     static Grid getGridConfig() {
         gridConfigHolder.get()
     }
 
-    def static setLocalGridConfig(config) {
+    static setLocalGridConfig(config) {
         gridConfigHolder.set(config)
     }
 
-    def static  storeParams(params) {
+    static  storeParams(params) {
         restoredParamsHolder.set(params)
     }
 
-    def static resetParams() {
+    static resetParams() {
         restoredParamsHolder.remove()
     }
 
-    static def getParams() {
+    static getParams() {
         def params = restoredParamsHolder.get()
         params ? params : RequestContextHolder.currentRequestAttributes().params
     }
 
-    static def getRequest() {
+    static getRequest() {
         RequestContextHolder.currentRequestAttributes().request
     }
 
-    static def getResponse() {
+    static getResponse() {
         RequestContextHolder.currentRequestAttributes().currentResponse
     }
 
-    static def getSession() {
+    static getSession() {
         RequestContextHolder.currentRequestAttributes().session
     }
 
-    static def getFlashScope() {
+    static getFlashScope() {
         RequestContextHolder.currentRequestAttributes().flashScope
     }
 
@@ -62,21 +62,20 @@ class EasygridContextHolder {
      * @param code
      * @return
      */
-    static def message(code){
+    static message(code){
         new ValidationTagLib().message(code: code)
     }
 
     // used for development
     private static reloadGrids = true
 
-    synchronized def reloadGrids() {
+    synchronized reloadGrids() {
         def old = reloadGrids
         reloadGrids = false
         old
     }
 
-    synchronized static def classReloaded() {
+    synchronized static classReloaded() {
         reloadGrids = true
     }
-
 }

@@ -28,9 +28,9 @@ easygrid {
                 return true
             }
             def grantedRoles
-            if (Map.class.isAssignableFrom(grid.roles.getClass())) {
+            if (Map.isAssignableFrom(grid.roles.getClass())) {
                 grantedRoles = grid.roles.findAll {op, role -> oper == op}.collect {op, role -> role}
-            } else if (List.class.isAssignableFrom(grid.roles.class)) {
+            } else if (List.isAssignableFrom(grid.roles.getClass())) {
                 grantedRoles = grid.roles
             } else {
                 grantedRoles = [grid.roles]
@@ -66,8 +66,8 @@ easygrid {
             gridImplService = org.grails.plugin.easygrid.grids.ClassicGridService
             inlineEdit = false
             formats = [
-                    (Date.class): {it.format("dd/MM/yyyy")},
-                    (Boolean.class): { it ? "Yes" : "No" }
+                    (Date): {it.format("dd/MM/yyyy")},
+                    (Boolean): { it ? "Yes" : "No" }
             ]
         }
 
@@ -77,9 +77,9 @@ easygrid {
             inlineEdit = true
             editRenderer = '/templates/jqGridEditResponse'
             formats = [
-                    (Date.class): {it.format("dd/MM/yyyy")},
-                    (Calendar.class): {Calendar cal ->cal.format("dd/MM/yyyy")},
-                    (Boolean.class): { it ? "Yes" : "No" }
+                    (Date): {it.format("dd/MM/yyyy")},
+                    (Calendar): {Calendar cal ->cal.format("dd/MM/yyyy")},
+                    (Boolean): { it ? "Yes" : "No" }
             ]
         }
 
@@ -88,8 +88,8 @@ easygrid {
             gridRenderer = '/templates/datatableGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date.class): {it.format("dd/MM/yyyy")},
-                    (Boolean.class): { it ? "Yes" : "No" }
+                    (Date): {it.format("dd/MM/yyyy")},
+                    (Boolean): { it ? "Yes" : "No" }
             ]
         }
 
@@ -98,7 +98,7 @@ easygrid {
             gridRenderer = '/templates/visualizationGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date.class): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal}, //wtf?
+                    (Date): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal}, //wtf?
             ]
         }
 

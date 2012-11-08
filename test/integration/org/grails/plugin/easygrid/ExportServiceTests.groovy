@@ -1,12 +1,13 @@
 package org.grails.plugin.easygrid
 
+import static org.junit.Assert.*
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
-import jxl.Workbook
-import jxl.Sheet
 import jxl.Cell
+import jxl.Sheet
+import jxl.Workbook
+
 import org.junit.Before
-import static org.junit.Assert.*
 
 /**
  * test the export feature
@@ -16,6 +17,7 @@ import static org.junit.Assert.*
 @Mock(TestDomain)
 @TestFor(TestDomainController)
 class ExportServiceTests extends AbstractServiceTest {
+
     //injected
     def easyGridExportService
 
@@ -59,8 +61,6 @@ class ExportServiceTests extends AbstractServiceTest {
         assertEquals '100', lastRow[1].contents
         assertEquals '100', lastRow[2].contents
 
-
         assertEquals 101, sheet.getRows()
     }
-
 }
