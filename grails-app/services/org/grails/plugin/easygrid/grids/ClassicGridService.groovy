@@ -60,8 +60,8 @@ class ClassicGridService {
 //        def searchParam = restoredParams.keySet().intersect(gridConfig.columns.collect {it.jqgrid.name }).find {1}
 
         // determine the search closure from the config
-//        Closure searchClosure = searchParam ? (gridConfig.columns.find {it.jqgrid.name == searchParam}?.jqgrid?.search) : null
-        Closure searchClosure = null
+//        Closure filterClosure = searchParam ? (gridConfig.columns.find {it.jqgrid.name == searchParam}?.jqgrid?.search) : null
+        Closure filterClosure = null
 
         def maxRows = restoredParams.max ? (restoredParams.max as int) : grailsApplication.config?.easygrid?.defaults?.defaultMaxRows
         assert maxRows
@@ -70,8 +70,8 @@ class ClassicGridService {
         def sort = params.sort
         def order = params.order
 
-        def nrRecords = easygridService.countRows(gridConfig, restoredParams, searchClosure)
-        def rows = easygridService.list(gridConfig, restoredParams, currentPage, maxRows, searchClosure, sort, order)
+        def nrRecords = easygridService.countRows(gridConfig, restoredParams, filterClosure)
+        def rows = easygridService.list(gridConfig, restoredParams, currentPage, maxRows, filterClosure, sort, order)
 
         // transform the list of elements to a jqGrid format - NOT
         def results = []

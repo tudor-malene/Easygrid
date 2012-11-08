@@ -21,14 +21,14 @@ class AutocompleteService {
     }
 
     def response(Grid grid) {
-        assert grid.autocomplete.textBoxSearchClosure
+        assert grid.autocomplete.textBoxFilterClosure
         easygridService.guard(grid) {
 
             //store the grid to threadLocal
             setLocalGridConfig(grid)
 
 //            [rowOffset: params.iDisplayStart as int, maxRows: maxRows, sort: sort, order: order]
-            easygridService.dataSourceService.list([rowOffset: 0, maxRows: 10], [grid.autocomplete.textBoxSearchClosure, grid.autocomplete.constraintsSearchClosure ]).collect {
+            easygridService.dataSourceService.list([rowOffset: 0, maxRows: 10], [grid.autocomplete.textBoxFilterClosure, grid.autocomplete.constraintsFilterClosure ]).collect {
                 [
                         label: getLabel(it),
                         id: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.idProp, it)

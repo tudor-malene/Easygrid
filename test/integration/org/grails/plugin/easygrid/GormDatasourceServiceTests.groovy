@@ -34,18 +34,18 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
                 }
                 'testStringProperty' {
                     property 'testStringProperty'
+                    filterClosure { params ->
+                        ilike('testStringProperty', "%${params.testStringProperty}%")
+                    }
                     jqgrid {
-                        searchClosure { params ->
-                            ilike('testStringProperty', "%${params.testStringProperty}%")
-                        }
                     }
                 }
                 'testIntProperty' {
                     property 'testIntProperty'
+                    filterClosure {  params ->
+                        eq('testIntProperty', params.'testIntProperty' as int)
+                    }
                     jqgrid {
-                        searchClosure {  params ->
-                            eq('testIntProperty', params.'testIntProperty' as int)
-                        }
                     }
                 }
             }
@@ -64,18 +64,18 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
                 }
                 'testStringProperty' {
                     property 'testStringProperty'
+                    filterClosure { params ->
+                        ilike('testStringProperty', "%${params.testStringProperty}%")
+                    }
                     jqgrid {
-                        searchClosure { params ->
-                            ilike('testStringProperty', "%${params.testStringProperty}%")
-                        }
                     }
                 }
                 'testIntProperty' {
                     property 'testIntProperty'
+                    filterClosure {  params ->
+                        eq('testIntProperty', params.'testIntProperty' as int)
+                    }
                     jqgrid {
-                        searchClosure {  params ->
-                            eq('testIntProperty', params.'testIntProperty' as int)
-                        }
                     }
                 }
             }
@@ -131,18 +131,18 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
 
         params.testStringProperty = 1
 
-        assertEquals 20, gormDatasourceService.countRows(domainGridConfig.columns[1].jqgrid.searchClosure )
+        assertEquals 20, gormDatasourceService.countRows(domainGridConfig.columns[1].filterClosure )
 
         assertArrayEquals(
                 [14, 15, 16, 17, 18].toArray(),
-                gormDatasourceService.list([maxRows: 5, rowOffset: 5, sort: 'testIntProperty'], [domainGridConfig.columns[1].jqgrid.searchClosure]).collect {it.testIntProperty}.toArray()
+                gormDatasourceService.list([maxRows: 5, rowOffset: 5, sort: 'testIntProperty'], [domainGridConfig.columns[1].filterClosure]).collect {it.testIntProperty}.toArray()
         )
 
 
         params.testIntProperty = 100
         assertArrayEquals(
                 [100].toArray(),
-                gormDatasourceService.list([maxRows: 5,  sort: 'testIntProperty'], [domainGridConfig.columns[1].jqgrid.searchClosure, domainGridConfig.columns[2].jqgrid.searchClosure,]).collect {it.testIntProperty}.toArray())
+                gormDatasourceService.list([maxRows: 5,  sort: 'testIntProperty'], [domainGridConfig.columns[1].filterClosure, domainGridConfig.columns[2].filterClosure,]).collect {it.testIntProperty}.toArray())
 
     }
 

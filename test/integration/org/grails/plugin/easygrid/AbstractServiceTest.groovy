@@ -62,11 +62,11 @@ abstract class AbstractServiceTest {
                 }
                 'author.name.label' {
                     property 'name'
+                    filterClosure {params ->
+                        ilike('name', "%${params.name}%")
+                    }
                     jqgrid {
                         editable true
-                        searchClosure {params ->
-                            ilike('name', "%${params.name}%")
-                        }
                     }
                     export {
                         width 100
@@ -74,10 +74,10 @@ abstract class AbstractServiceTest {
                 }
                 'author.nation.label' {
                     property 'nation'
+                    filterClosure {params ->
+                        ilike('nation', "%${params.nation}%")
+                    }
                     jqgrid {
-                        searchClosure {params ->
-                            ilike('nation', "%${params.nation}%")
-                        }
                     }
                 }
                 'author.age.label' {
@@ -86,22 +86,22 @@ abstract class AbstractServiceTest {
                             new Date().year - row.birthDate.time.year
                         }
                     }
+                    filterClosure {params ->
+                        eq('age', params.age as int)
+                    }
                     jqgrid {
                         name 'age'
                         width 110
-                        searchClosure {params ->
-                            eq('age', params.age as int)
-                        }
                     }
                 }
                 'author.birthDate.label' {
                     property 'birthDate'
                     formatName 'stdDateFormatter'
+                    filterClosure {params ->
+                        eq('birthDate', params.birthDate)
+                    }
                     jqgrid {
                         width 110
-                        searchClosure {params ->
-                            eq('birthDate', params.birthDate)
-                        }
                     }
                 }
             }
@@ -118,30 +118,27 @@ abstract class AbstractServiceTest {
             columns {
                 'list.col1.label' {
                     property 'col1'
+                    filterClosure {params, element ->
+                        element.col1 > params.min
+                    }
                     jqgrid {
                         editable true
-                        searchClosure {params, element ->
-                            element.col1 > params.min
-                        }
                     }
                 }
                 'list.col2.label' {
                     property 'col2'
+                    filterClosure { params, element ->
+                        element.col2.contains(params.col2)
+                    }
                     jqgrid {
-                        searchClosure { params, element ->
-//                            println '--------'
-//                            println element.col2
-//                            println params.col2
-                            element.col2.contains(params.col2)
-                        }
                     }
                 }
                 'list.col3.label' {
                     value {it.col1 * it.col1}
+                    filterClosure { params, element ->
+                    }
                     jqgrid {
                         name 'col3'
-                        searchClosure { params, element ->
-                        }
                     }
                 }
             }

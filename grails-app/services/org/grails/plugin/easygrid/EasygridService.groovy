@@ -3,6 +3,8 @@ package org.grails.plugin.easygrid
 import groovy.util.logging.Log4j
 
 import org.codehaus.groovy.control.ConfigurationException
+import groovy.transform.WithWriteLock
+import groovy.transform.WithReadLock
 
 /**
  * main service class
@@ -44,15 +46,17 @@ class EasygridService {
      */
     def initGridsClosure = { controller ->
 
-        log.debug("run init grids for ${controller}")
+        synchronized (controller) {
+            log.debug("run init grids for ${controller}")
 
-        //call the builder & add the default settings from the config
-        generateConfigForGrids(controller.grids).each {gridName, gridConfig ->
+            //call the builder & add the default settings from the config
+            generateConfigForGrids(controller.grids).each {gridName, gridConfig ->
 
-            gridConfig.id = gridName
+                gridConfig.id = gridName
 
-            //add default & types
-            addDefaultValues(gridConfig, grailsApplication?.config?.easygrid)
+                //add default & types
+                addDefaultValues(gridConfig, grailsApplication?.config?.easygrid)
+            }
         }
     }
 
@@ -184,7 +188,7 @@ class EasygridService {
                 implService.htmlGridDefinition(gridConfig)
             } else {
                 //disable inline editing in selection Mode
-                if(params.selectionComp){
+                if (params.selectionComp) {
                     gridConfig.inlineEdit = false
                 }
 
@@ -223,9 +227,9 @@ class EasygridService {
                 def listParams = implService.listParams()
 
 
-                if(params.selectionComp){
+                if (params.selectionComp) {
                     //add a new criteria
-                    filters.add gridConfig.autocomplete.constraintsSearchClosure
+                    filters.add gridConfig.autocomplete.constraintsFilterClosure
                 }
 
                 def rows = dataSourceService.list(listParams, filters)

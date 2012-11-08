@@ -13,16 +13,16 @@ class AutocompleteDelegate {
     def gridConfig
     def autocomplete
 
-    def textBoxSearchClosure(implClosure) {
-        autocomplete.textBoxSearchClosure = implClosure
+    def textBoxFilterClosure(implClosure) {
+        autocomplete.textBoxFilterClosure = implClosure
     }
 
     def labelValue(implClosure) {
         autocomplete.labelValue = implClosure
     }
 
-    def constraintsSearchClosure(implClosure) {
-        autocomplete.constraintsSearchClosure = implClosure
+    def constraintsFilterClosure(implClosure) {
+        autocomplete.constraintsFilterClosure = implClosure
     }
 
     def methodMissing(String property, value) {

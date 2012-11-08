@@ -93,7 +93,7 @@ class EasygridServiceTests extends AbstractServiceTest {
 
 //        assertEquals 4, customGridConfig.columns[1].size()
         assertEquals 'name', customGridConfig.columns[1].property
-        assertEquals 2, customGridConfig.columns[1].jqgrid.size()
+        assertEquals 1, customGridConfig.columns[1].jqgrid.size()
         assertEquals true, customGridConfig.columns[1].jqgrid.editable
         assertEquals 1, customGridConfig.columns[1].export.size()
         assertEquals 'author.name.label', customGridConfig.columns[1].label

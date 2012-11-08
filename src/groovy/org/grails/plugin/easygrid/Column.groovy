@@ -17,7 +17,12 @@ class Column {
     String formatName // one of the predefined formatters
     Closure formatter  //
 
-    def showInSelection
+    Closure filterClosure
+
+    /**
+     *  if selection is enabled for the grid - this flag decides if this column will be shown in the dialog
+     */
+    Boolean showInSelection
 
     //dynamic
     Map properties = [:]

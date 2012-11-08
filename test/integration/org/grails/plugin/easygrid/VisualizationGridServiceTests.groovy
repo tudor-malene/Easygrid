@@ -68,7 +68,7 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
                     values.sort {o1, o2 -> def x = o1.birthDate <=> o2.birthDate; (listParams.order == 'asc') ? x : -x}
                 }
             }
-            dataCount {searchClosure->
+            dataCount {filterClosure->
                 2
             }
             columns {

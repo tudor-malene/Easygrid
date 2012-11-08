@@ -18,7 +18,7 @@
    colModel: [
     <grid:eachColumn gridConfig="${gridConfig}" >
         {name:'${col.jqgrid.name}',
-        <g:findAll in="${col.jqgrid}" expr="${!(it.key in ['name', 'searchClosure'])}">
+        <g:findAll in="${col.jqgrid}" expr="${!(it.key in ['name'])}">
             "${it.key}":${it.value},
         </g:findAll>
         },

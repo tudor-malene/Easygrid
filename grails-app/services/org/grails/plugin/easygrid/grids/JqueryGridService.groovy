@@ -54,7 +54,7 @@ class JqueryGridService {
             // determine the search closure from the config
 //            searchParam ? (gridConfig.columns.find {it.jqgrid.name == searchParam}?.jqgrid?.search) : null
             searchParams.inject([]) {list, param ->
-                def closure = gridConfig.columns.find {col -> col.jqgrid.name == param}?.jqgrid?.searchClosure
+                def closure = gridConfig.columns.find {col -> col.jqgrid.name == param}?.filterClosure
                 closure ? (list + closure) : list
             }
 

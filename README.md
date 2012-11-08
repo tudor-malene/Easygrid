@@ -24,9 +24,7 @@ The issues that Easygrid tackles are:
 - combo-boxes are suitable only when the selected dataset is small. Easygrid proposes a custom widget based on the same mechanism of defining grids, where for selecting an element you open a grid (with pagination & filtering) in a dialog and select the desired element
 
 
-[Online demo for different grids](http://199.231.186.169:8080/easygrid/author/list?impl=datatables )
-
-[Online demo for the selection widget](http://199.231.186.169:8080/easygrid/book/create )
+[Online demo ](http://199.231.186.169:8080/easygrid)
 
 Easygrid solves these problems by proposing a solution based on declarations & conventions.
 
@@ -60,7 +58,7 @@ For each grid you need to configure the following aspects.
     - value ( could be a property of the datasource row, or a closure )
     - formatting
     - Optional specific grid implementation properties ( that will be available in the renderer)
-    - searchClosure - i case the grid support per column filtering - this closure will act as a filter ( will depend on the underlying datasource )
+    - filterClosure - i case the grid support per column filtering - this closure will act as a filter ( will depend on the underlying datasource )
 
 ####Optional:
 
@@ -98,11 +96,11 @@ Ex:  grid to display Authors with 4 columns: id, name, nation and birthdate
                 }
                 'author.name.label' {
                     property 'name'
+                    filterClosure {params ->
+                        ilike('name', "%${params.name}%")
+                    }
                     jqgrid {
                         editable true
-                        searchClosure {params ->
-                            ilike('name', "%${params.name}%")
-                        }
                     }
                     export {
                         width 100
@@ -110,10 +108,10 @@ Ex:  grid to display Authors with 4 columns: id, name, nation and birthdate
                 }
                 'author.nation.label' {
                     property 'nation'
+                    filterClosure {params ->
+                        ilike('nation', "%${params.nation}%")
+                    }
                     jqgrid {
-                        searchClosure {params ->
-                            ilike('nation', "%${params.nation}%")
-                        }
                     }
                 }
                 'author.age.label' {
@@ -130,11 +128,11 @@ Ex:  grid to display Authors with 4 columns: id, name, nation and birthdate
                 }
                 'author.birthDate.label' {
                     property 'birthDate'
+                    filterClosure {params ->
+                        eq('birthDate', params.birthDate)
+                    }
                     jqgrid {
                         width 110
-                        searchClosure {params ->
-                            eq('birthDate', params.birthDate)
-                        }
                     }
                 }
             }
@@ -231,9 +229,9 @@ Otherwise you can use the "value" closure, whose first parameter will be the act
 
 - Column view:
 Another important section of each column is the javascript implementation section.
-All the properties defined here except "searchClosure" will be available in the render template to be used in whatever way.
+All the properties defined here except "filterClosure" will be available in the render template to be used in whatever way.
 
-- "searchClosure" has a special treatment. It is a closure called after a search was made from the interface.
+- "filterClosure" has a special treatment. It is a closure called after a search was made from the interface.
 In case of grid type=domain, the search closure is actually a GORM CriteriaBuilder which will be passed to the list method of the domain.
 
 #### Export
@@ -283,10 +281,10 @@ You can expose any grid to be used to select elements by configuring an "autocom
         labelValue { val, params ->             //  or a closure
             "${val.name} (${val.nationality})"
         }
-        textBoxSearchClosure { params ->        // the closure called when a user inputs a text in the autocomplete input
+        textBoxFilterClosure { params ->        // the closure called when a user inputs a text in the autocomplete input
             ilike('name', "%${params.term}%")
         }
-        constraintsSearchClosure { params ->    // the closure that will handle constraints defined in the taglib ( see example)
+        constraintsFilterClosure { params ->    // the closure that will handle constraints defined in the taglib ( see example)
             if (params.nationality) {
                 eq('nationality', params.nationality)
             }

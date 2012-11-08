@@ -61,7 +61,7 @@ class EasygridTagLib {
         attrs.id = attrs.id ?: attrs.name;
         attrs.title = attrs.title ?: 'default.selectionComponent.title';
         attrs.width = attrs.width ?: 940;
-        attrs.height = attrs.width ?: 400;
+        attrs.height = attrs.height ?: 400;
         attrs.showAutocompleteBox = (attrs.showAutocompleteBox != null) ? attrs.showAutocompleteBox : true;
         attrs.disabled = (attrs.disabled != null) ? attrs.disabled : false;
 

@@ -54,16 +54,16 @@ string	sEcho	Information for DataTables to use for rendering.
 */
 
     def filters() {
-        def searchClosures = []
+        def filterClosures = []
         gridConfig.columns.findAll {it.datatable.search}.eachWithIndex {col, i ->
             if (params["bSearchable_$i"] && params["sSearch_$i"]) {
                 def val = params["sSearch_$i"]
                 println "val = $val"
-                searchClosures.add col.datatable.searchClosure
+                filterClosures.add col.filterClosure
                 params["${col.datatable.name}"] = val
             }
         }
-        searchClosures
+        filterClosures
     }
 
 

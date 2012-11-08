@@ -7,7 +7,7 @@
         'sPaginationType':'full_numbers',
         "fnInitComplete":function () {
             //hack - removes the filter div
-            $('#${gridConfig.id}_filter').remove();
+            $('#${gridConfig.id}_datatable_filter').remove();
             var oSettings = $('#${gridConfig.id}_datatable').dataTable().fnSettings();
             for (var i = 0; i < oSettings.aoPreSearchCols.length; i++) {
                 if (oSettings.aoPreSearchCols[i].sSearch.length > 0) {
