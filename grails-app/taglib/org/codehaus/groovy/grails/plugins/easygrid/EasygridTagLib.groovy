@@ -12,6 +12,7 @@ import org.grails.plugin.easygrid.GridUtils
 class EasygridTagLib {
 
     static namespace = "grid"
+
     def easygridService
     def grailsApplication
 
@@ -57,13 +58,13 @@ class EasygridTagLib {
      * @attr disabled - disables the component
      */
     def selection = { attrs, body ->
-        attrs.disabled = attrs.disabled ? true : false;
-        attrs.id = attrs.id ?: attrs.name;
-        attrs.title = attrs.title ?: 'default.selectionComponent.title';
-        attrs.width = attrs.width ?: 940;
-        attrs.height = attrs.height ?: 400;
-        attrs.showAutocompleteBox = (attrs.showAutocompleteBox != null) ? attrs.showAutocompleteBox : true;
-        attrs.disabled = (attrs.disabled != null) ? attrs.disabled : false;
+        attrs.disabled = attrs.disabled ? true : false
+        attrs.id = attrs.id ?: attrs.name
+        attrs.title = attrs.title ?: 'default.selectionComponent.title'
+        attrs.width = attrs.width ?: 940
+        attrs.height = attrs.height ?: 400
+        attrs.showAutocompleteBox = (attrs.showAutocompleteBox != null) ? attrs.showAutocompleteBox : true
+        attrs.disabled = (attrs.disabled != null) ? attrs.disabled : false
 
         out << render(plugin: 'easygrid', template: "/templates/autocompleteRenderer", model: [attrs: attrs])
     }
@@ -78,7 +79,6 @@ class EasygridTagLib {
         GridUtils.eachColumn(gridConfig) {col, idx ->
             out << body(col: col, idx: idx, last: (idx == gridConfig.columns.size() - 1))
         }
-
     }
 
     private Grid getGridConfig(attrs) {
@@ -86,5 +86,4 @@ class EasygridTagLib {
         assert instance
         instance.gridsConfig."${attrs.id}"
     }
-
 }

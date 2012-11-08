@@ -1,13 +1,14 @@
 package org.grails.plugin.easygrid.datasource
 
+import grails.gorm.DetachedCriteria
 import groovy.util.logging.Log4j
+
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
-import org.grails.plugin.easygrid.EasygridContextHolder
-import grails.gorm.DetachedCriteria
-import org.springframework.dao.DataIntegrityViolationException
-import org.grails.plugin.easygrid.Column
 import org.grails.datastore.mapping.query.api.Criteria
+import org.grails.plugin.easygrid.Column
+import org.grails.plugin.easygrid.EasygridContextHolder
+import org.springframework.dao.DataIntegrityViolationException
 
 /**
  * Datasource implementation for a GORM Domain class
@@ -116,7 +117,6 @@ class GormDatasourceService {
         listParams.with {
             createCriteria(filters).list(max: maxRows, offset: rowOffset, sort: sort, order: order)
         }
-
     }
 
     /**
@@ -136,7 +136,7 @@ class GormDatasourceService {
         createCriteria(filters).count()
     }
 
-    def Criteria createCriteria(filters) {
+    Criteria createCriteria(filters) {
         def initial = new DetachedCriteria(gridConfig.domainClass)
         initial = gridConfig.initialCriteria ? initial.and(gridConfig.initialCriteria) : initial
         filters.inject(initial) {criteria, searchCriteria ->
@@ -147,7 +147,7 @@ class GormDatasourceService {
     // inlineEdit implementations  - only works if domainClass is defined
 
     /**
-     * default method called on updating a grid element
+     * default closure called on updating a grid element
      * @param gridConfig
      * @param params
      * @param session
@@ -175,7 +175,7 @@ class GormDatasourceService {
     }
 
     /**
-     * default method  called on saving a new grid element
+     * default closure  called on saving a new grid element
      * @param gridConfig
      * @param params
      * @param session
@@ -189,7 +189,7 @@ class GormDatasourceService {
     }
 
     /**
-     * default method  called on deleting a grid element
+     * default closure called on deleting a grid element
      * @param gridConfig
      * @param params
      * @param session
@@ -209,5 +209,4 @@ class GormDatasourceService {
             return 'default.not.deleted.message'
         }
     }
-
 }

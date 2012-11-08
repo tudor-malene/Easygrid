@@ -1,9 +1,10 @@
 package org.grails.plugin.easygrid
 
+import static org.junit.Assert.*
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
+
 import org.junit.Before
-import static org.junit.Assert.*
 
 /**
  * test for the classic grid impl
@@ -38,5 +39,4 @@ class ClassicGridServiceTests extends  AbstractServiceTest{
 
         assertNotNull easygridService.htmlGridDefinition(classicDomainGridConfig)
     }
-
 }

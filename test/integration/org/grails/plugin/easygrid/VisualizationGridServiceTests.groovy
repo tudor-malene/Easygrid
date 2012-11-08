@@ -1,13 +1,15 @@
 package org.grails.plugin.easygrid
 
+import static org.junit.Assert.*
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
-import static org.junit.Assert.*
-import org.junit.Before
-import com.google.visualization.datasource.datatable.value.ValueType
 import groovy.time.TimeCategory
-import com.ibm.icu.util.GregorianCalendar
+
+import org.junit.Before
+
 import com.google.visualization.datasource.datatable.value.DateTimeValue
+import com.google.visualization.datasource.datatable.value.ValueType
+import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
 
 /**
@@ -28,9 +30,9 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
         super.setup()
 /*
         defaultValues.formats = [
-//            (Date.class): {it.format("dd/MM/yyyy")},
-                (Date.class): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(TimeZone.getTimeZone("GMT")); cal}, //wtf?
-//            (Boolean.class): { it ? "Yes" : "No" }
+//            (Date): {it.format("dd/MM/yyyy")},
+                (Date): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(TimeZone.getTimeZone("GMT")); cal}, //wtf?
+//            (Boolean): { it ? "Yes" : "No" }
         ]
 */
 
@@ -103,7 +105,6 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
                 }
             }
         }
-
     }
 
     void testSetup() {
@@ -124,7 +125,6 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
         def errors = easygridService.verifyGridConstraints(domainGridConfig)
         assertEquals 0, errors.size()
 
-
         visualizationGridService.filters()
         visualizationGridService.listParams()
 
@@ -137,22 +137,18 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
 //        assertEquals 1, gridDef.size()
 //        assertEquals N, gridDef.rows.size()
 //        assertEquals domainGridConfig, gridDef.gridConfig
-
     }
-
 
     void testValueTypes() {
 
         def cal = (com.ibm.icu.util.Calendar.getInstance())
         cal.setTimeZone(TimeZone.getTimeZone("GMT"))
         println new DateTimeValue(cal)
-
     }
 
     void testCustomVisConfig() {
 
         easygridService.addDefaultValues(customVisGridConfig, defaultValues)
-
 
         params.tq = 'order by `age` desc limit 10 offset 0'
         params.tqx = ''
@@ -162,8 +158,5 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
 
         def result = easygridService.gridData(customVisGridConfig)
         println result
-
     }
-
-
 }

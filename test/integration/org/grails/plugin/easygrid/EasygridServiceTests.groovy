@@ -1,10 +1,11 @@
 package org.grails.plugin.easygrid
 
-import org.junit.Before
 import static org.junit.Assert.*
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
+
 import org.codehaus.groovy.control.ConfigurationException
+import org.junit.Before
 
 /**
  * tests for the central service
@@ -14,7 +15,6 @@ import org.codehaus.groovy.control.ConfigurationException
 @Mock(TestDomain)
 @TestFor(TestDomainController)
 class EasygridServiceTests extends AbstractServiceTest {
-
 
     def domainGridConfig
     def err1GridConfig
@@ -31,7 +31,6 @@ class EasygridServiceTests extends AbstractServiceTest {
             dataSourceType 'domain'
             domainClass TestDomain
         }
-
 
         err1GridConfig = generateConfigForGrid {
             id 'err1GridConfig'
@@ -74,7 +73,6 @@ class EasygridServiceTests extends AbstractServiceTest {
         }
         assertEquals 'testDomainPrefix.testStringProperty.label', simpleGridConfig.columns[0].label
         assertEquals 'testDomainPrefix.testIntProperty.label', simpleGridConfig.columns[1].label
-
     }
 
     /**
@@ -167,15 +165,11 @@ class EasygridServiceTests extends AbstractServiceTest {
         assertEquals 'age', customGridConfig.columns[3].jqgrid.name
         assertEquals 'author.age.label', customGridConfig.columns[3].label
         assertNull customGridConfig.columns[3].property
-
-
     }
-
 
     void testDomainBuilderDynamicGeneration() {
 
         easygridService.addDefaultValues(domainGridConfig, defaultValues)
-
 
         assertNotNull domainGridConfig.columns
         assertEquals 3, domainGridConfig.columns.size()
@@ -189,7 +183,6 @@ class EasygridServiceTests extends AbstractServiceTest {
 
         assertEquals 'testStringProperty', domainGridConfig.columns[2].property
         assertEquals 'testStringProperty', domainGridConfig.columns[2].jqgrid.name
-
     }
 
     /// end default values tests-----------------
@@ -200,7 +193,7 @@ class EasygridServiceTests extends AbstractServiceTest {
 
 //        EasygridContextHolder.setLocalGridConfig(customGridConfig)
         easygridService.addDefaultValues(customGridConfig, defaultValues)
-        customGridConfig.formats = [(Calendar.class): {it.format("dd/MM/yyyy")}]
+        customGridConfig.formats = [(Calendar): {it.format("dd/MM/yyyy")}]
 
         assertEquals 'Fyodor Dostoyevsky', easygridService.valueOfColumn(customGridConfig.columns[1], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', age: 191, birthDate: new GregorianCalendar(1821, 10, 11)], -1)
 
@@ -212,9 +205,7 @@ class EasygridServiceTests extends AbstractServiceTest {
         //test valueOf on domain type
         easygridService.addDefaultValues(domainGridConfig, defaultValues)
         assertEquals 10, easygridService.valueOfColumn(domainGridConfig.columns[1], new TestDomain(testStringProperty: "aa", testIntProperty: 10), -1)
-
     }
-
 
     void testValueOfFieldForClosures() {
         assertEquals 191, easygridService.valueOfColumn(customGridConfig.columns[3], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', birthDate: new GregorianCalendar(1821, 10, 11)], -1)
@@ -222,13 +213,12 @@ class EasygridServiceTests extends AbstractServiceTest {
 
     /// end valueOfColumn tests-----------------
 
-
     void testSecurity() {
 
         easygridService.addDefaultValues(customGridConfig, defaultValues)
         customGridConfig.roles = 'admin1'
 
-        def model = easygridService.htmlGridDefinition(customGridConfig);
+        def model = easygridService.htmlGridDefinition(customGridConfig)
         assertNull model
 
         def gridElements = easygridService.gridData(customGridConfig)
@@ -236,7 +226,6 @@ class EasygridServiceTests extends AbstractServiceTest {
 
         TestDomain.list(sort: 'aa')
     }
-
 
     void testRestoreParamsScenario(){
 /*
@@ -266,9 +255,5 @@ class EasygridServiceTests extends AbstractServiceTest {
 //        5) ma intorc la grid ( vreau parametrii de la 3 )
 
 //        6) fac un export ( vreau parametrii de la 5)
-
-
-
     }
-
 }

@@ -1,8 +1,9 @@
 package org.grails.plugin.easygrid
 
 import static org.junit.Assert.*
-import org.junit.Before
 import grails.test.mixin.TestFor
+
+import org.junit.Before
 
 /**
  * test for the custom datasource
@@ -26,6 +27,4 @@ class CustomDatasourceServiceTests extends AbstractServiceTest {
 //        def rows = customDatasourceService.list(params)
 //        assertEquals 1, rows.size()
     }
-
-
 }

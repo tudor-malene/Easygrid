@@ -3,7 +3,6 @@
 #################
 
 *.pydevproject
-.project
 .metadata
 bin/
 tmp/
@@ -12,7 +11,6 @@ tmp/
 *.swp
 *~.nib
 local.properties
-.classpath
 .settings/
 .loadpath
 
@@ -136,9 +134,7 @@ Desktop.ini
 /web-app/WEB-INF
 
 # IDE support files
-/.classpath
 /.launch
-/.project
 /.settings
 /*.launch
 /*.tmproj
@@ -163,11 +159,6 @@ Desktop.ini
 
 # plugin release file
 /*.zip
-
-# older plugin install locations
-/plugins
-/web-app/plugins
-/web-app/WEB-INF/classes
 
 # "temporary" build files
 /target

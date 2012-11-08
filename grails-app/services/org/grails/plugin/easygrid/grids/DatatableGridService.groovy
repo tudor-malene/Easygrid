@@ -1,8 +1,9 @@
 package org.grails.plugin.easygrid.grids
 
 import grails.converters.JSON
-import org.grails.plugin.easygrid.EasygridContextHolder
+
 import org.grails.plugin.easygrid.Column
+import org.grails.plugin.easygrid.EasygridContextHolder
 
 /**
  * implementation for Datatable
@@ -120,5 +121,4 @@ array	aaData	The data in a 2D array. Note that you can change the name of this p
                 }
         ] as JSON
     }
-
 }

@@ -13,6 +13,7 @@ import de.andreasschmitt.export.builder.ExcelBuilder
 class EasyGridExportService {
 
     static transactional = false
+
     def easygridService
     def grailsApplication
 
@@ -70,5 +71,4 @@ class EasyGridExportService {
         }
         builder.write()
     }
-
 }

@@ -1,8 +1,9 @@
 package org.grails.plugin.easygrid
 
 import static org.junit.Assert.*
-import org.junit.Before
 import grails.test.mixin.TestFor
+
+import org.junit.Before
 
 /**
  * list impl tests

@@ -25,11 +25,9 @@ class TestGridService {
         println 'addDefaultValues'
     }
 
-
     def filters() {
         println 'filters'
     }
-
 
     def listParams() {
         def result = [:]
@@ -39,6 +37,4 @@ class TestGridService {
     def transform(rows, nrRecords, listParams) {
         rows
     }
-
-
 }

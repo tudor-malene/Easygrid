@@ -16,16 +16,14 @@ import org.codehaus.groovy.control.ConfigurationException
  */
 class GridUtils {
 
-
     /**
      * copy the values from the first map to the second only if they are not defined first
      * works on n levels
      * @param from
      * @param to
      * @param level - on how many level to copy ( -1 = infinite)
-     * @return
      */
-    static def copyProperties(from, to, level = -1) {
+    static void copyProperties(from, to, level = -1) {
         from.each { prop, val ->
             if ((val instanceof Map)) {
                 if (level <= -1 || level > 1) {
@@ -48,7 +46,7 @@ class GridUtils {
      * @param config
      * @return
      */
-    static def findImplementations(Map config) {
+    static findImplementations(Map config) {
         config.gridImplementations.collect {it.key}
     }
 
@@ -60,9 +58,8 @@ class GridUtils {
      * @param session
      * @param params
      * @param id
-     * @return
      */
-    static def restoreSearchParams() {
+    static void restoreSearchParams() {
         String searchParamsAttrName = "searchParams_${EasygridContextHolder.gridConfig.id}".toString()
 
         if (EasygridContextHolder.session.getAttribute('restoreLastSearch')) {
@@ -77,16 +74,15 @@ class GridUtils {
 
     /**
      * when exporting a table or returning from an add/update screen and you want to save the old search use this
-     * @return
      */
-    static def markRestorePreviousSearch() {
+    static void markRestorePreviousSearch() {
         EasygridContextHolder.session.setAttribute('restoreLastSearch', true)
     }
 
     /**
      * workaround for bug - http://jira.grails.org/browse/GRAILS-8652
      */
-    static def addMixins() {
+    static void addMixins() {
         EasygridService.mixin EasygridContextHolder
         ClassicGridService.mixin EasygridContextHolder
         VisualizationGridService.mixin EasygridContextHolder
@@ -102,13 +98,13 @@ class GridUtils {
     }
 
     /**
-     * hack to navigate neste objects
+     * hack to navigate nested objects
      *
      * @param expression
      * @param object
      * @return
      */
-    static def getNestedPropertyValue(String expression, object) {
+    static getNestedPropertyValue(String expression, object) {
         expression.tokenize('.').inject object, {obj, prop -> obj[prop]}
     }
 
@@ -118,7 +114,7 @@ class GridUtils {
      * @param closure
      * @return
      */
-    static def eachColumn(Grid grid, Closure closure){
+    static eachColumn(Grid grid, Closure closure){
         grid.columns.findAll {col -> (EasygridContextHolder.params.selectionComp) ? col.showInSelection : true}.eachWithIndex { col, idx ->
             switch (closure?.parameterTypes?.size()) {
                 case 1:
@@ -128,5 +124,4 @@ class GridUtils {
             }
         }
     }
-
 }

@@ -1,14 +1,12 @@
 package org.grails.plugin.easygrid.builder
 
 import org.grails.plugin.easygrid.Column
-import groovy.text.SimpleTemplateEngine
 
 /**
  * builder for the 'columns' section
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-
 class ColumnsDelegate {
 
     //injected
@@ -42,6 +40,4 @@ class ColumnsDelegate {
         def column = new Column(label: label, property: name)
         columns.add(column)
     }
-
-
 }

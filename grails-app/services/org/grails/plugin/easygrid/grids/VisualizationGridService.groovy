@@ -1,5 +1,9 @@
 package org.grails.plugin.easygrid.grids
 
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
+import org.grails.plugin.easygrid.Column
+import org.grails.plugin.easygrid.EasygridContextHolder
+
 import com.google.visualization.datasource.DataSourceHelper
 import com.google.visualization.datasource.DataSourceRequest
 import com.google.visualization.datasource.datatable.ColumnDescription
@@ -9,10 +13,6 @@ import com.google.visualization.datasource.datatable.TableRow
 import com.google.visualization.datasource.datatable.value.ValueType
 import com.google.visualization.datasource.query.Query
 import com.google.visualization.datasource.query.SortOrder
-import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
-
-import org.grails.plugin.easygrid.Column
-import org.grails.plugin.easygrid.EasygridContextHolder
 
 /**
  * service class that implements the google visualization grid
@@ -38,7 +38,6 @@ class VisualizationGridService {
         column.visualization.valueType = getValueType(prop.type)
     }
 
-
     def addDefaultValues(Map defaultValues) {
         gridConfig.columns.each {Column column ->
             if (column?.visualization?.name == null) {
@@ -53,8 +52,6 @@ class VisualizationGridService {
         }
     }
 
-
-
     def filters() {
         if (params._filter) {
             def searchParams = params.findAll {k, v -> v}.collect {k, v -> k}.intersect(gridConfig.columns.collect {it.visualization.name })
@@ -63,10 +60,8 @@ class VisualizationGridService {
                 def closure = gridConfig.columns.find {col -> col.visualization.name == param}?.filterClosure
                 closure ? (list + closure) : list
             }
-
         }
     }
-
 
     def listParams() {
 
@@ -89,7 +84,6 @@ class VisualizationGridService {
         DataTable dataTable = createDataTable(rows)
         DataSourceHelper.generateResponse(dataTable, new DataSourceRequest(request))
     }
-
 
     def createDataTable(rows) {
         DataTable dataTable = new DataTable()
@@ -116,7 +110,7 @@ class VisualizationGridService {
             gridConfig.columns.eachWithIndex { Column col, idx ->
                 def val = easygridService.valueOfColumn(col, element, idx + 1)
                 //hack - createValue only takes strings
-                val = GString.isAssignableFrom(val.class) ? val.toString() : val
+                val = GString.isAssignableFrom(val.getClass()) ? val.toString() : val
                 TableCell cell = new TableCell(col.visualization.valueType.createValue(val))
                 row.addCell(cell)
             }
@@ -127,18 +121,16 @@ class VisualizationGridService {
         dataTable
     }
 
-
     private ValueType getValueType(Class type) {
         if (type == Boolean || type == boolean) {
             return ValueType.BOOLEAN
-        } else if (Number.isAssignableFrom(type) || (type.isPrimitive() && type != boolean)) {
-            return ValueType.NUMBER
-        } else if (type == Date || type == java.sql.Date || type == java.sql.Time || type == Calendar) {
-            return ValueType.DATE
-        } else {
-            return ValueType.TEXT
         }
-
+        if (Number.isAssignableFrom(type) || (type.isPrimitive() && type != boolean)) {
+            return ValueType.NUMBER
+        }
+        if (type == Date || type == java.sql.Date || type == java.sql.Time || type == Calendar) {
+            return ValueType.DATE
+        }
+        return ValueType.TEXT
     }
-
 }

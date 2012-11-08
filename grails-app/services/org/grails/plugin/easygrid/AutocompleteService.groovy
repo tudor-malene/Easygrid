@@ -1,7 +1,7 @@
 package org.grails.plugin.easygrid
 
-import groovy.util.logging.Log4j
 import grails.converters.JSON
+import groovy.util.logging.Log4j
 
 /**
  * Autocomplete service
@@ -46,13 +46,10 @@ class AutocompleteService {
             setLocalGridConfig(grid)
 
             easygridService.dataSourceService.getById(params.id).collect {
-                [
-                        label: getLabel(it)
-                ]
+                [label: getLabel(it)]
             } as JSON
         }
     }
-
 
     def getLabel(element){
         if(gridConfig.autocomplete.labelProp){
@@ -67,6 +64,4 @@ class AutocompleteService {
             }
         }
     }
-
 }
-

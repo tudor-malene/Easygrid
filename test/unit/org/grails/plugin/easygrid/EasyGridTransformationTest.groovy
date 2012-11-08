@@ -7,8 +7,7 @@ package org.grails.plugin.easygrid
  */
 class EasyGridTransformationTest extends GroovyTestCase {
 
-
-    public void testMethodsAdded() {
+    void testMethodsAdded() {
 
         def c = new GroovyClassLoader().parseClass('''
             package com.example
@@ -34,7 +33,6 @@ class EasyGridTransformationTest extends GroovyTestCase {
                     }
                 }
             }
-
         ''')
 
         def instance = c.newInstance()
@@ -57,8 +55,5 @@ class EasyGridTransformationTest extends GroovyTestCase {
 
         assert instance.respondsTo('testGridHtml')
         assert instance.respondsTo('visGridHtml')
-
     }
-
-
 }

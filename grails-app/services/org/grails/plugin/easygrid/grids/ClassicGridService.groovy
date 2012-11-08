@@ -1,6 +1,7 @@
 package org.grails.plugin.easygrid.grids
 
 import groovy.util.logging.Log4j
+
 import org.grails.plugin.easygrid.EasygridContextHolder
 
 /**
@@ -17,7 +18,6 @@ class ClassicGridService {
 
     def grailsApplication
     def easygridService
-
 
     def htmlGridDefinition(gridConfig) {
         [gridConfig: gridConfig, rows: easygridService.gridData(gridConfig)]
@@ -86,5 +86,4 @@ class ClassicGridService {
         [rows: results, page: currentPage, records: nrRecords, total: Math.ceil(nrRecords / maxRows) as int]
     }
 */
-
 }

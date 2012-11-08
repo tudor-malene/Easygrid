@@ -1,5 +1,6 @@
-package org.grails.plugin.easygrid;
+package org.grails.plugin.easygrid
 
+import groovy.util.logging.Log4j
 
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.ClassNode
@@ -8,8 +9,6 @@ import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
-import groovy.util.logging.Log4j
-import org.codehaus.groovy.ast.expr.ClosureExpression
 
 /**
  * AST transformation that adds specific grid methods to annotated controllers
@@ -18,13 +17,10 @@ import org.codehaus.groovy.ast.expr.ClosureExpression
  */
 @Log4j
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
-public class EasyGridASTTransformation extends AbstractASTTransformation {
+class EasyGridASTTransformation extends AbstractASTTransformation {
 
-    public EasyGridASTTransformation() {
-    }
-
-    public void visit(ASTNode[] nodes, SourceUnit source) {
-        init(nodes, source);
+    void visit(ASTNode[] nodes, SourceUnit source) {
+        init(nodes, source)
         addGridStuff(nodes[1])
     }
 
@@ -33,7 +29,7 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
      * @param source
      * @return
      */
-    def addGridStuff(ClassNode source) {
+    void addGridStuff(ClassNode source) {
         def phase = CompilePhase.SEMANTIC_ANALYSIS
 
         def gridNames = []
@@ -43,7 +39,6 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
         source.getField('grids').initialExpression.code.statements.each {
             gridNames.add it.expression.method.value
         }
-
 
         try {
             //inject services & init method
@@ -58,18 +53,18 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
                         // added getters and setters  - because autowiring doesn't work without. (why?)
                         def easygridService
                         public EasygridService getEasygridService(){
-                            return easygridService;
+                            return easygridService
                         }
                         public void setEasygridService(EasygridService easygridService){
-                            this.easygridService=easygridService;
+                            this.easygridService=easygridService
                         }
 
                         def autocompleteService
                         public AutocompleteService getAutocompleteService(){
-                            return autocompleteService;
+                            return autocompleteService
                         }
                         public void setAutocompleteService(AutocompleteService autocompleteService){
-                            this.autocompleteService=autocompleteService;
+                            this.autocompleteService=autocompleteService
                         }
 
                         def getGridsConfig(){
@@ -131,7 +126,7 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
 //                               render(template: gridsConfig['${gridName}'].editRenderer, model: result?.model)
                                render(template: gridsConfig['${gridName}'].editRenderer)
                           }else{
-                            throw new UnsupportedOperationException("Inline edit not available for this type of grid: ${gridName}");
+                            throw new UnsupportedOperationException("Inline edit not available for this type of grid: ${gridName}")
                           }
                         }
 
@@ -140,7 +135,7 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
                           if(autocompleteService.supportsAutocomplete(gridsConfig['${gridName}'])){
                               render autocompleteService.response(gridsConfig['${gridName}'])
                           }else{
-                            throw new UnsupportedOperationException("Autocomplete not available for this grid: ${gridName}");
+                            throw new UnsupportedOperationException("Autocomplete not available for this grid: ${gridName}")
                           }
                         }
 
@@ -148,11 +143,9 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
                           if(autocompleteService.supportsAutocomplete(gridsConfig['${gridName}'])){
                               render autocompleteService.label(gridsConfig['${gridName}'])
                           }else{
-                            throw new UnsupportedOperationException("Autocomplete not available for this grid: ${gridName}");
+                            throw new UnsupportedOperationException("Autocomplete not available for this grid: ${gridName}")
                           }
                         }
-
-
                     }
                     /$)
                 gridAst[1].methods.each {
@@ -160,7 +153,6 @@ public class EasyGridASTTransformation extends AbstractASTTransformation {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace()
             log.error("error adding grid methods to: ${source.nameWithoutPackage}", e)
             throw e
         }
