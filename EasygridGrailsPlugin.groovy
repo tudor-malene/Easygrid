@@ -7,22 +7,18 @@ import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.builder.AutocompleteDelegate
 
 class EasygridGrailsPlugin {
+
     // the plugin version
     def version = "0.9.9"
 
-//    static JQGRID_VERSION = "4.4.0"
-//    static DATATABLES_VERSION = "1.9.3"
-
-    // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.0 > *"
+
     // the other plugins this plugin depends on
-//    todo?
 //    def dependsOn = ['jquery-ui': "1.8.14 > *", 'export': "1.3 > *", 'google-visualization': "0.5.2 > *"]
     def dependsOn = [:]
 
     def loadAfter = ['services', 'controllers']
 
-//    def dependsOn = [:]
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp",
@@ -41,27 +37,14 @@ class EasygridGrailsPlugin {
     def authorEmail = "tudor.malene@gmail.com"
     def description = '''\
         EasyGrid provides a convenient and agile way of defining Data Grids.
+        And also a powerful selection widget.
     '''
 
-    // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/easygrid"
-
-    // Extra (optional) plugin metadata
-
-    // License: one of 'APACHE', 'GPL2', 'GPL3'
-//    def license = "APACHE"
-
-    // Details of company behind the plugin (if there is one)
-//    def organization = [ name: "My Company", url: "http://www.my-company.com/" ]
-
-    // Any additional developers beyond the author specified above.
-//    def developers = [ [ name: "Joe Bloggs", email: "joe@bloggs.net" ]]
-
-    // Location of the plugin's issue tracker.
-//    def issueManagement = [ system: "JIRA", url: "http://jira.grails.org/browse/GPMYPLUGIN" ]
-
-    // Online location of the plugin's browseable source code.
+    def documentation = "https://github.com/tudor-malene/Easygrid"
+    def license = "APACHE"
+    def issueManagement = [ system: "GITHUB", url: "https://github.com/tudor-malene/Easygrid/issues" ]
     def scm = [ url: "https://github.com/tudor-malene/Easygrid" ]
+
 
     def doWithWebDescriptor = { xml ->
     }
