@@ -10,6 +10,9 @@ Installation
 
     grails install-plugin easygrid
 
+    For minimum functionality you need: jquery-ui and export plugins.
+    For google visualization you also need: google-visualization
+    For the default security implementation you need spring-security.
 
 
 Overview
