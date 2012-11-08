@@ -25,9 +25,9 @@ class EasygridService {
     /**
      * constructs the configuration from the builder
      * @param controller - the annotated class which
-     * @return
+     * @return the grid
      */
-    void initGrids(controller) {
+    def initGrids(controller) {
         if (reloadGrids()) {
             log.debug('clear cache')
             gridsCacheClosure = initGridsClosure.memoize()
