@@ -28,9 +28,9 @@ class EasygridGrailsPlugin {
             'grails-app/views/templates/_testGridRenderer.gsp',
     ]
 
-    def watchedResources = ["file:./grails-app/controllers/**/*Controller.groovy","file:./grails-app/services/**/*Service.groovy",]
+    def watchedResources = []
 
-    def observe = ["controllers"]
+    def observe = ["controllers", "services"]
 
     def title = "Easygrid Plugin"
     def author = "Tudor Malene"
