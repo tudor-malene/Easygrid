@@ -40,14 +40,12 @@ class EasygridService {
             memoizeGrids(controller)
         } else {
             log.debug('use cache')
+            // do this to avoid NPE  in the rare case when - after a reload - a thread has not acquired the writeLock yet but is in the other if branch
+            while(!gridsCacheClosure){
+                sleep(2)
+            }
             readLock.lock()
             try {
-
-                // do this to avoid NPE  in the rare case when - after a reload - a thread has not acquired the writeLock yet but is in the other if branch
-                while(!gridsCacheClosure){
-                    sleep(2)
-                }
-
                 gridsCacheClosure(controller)
             } finally {
                 readLock.unlock()
