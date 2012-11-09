@@ -8,7 +8,7 @@ import org.grails.plugin.easygrid.builder.AutocompleteDelegate
 
 class EasygridGrailsPlugin {
 
-    def version = "0.9.9"
+    def version = "0.9.9.1"
 
     def grailsVersion = "2.0 > *"
 
