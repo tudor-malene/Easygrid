@@ -3,6 +3,7 @@ package org.grails.plugin.easygrid
 import groovy.util.logging.Log4j
 
 import org.codehaus.groovy.control.ConfigurationException
+import java.util.concurrent.locks.*
 
 /**
  * main service class
@@ -22,19 +23,50 @@ class EasygridService {
 
     static gridsCacheClosure
 
+    private final ReadWriteLock initLock = new ReentrantReadWriteLock();
+    private final Lock readLock = initLock.readLock();
+    private final Lock writeLock = initLock.writeLock();
+
     /**
      * constructs the configuration from the builder
      * @param controller - the annotated class which
-     * @return the grid
+     * @return the initialized grids structure for the controller
      */
     def initGrids(controller) {
+
         if (reloadGrids()) {
             log.debug('clear cache')
-            gridsCacheClosure = initGridsClosure.memoize()
-            gridsCacheClosure(controller)
+            //clear or initialize the cache
+            memoizeGrids(controller)
         } else {
             log.debug('use cache')
+            readLock.lock()
+            try {
+
+                // do this to avoid NPE  in the rare case when - after a reload - a thread has not acquired the writeLock yet but is in the other if branch
+                while(!gridsCacheClosure){
+                    sleep(2)
+                }
+
+                gridsCacheClosure(controller)
+            } finally {
+                readLock.unlock()
+            }
+        }
+    }
+
+    /**
+     * write protected method that initializes the grids for a controller
+     * @param controller
+     * @return   the initialized grids structure
+     */
+    def memoizeGrids(controller) {
+        writeLock.lock()
+        try {
+            gridsCacheClosure = initGridsClosure.memoize()
             gridsCacheClosure(controller)
+        } finally {
+            writeLock.unlock()
         }
     }
 
@@ -42,18 +74,15 @@ class EasygridService {
      * closure that initializes the grids defined in a controller
      */
     def initGridsClosure = { controller ->
+        log.debug("run init grids for ${controller}")
 
-        synchronized (controller) {
-            log.debug("run init grids for ${controller}")
+        //call the builder & add the default settings from the config
+        generateConfigForGrids(controller.grids).each {gridName, gridConfig ->
 
-            //call the builder & add the default settings from the config
-            generateConfigForGrids(controller.grids).each {gridName, gridConfig ->
+            gridConfig.id = gridName
 
-                gridConfig.id = gridName
-
-                //add default & types
-                addDefaultValues(gridConfig, grailsApplication?.config?.easygrid)
-            }
+            //add default & types
+            addDefaultValues(gridConfig, grailsApplication?.config?.easygrid)
         }
     }
 

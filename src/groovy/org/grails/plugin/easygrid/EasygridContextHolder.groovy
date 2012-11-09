@@ -3,6 +3,10 @@ package org.grails.plugin.easygrid
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import org.springframework.core.NamedThreadLocal
 import org.springframework.web.context.request.RequestContextHolder
+import groovy.util.logging.Log4j
+import java.util.concurrent.locks.ReadWriteLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import java.util.concurrent.locks.Lock
 
 /**
  * utility class
@@ -12,6 +16,7 @@ import org.springframework.web.context.request.RequestContextHolder
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
+@Log4j
 class EasygridContextHolder {
 
     // used to store the gridConfig between method calls
@@ -28,7 +33,7 @@ class EasygridContextHolder {
         gridConfigHolder.set(config)
     }
 
-    static  storeParams(params) {
+    static storeParams(params) {
         restoredParamsHolder.set(params)
     }
 
@@ -62,20 +67,39 @@ class EasygridContextHolder {
      * @param code
      * @return
      */
-    static message(code){
+    static message(code) {
         new ValidationTagLib().message(code: code)
     }
 
-    // used for development
-    private static reloadGrids = true
 
-    synchronized reloadGrids() {
-        def old = reloadGrids
-        reloadGrids = false
-        old
+    // used for development - reload grids when modifying controllers or services
+    private static reloadGrids = true
+    private static final ReadWriteLock reloadLock = new ReentrantReadWriteLock();
+    private static final Lock readLock = reloadLock.readLock();
+    private static final Lock writeLock = reloadLock.writeLock();
+
+    def reloadGrids() {
+        readLock.lock()
+        try {
+            def old = reloadGrids
+            reloadGrids = false
+            old
+        } finally {
+            readLock.unlock()
+        }
     }
 
-    synchronized static classReloaded() {
-        reloadGrids = true
+    /**
+     * announce the grids that a reload is necessary
+     * @return
+     */
+    static classReloaded() {
+        writeLock.lock()
+        try {
+            log.debug 'reload grids'
+            reloadGrids = true
+        } finally {
+            writeLock.unlock()
+        }
     }
 }
