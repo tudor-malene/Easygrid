@@ -18,6 +18,7 @@ class EasygridTagLib {
 
     /**
      * Include the code for the grid
+     *
      * @attr id REQUIRED  the id of the grid
      */
     def grid = { attrs, body ->
@@ -30,6 +31,7 @@ class EasygridTagLib {
 
     /**
      * a simple excel export button for the grid
+     *
      * @attr id REQUIRED  the id of the grid
      */
     def exportButton = { attrs, body ->
@@ -37,8 +39,9 @@ class EasygridTagLib {
         out << export.formats(action: "${gridConfig.id}Export", formats: ['excel'])
     }
 
+
     /**
-     * Generates a selection component -
+     * Generates a selection widget -
      * which is a replacement for drop-down boxes, when the data to select from is larger
      * It features a input ( decorated with jquery-ui autocomplete_)
      * and a button which opens a dialog with a full grid ( with filtering) where you can select your desired value
@@ -69,8 +72,11 @@ class EasygridTagLib {
         out << render(plugin: 'easygrid', template: "/templates/autocompleteRenderer", model: [attrs: attrs])
     }
 
+
     /**
      * iterates the columns of a grid - depending on the context
+     *
+     * @attr gridConfig REQUIRED - the grid
      */
     def eachColumn = { attrs, body ->
         Grid gridConfig = attrs.gridConfig
@@ -81,6 +87,11 @@ class EasygridTagLib {
         }
     }
 
+    /**
+     * returns the grid from the specified controller  ( by default the current )
+     * @param attrs
+     * @return
+     */
     private Grid getGridConfig(attrs) {
         def instance = attrs.controllerInstance ?: grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, attrs.controller ?: controllerName).newInstance()
         assert instance
