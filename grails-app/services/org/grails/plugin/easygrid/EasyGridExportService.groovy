@@ -56,7 +56,7 @@ class EasyGridExportService {
                     }
 
                     //Create header
-                    visibleColumns.eachWithIndex { Column column, index ->
+                    visibleColumns.eachWithIndex { ColumnConfig column, index ->
                         cell(row: startAt, column: index, value: grailsApplication.mainContext.getMessage(column.label, new Object[0], column.label, Locale.getDefault()), format: "header")
                     }
 

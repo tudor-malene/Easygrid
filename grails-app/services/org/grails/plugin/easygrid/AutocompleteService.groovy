@@ -16,11 +16,11 @@ class AutocompleteService {
 
     def easygridService
 
-    def supportsAutocomplete(Grid grid) {
+    def supportsAutocomplete(GridConfig grid) {
         return grid.autocomplete
     }
 
-    def response(Grid grid) {
+    def response(GridConfig grid) {
         assert grid.autocomplete.textBoxFilterClosure
         easygridService.guard(grid) {
 
@@ -37,7 +37,7 @@ class AutocompleteService {
         }
     }
 
-    def label(Grid grid) {
+    def label(GridConfig grid) {
         assert grid.autocomplete.labelProp ||grid.autocomplete.labelValue
 
         easygridService.guard(grid) {

@@ -2,11 +2,10 @@ package org.grails.plugin.easygrid.datasource
 
 import grails.gorm.DetachedCriteria
 import groovy.util.logging.Log4j
-
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.grails.datastore.mapping.query.api.Criteria
-import org.grails.plugin.easygrid.Column
+import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 import org.springframework.dao.DataIntegrityViolationException
 
@@ -73,7 +72,7 @@ class GormDatasourceService {
 //            todo - choose columns to exclude
             def idProperty = domainClass.properties.find {it.name == 'id'}
             if (idProperty) {
-                def idCol = new Column(property: 'id', type: 'id', label: "${domainClass.propertyName}.id.label")
+                def idCol = new ColumnConfig(property: 'id', type: 'id', label: "${domainClass.propertyName}.id.label")
                 if (easygridService.implService?.respondsTo('dynamicProperties')) {
                     easygridService.implService.dynamicProperties(idProperty, idCol)
                 }
@@ -85,7 +84,7 @@ class GormDatasourceService {
                 if (prop.isAssociation()) {
                     return
                 }
-                def column = new Column()
+                def column = new ColumnConfig()
                 column.property = prop.name
                 column.label = "${domainClass.propertyName}.${prop.name}.label"
                 //todo -add other info from the property

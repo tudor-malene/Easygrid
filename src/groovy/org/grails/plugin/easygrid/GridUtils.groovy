@@ -114,7 +114,7 @@ class GridUtils {
      * @param closure
      * @return
      */
-    static eachColumn(Grid grid, Closure closure){
+    static eachColumn(GridConfig grid, Closure closure){
         grid.columns.findAll {col -> (EasygridContextHolder.params.selectionComp) ? col.showInSelection : true}.eachWithIndex { col, idx ->
             switch (closure?.parameterTypes?.size()) {
                 case 1:

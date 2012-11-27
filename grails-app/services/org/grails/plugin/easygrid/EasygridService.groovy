@@ -4,6 +4,7 @@ import groovy.util.logging.Log4j
 
 import org.codehaus.groovy.control.ConfigurationException
 import java.util.concurrent.locks.*
+import org.grails.plugin.easygrid.builder.EasygridBuilder
 
 /**
  * main service class
@@ -41,7 +42,7 @@ class EasygridService {
         } else {
             log.debug('use cache')
             // do this to avoid NPE  in the rare case when - after a reload - a thread has not acquired the writeLock yet but is in the other if branch
-            while(!gridsCacheClosure){
+            while (!gridsCacheClosure) {
                 sleep(2)
             }
             readLock.lock()
@@ -56,7 +57,7 @@ class EasygridService {
     /**
      * write protected method that initializes the grids for a controller
      * @param controller
-     * @return   the initialized grids structure
+     * @return the initialized grids structure
      */
     def memoizeGrids(controller) {
         writeLock.lock()
@@ -153,7 +154,7 @@ class EasygridService {
         }
 
         //add the predefined types  to the columns
-        gridConfig.columns.each {Column column ->
+        gridConfig.columns.each {ColumnConfig column ->
             if (!column[gridConfig.gridImpl]) {
                 column[gridConfig.gridImpl] = [:]
             }
@@ -273,7 +274,7 @@ class EasygridService {
      * @param row - the index - used for numberings
      * @return
      */
-    def valueOfColumn(Column column, element, idx) {
+    def valueOfColumn(ColumnConfig column, element, idx) {
 
         def method = column.property ? this.&valueOfPropertyColumn : this.&valueOfClosureColumn
 
@@ -281,7 +282,7 @@ class EasygridService {
     }
 
 
-    def valueOfPropertyColumn(Column column, element, idx) {
+    def valueOfPropertyColumn(ColumnConfig column, element, idx) {
         assert column.property
         def val = GridUtils.getNestedPropertyValue(column.property, element)
 
@@ -306,7 +307,7 @@ class EasygridService {
      * @param idx
      * @return
      */
-    def valueOfClosureColumn(Column column, element, idx) {
+    def valueOfClosureColumn(ColumnConfig column, element, idx) {
         assert column.value
         Closure closure = column.value
         switch (closure?.parameterTypes?.size()) {
@@ -351,12 +352,7 @@ class EasygridService {
      * @return
      */
     def generateConfigForGrids(Closure gridsConfigClosure) {
-        def gridsConfig = [:]
-        gridsDelegate.grids = gridsConfig
-        gridsConfigClosure.delegate = gridsDelegate
-        gridsConfigClosure.resolveStrategy = Closure.DELEGATE_FIRST
-        gridsConfigClosure()
-        gridsConfig
+        new EasygridBuilder(grailsApplication).evaluate gridsConfigClosure
     }
 
     /**
@@ -392,7 +388,7 @@ class EasygridService {
      * @param action
      * @return
      */
-    def guard(Grid gridConfig, def oper = 'list', Closure action) {
+    def guard(GridConfig gridConfig, def oper = 'list', Closure action) {
 
         assert gridConfig
 

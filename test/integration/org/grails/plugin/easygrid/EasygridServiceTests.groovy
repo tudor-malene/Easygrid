@@ -6,6 +6,8 @@ import grails.test.mixin.TestFor
 
 import org.codehaus.groovy.control.ConfigurationException
 import org.junit.Before
+import groovy.time.TimeCategory
+import org.grails.plugin.easygrid.builder.EasygridBuilder
 
 /**
  * tests for the central service
@@ -45,12 +47,98 @@ class EasygridServiceTests extends AbstractServiceTest {
 
     /// start builder tests-----------------
 
-    void testSimpleGrid(){
+    void testNewBuilder() {
+
+        def gridConfigs = new EasygridBuilder(grailsApplication).evaluate {
+            'authorGrid' {
+                dataSourceType 'custom'
+
+                roles 'admin'
+                securityProvider { grid, oper ->
+                    if (grid.roles) {
+                        if (grid.roles == 'admin') {
+                            return true
+                        }
+                        return false
+                    }
+                    return true
+                }
+                dataProvider {gridConfig, filters, listParams ->
+                    [
+                            [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', birthDate: new GregorianCalendar(1821, 10, 11)],
+                    ]
+                }
+                dataCount {filters ->
+                    1
+                }
+                jqgrid {
+                    width 650
+                    height 150
+                }
+                columns {
+                    'author.id' {
+                        type 'id'
+                    }
+                    'author.name.label' {
+                        property 'name'
+                        filterClosure {params ->
+                            ilike('name', "%${params.name}%")
+                        }
+                        jqgrid {
+                            editable true
+                        }
+                        export {
+                            width 100
+                        }
+                    }
+                    'author.nation.label' {
+                        property 'nation'
+                        filterClosure {params ->
+                            ilike('nation', "%${params.nation}%")
+                        }
+                        jqgrid {
+                        }
+                    }
+                    'author.age.label' {
+                        value { row ->
+                            use(TimeCategory) {
+                                new Date().year - row.birthDate.time.year
+                            }
+                        }
+                        filterClosure {params ->
+                            eq('age', params.age as int)
+                        }
+                        jqgrid {
+                            name 'age'
+                            width 110
+                        }
+                    }
+                    'author.birthDate.label' {
+                        property 'birthDate'
+                        formatName 'stdDateFormatter'
+                        filterClosure {params ->
+                            eq('birthDate', params.birthDate)
+                        }
+                        jqgrid {
+                            width 110
+                        }
+                    }
+                }
+            }
+        }
+
+        assertEquals 1, gridConfigs.size()
+
+    }
+
+
+
+    void testSimpleGrid() {
         simpleGridConfig = generateConfigForGrid {
             id 'simpleGrid'
             dataSourceType 'domain'
             domainClass TestDomain
-            columns{
+            columns {
                 testStringProperty
                 testIntProperty
             }
@@ -66,7 +154,7 @@ class EasygridServiceTests extends AbstractServiceTest {
             dataSourceType 'domain'
             domainClass TestDomain
             labelPrefix 'testDomainPrefix'
-            columns{
+            columns {
                 testStringProperty
                 testIntProperty
             }
@@ -199,7 +287,7 @@ class EasygridServiceTests extends AbstractServiceTest {
 
         //test Format
         assertEquals 'stdDateFormatter', customGridConfig.columns[4].formatName
-        assert  customGridConfig.columns[4].formatter
+        assert customGridConfig.columns[4].formatter
         assertEquals '11/11/1821', easygridService.valueOfColumn(customGridConfig.columns[4], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', age: 191, birthDate: new GregorianCalendar(1821, 10, 11)], -1)
 
         //test valueOf on domain type
@@ -227,7 +315,7 @@ class EasygridServiceTests extends AbstractServiceTest {
         TestDomain.list(sort: 'aa')
     }
 
-    void testRestoreParamsScenario(){
+    void testRestoreParamsScenario() {
 /*
         populateTestDomain()
         def controller = new TestDomainController()
@@ -250,7 +338,6 @@ class EasygridServiceTests extends AbstractServiceTest {
 // da
 
 //        4) intru pe un update
-
 
 //        5) ma intorc la grid ( vreau parametrii de la 3 )
 

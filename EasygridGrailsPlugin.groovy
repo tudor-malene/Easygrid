@@ -1,14 +1,9 @@
-import org.grails.plugin.easygrid.builder.ColumnDelegate
-import org.grails.plugin.easygrid.builder.ColumnsDelegate
-import org.grails.plugin.easygrid.builder.GridDelegate
-import org.grails.plugin.easygrid.builder.GridsDelegate
 import org.grails.plugin.easygrid.GridUtils
 import org.grails.plugin.easygrid.EasygridContextHolder
-import org.grails.plugin.easygrid.builder.AutocompleteDelegate
 
 class EasygridGrailsPlugin {
 
-    def version = "0.9.9.1"
+    def version = "0.9.9.2"
 
     def grailsVersion = "2.0 > *"
 
@@ -32,32 +27,6 @@ class EasygridGrailsPlugin {
     def license = "APACHE"
     def issueManagement = [ system: "GITHUB", url: "https://github.com/tudor-malene/Easygrid/issues" ]
     def scm = [ url: "https://github.com/tudor-malene/Easygrid" ]
-
-    def doWithSpring = {
-        columnDelegate(ColumnDelegate) {
-            grailsApplication = ref('grailsApplication')
-            it.scope = 'prototype'
-        }
-        columnsDelegate(ColumnsDelegate) {
-            columnDelegate = ref('columnDelegate')
-            grailsApplication = ref('grailsApplication')
-            it.scope = 'prototype'
-        }
-        autocompleteDelegate(AutocompleteDelegate) {
-            grailsApplication = ref('grailsApplication')
-            it.scope = 'prototype'
-        }
-        gridDelegate(GridDelegate) {
-            grailsApplication = ref('grailsApplication')
-            columnsDelegate = ref('columnsDelegate')
-            autocompleteDelegate = ref('autocompleteDelegate')
-            it.scope = 'prototype'
-        }
-        gridsDelegate(GridsDelegate) {
-            gridDelegate = ref('gridDelegate')
-            it.scope = 'prototype'
-        }
-    }
 
     def doWithDynamicMethods = { ctx ->
         GridUtils.addMixins()

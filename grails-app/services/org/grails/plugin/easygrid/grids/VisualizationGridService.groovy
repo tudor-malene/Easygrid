@@ -1,7 +1,7 @@
 package org.grails.plugin.easygrid.grids
 
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
-import org.grails.plugin.easygrid.Column
+import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 
 import com.google.visualization.datasource.DataSourceHelper
@@ -39,7 +39,7 @@ class VisualizationGridService {
     }
 
     def addDefaultValues(Map defaultValues) {
-        gridConfig.columns.each {Column column ->
+        gridConfig.columns.each {ColumnConfig column ->
             if (column?.visualization?.name == null) {
                 column.visualization ?: (column.visualization = [:])
                 assert column.property
@@ -107,7 +107,7 @@ class VisualizationGridService {
         rows.each { element ->
             TableRow row = new TableRow()
 
-            gridConfig.columns.eachWithIndex { Column col, idx ->
+            gridConfig.columns.eachWithIndex { ColumnConfig col, idx ->
                 def val = easygridService.valueOfColumn(col, element, idx + 1)
                 //hack - createValue only takes strings
                 val = GString.isAssignableFrom(val.getClass()) ? val.toString() : val

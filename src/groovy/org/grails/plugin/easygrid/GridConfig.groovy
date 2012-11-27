@@ -1,16 +1,16 @@
 package org.grails.plugin.easygrid
 
 /**
- * this Class is the basic structure of each Grid
+ * Defines the grid
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-class Grid {
+class GridConfig {
 
     String id
 
     // the columns
-    List<Column> columns  =[]
+    List<ColumnConfig> columns  =[]
 
     Map autocomplete = [:]
 

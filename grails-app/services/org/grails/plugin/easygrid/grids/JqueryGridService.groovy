@@ -3,7 +3,7 @@ package org.grails.plugin.easygrid.grids
 import grails.converters.JSON
 import groovy.util.logging.Log4j
 
-import org.grails.plugin.easygrid.Column
+import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.GridUtils
 import org.springframework.validation.Errors
@@ -34,7 +34,7 @@ class JqueryGridService {
         }
 
 
-        gridConfig.columns.each {Column column ->
+        gridConfig.columns.each {ColumnConfig column ->
             if (column?.jqgrid?.name == null) {
                 column.jqgrid ?: (column.jqgrid = [:])
                 assert column.property

@@ -2,7 +2,7 @@ package org.grails.plugin.easygrid.grids
 
 import grails.converters.JSON
 
-import org.grails.plugin.easygrid.Column
+import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 
 /**
@@ -28,7 +28,7 @@ class DatatableGridService {
             gridConfig.datatable = [:]
         }
 
-        gridConfig.columns.each {Column column ->
+        gridConfig.columns.each {ColumnConfig column ->
             if (column?.datatable?.name == null) {
                 column.datatable ?: (column.datatable = [:])
                 assert column.property

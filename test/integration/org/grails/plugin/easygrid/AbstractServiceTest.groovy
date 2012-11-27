@@ -2,6 +2,7 @@ package org.grails.plugin.easygrid
 
 import static org.junit.Assert.*
 import groovy.time.TimeCategory
+import org.grails.plugin.easygrid.builder.EasygridBuilder
 
 /**
  * base class for integration tests
@@ -151,13 +152,7 @@ abstract class AbstractServiceTest {
      * @return
      */
     def generateConfigForGrid(Closure gridConfigClosure) {
-//        def gridConfig = [:]
-        def gridConfig = new Grid()
-        gridDelegate.gridConfig = gridConfig
-        gridConfigClosure.delegate = gridDelegate
-        gridConfigClosure.resolveStrategy = Closure.DELEGATE_FIRST
-        gridConfigClosure()
-        gridConfig
+        new EasygridBuilder(grailsApplication).evaluateGrid gridConfigClosure
     }
 
 

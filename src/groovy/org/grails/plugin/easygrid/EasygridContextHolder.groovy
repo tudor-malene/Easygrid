@@ -20,12 +20,12 @@ import java.util.concurrent.locks.Lock
 class EasygridContextHolder {
 
     // used to store the gridConfig between method calls
-    private static final ThreadLocal<Grid> gridConfigHolder = new NamedThreadLocal<Grid>("gridConfigHolder")
+    private static final ThreadLocal<GridConfig> gridConfigHolder = new NamedThreadLocal<GridConfig>("gridConfigHolder")
 
     // in case we need to work with an old set of parameters ( ex: exporting data already filtered , or returning from an add/update page )
     private static final ThreadLocal restoredParamsHolder = new NamedThreadLocal("restoredParamsHolder")
 
-    static Grid getGridConfig() {
+    static GridConfig getGridConfig() {
         gridConfigHolder.get()
     }
 

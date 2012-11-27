@@ -1,7 +1,7 @@
 package org.codehaus.groovy.grails.plugins.easygrid
 
 import org.codehaus.groovy.grails.commons.ControllerArtefactHandler
-import org.grails.plugin.easygrid.Grid
+import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 
 /**
@@ -79,7 +79,7 @@ class EasygridTagLib {
      * @attr gridConfig REQUIRED - the grid
      */
     def eachColumn = { attrs, body ->
-        Grid gridConfig = attrs.gridConfig
+        GridConfig gridConfig = attrs.gridConfig
 
 //        gridConfig.columns.findAll {col -> (params.selectionComp) ? col.showInSelection : true}.eachWithIndex { col, idx ->
         GridUtils.eachColumn(gridConfig) {col, idx ->
@@ -92,7 +92,7 @@ class EasygridTagLib {
      * @param attrs
      * @return
      */
-    private Grid getGridConfig(attrs) {
+    private GridConfig getGridConfig(attrs) {
         def instance = attrs.controllerInstance ?: grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, attrs.controller ?: controllerName).newInstance()
         assert instance
         instance.gridsConfig."${attrs.id}"

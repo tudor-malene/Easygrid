@@ -1,11 +1,11 @@
 package org.grails.plugin.easygrid
 
 /**
- * represents a grid column
+ * defines a grid column
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-class Column {
+class ColumnConfig {
 
     String label
     def type
