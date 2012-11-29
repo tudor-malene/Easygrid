@@ -1,15 +1,14 @@
 package org.grails.plugin.easygrid.grids
 
 import grails.converters.JSON
-import groovy.util.logging.Log4j
-
+import groovy.util.logging.Slf4j
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.GridUtils
 import org.springframework.validation.Errors
 import org.springframework.validation.ObjectError
 
-@Log4j
+@Slf4j
 @Mixin(EasygridContextHolder)
 class JqueryGridService {
 

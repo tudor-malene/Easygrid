@@ -3,7 +3,7 @@ package org.grails.plugin.easygrid
 import org.springframework.dao.DataIntegrityViolationException
 import org.grails.plugin.easygrid.grids.TestGridService
 
-@EasyGrid
+@Easygrid
 class TestDomainController {
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 

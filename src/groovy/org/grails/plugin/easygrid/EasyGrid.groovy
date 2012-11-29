@@ -1,11 +1,11 @@
 package org.grails.plugin.easygrid
 
+import org.codehaus.groovy.transform.GroovyASTTransformationClass
+
 import java.lang.annotation.ElementType
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
-
-import org.codehaus.groovy.transform.GroovyASTTransformationClass
 
 /**
  * Annotation for Controllers at the class level.
@@ -22,6 +22,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
 @java.lang.annotation.Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@GroovyASTTransformationClass("org.grails.plugin.easygrid.EasyGridASTTransformation")
-@interface EasyGrid {
+@GroovyASTTransformationClass("org.grails.plugin.easygrid.EasygridASTTransformation")
+@interface Easygrid {
 }

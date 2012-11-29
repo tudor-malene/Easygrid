@@ -1,12 +1,13 @@
 package org.grails.plugin.easygrid
 
+import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import org.springframework.core.NamedThreadLocal
 import org.springframework.web.context.request.RequestContextHolder
-import groovy.util.logging.Log4j
+
+import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReadWriteLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
-import java.util.concurrent.locks.Lock
 
 /**
  * utility class
@@ -16,7 +17,7 @@ import java.util.concurrent.locks.Lock
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Log4j
+@Slf4j
 class EasygridContextHolder {
 
     // used to store the gridConfig between method calls

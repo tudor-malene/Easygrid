@@ -1,16 +1,16 @@
 package org.grails.plugin.easygrid
 
-import groovy.util.logging.Log4j
 import de.andreasschmitt.export.builder.ExcelBuilder
+import groovy.util.logging.Slf4j
 
 /**
  * Standard export service
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Log4j
+@Slf4j
 @Mixin(EasygridContextHolder)
-class EasyGridExportService {
+class EasygridExportService {
 
     static transactional = false
 

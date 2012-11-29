@@ -19,7 +19,7 @@ import org.junit.Before
 class ExportServiceTests extends AbstractServiceTest {
 
     //injected
-    def easyGridExportService
+    def easygridExportService
 
     @Before
     void setUp() {

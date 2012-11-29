@@ -1,7 +1,6 @@
 package org.grails.plugin.easygrid.grids
 
 import grails.converters.JSON
-
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 

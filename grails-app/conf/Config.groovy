@@ -35,7 +35,7 @@ easygrid {
         //called before inline editing : transforms the parameters into the actual object to be stored
         beforeSave = {params -> params}
         gridImpl = 'jqgrid'
-        exportService = org.grails.plugin.easygrid.EasyGridExportService
+        exportService = org.grails.plugin.easygrid.EasygridExportService
 
         //jqgrid default properties
         jqgrid {

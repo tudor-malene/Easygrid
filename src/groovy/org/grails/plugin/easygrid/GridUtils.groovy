@@ -1,13 +1,13 @@
 package org.grails.plugin.easygrid
 
+import org.codehaus.groovy.control.ConfigurationException
+import org.grails.plugin.easygrid.datasource.CustomDatasourceService
+import org.grails.plugin.easygrid.datasource.GormDatasourceService
+import org.grails.plugin.easygrid.datasource.ListDatasourceService
 import org.grails.plugin.easygrid.grids.ClassicGridService
 import org.grails.plugin.easygrid.grids.DatatableGridService
 import org.grails.plugin.easygrid.grids.JqueryGridService
 import org.grails.plugin.easygrid.grids.VisualizationGridService
-import org.grails.plugin.easygrid.datasource.CustomDatasourceService
-import org.grails.plugin.easygrid.datasource.GormDatasourceService
-import org.grails.plugin.easygrid.datasource.ListDatasourceService
-import org.codehaus.groovy.control.ConfigurationException
 
 /**
  * utility methods
@@ -88,7 +88,7 @@ class GridUtils {
         VisualizationGridService.mixin EasygridContextHolder
         DatatableGridService.mixin EasygridContextHolder
         JqueryGridService.mixin EasygridContextHolder
-        EasyGridExportService.mixin EasygridContextHolder
+        EasygridExportService.mixin EasygridContextHolder
 
         GormDatasourceService.mixin EasygridContextHolder
         ListDatasourceService.mixin EasygridContextHolder

@@ -1,7 +1,7 @@
 package org.grails.plugin.easygrid.datasource
 
 import grails.gorm.DetachedCriteria
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.grails.datastore.mapping.query.api.Criteria
@@ -14,7 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Log4j
+@Slf4j
 @Mixin(EasygridContextHolder)
 class GormDatasourceService {
 

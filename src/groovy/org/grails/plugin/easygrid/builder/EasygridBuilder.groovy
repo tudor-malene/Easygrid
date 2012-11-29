@@ -1,10 +1,9 @@
 package org.grails.plugin.easygrid.builder
 
-import groovy.util.logging.Log4j
-import org.grails.plugin.easygrid.GridConfig
-import org.grails.plugin.easygrid.GridUtils
 import grails.util.ClosureToMapPopulator
 import org.grails.plugin.easygrid.ColumnConfig
+import org.grails.plugin.easygrid.GridConfig
+import org.grails.plugin.easygrid.GridUtils
 
 /**
  * implementation for the EasyGrid DSL

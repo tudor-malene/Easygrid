@@ -5,14 +5,15 @@ package org.grails.plugin.easygrid
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-class EasyGridTransformationTest extends GroovyTestCase {
+class EasygridTransformationTest extends GroovyTestCase {
 
     void testMethodsAdded() {
 
         def c = new GroovyClassLoader().parseClass('''
             package com.example
-            import org.grails.plugin.easygrid.EasyGrid
-            @EasyGrid
+            import org.grails.plugin.easygrid.Easygrid
+
+            @Easygrid
             class TestController {
 
                 static grids = {

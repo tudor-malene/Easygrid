@@ -1,9 +1,5 @@
 package org.grails.plugin.easygrid.grids
 
-import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
-import org.grails.plugin.easygrid.ColumnConfig
-import org.grails.plugin.easygrid.EasygridContextHolder
-
 import com.google.visualization.datasource.DataSourceHelper
 import com.google.visualization.datasource.DataSourceRequest
 import com.google.visualization.datasource.datatable.ColumnDescription
@@ -13,6 +9,9 @@ import com.google.visualization.datasource.datatable.TableRow
 import com.google.visualization.datasource.datatable.value.ValueType
 import com.google.visualization.datasource.query.Query
 import com.google.visualization.datasource.query.SortOrder
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
+import org.grails.plugin.easygrid.ColumnConfig
+import org.grails.plugin.easygrid.EasygridContextHolder
 
 /**
  * service class that implements the google visualization grid

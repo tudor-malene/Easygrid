@@ -1,7 +1,8 @@
 package org.grails.plugin.easygrid
 
 import grails.converters.JSON
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
+import groovy.util.logging.Slf4j
 
 /**
  * Autocomplete service
@@ -10,7 +11,7 @@ import groovy.util.logging.Log4j
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Log4j
+@Slf4j
 @Mixin(EasygridContextHolder)
 class AutocompleteService {
 
@@ -28,7 +29,7 @@ class AutocompleteService {
             setLocalGridConfig(grid)
 
 //            [rowOffset: params.iDisplayStart as int, maxRows: maxRows, sort: sort, order: order]
-            easygridService.dataSourceService.list([rowOffset: 0, maxRows: 10], [grid.autocomplete.textBoxFilterClosure, grid.autocomplete.constraintsFilterClosure ]).collect {
+            easygridService.dataSourceService.list([rowOffset: 0, maxRows: 10], [grid.autocomplete.textBoxFilterClosure, grid.autocomplete.constraintsFilterClosure]).collect {
                 [
                         label: getLabel(it),
                         id: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.idProp, it)
@@ -38,7 +39,7 @@ class AutocompleteService {
     }
 
     def label(GridConfig grid) {
-        assert grid.autocomplete.labelProp ||grid.autocomplete.labelValue
+        assert grid.autocomplete.labelProp || grid.autocomplete.labelValue
 
         easygridService.guard(grid) {
 
@@ -51,10 +52,10 @@ class AutocompleteService {
         }
     }
 
-    def getLabel(element){
-        if(gridConfig.autocomplete.labelProp){
+    def getLabel(element) {
+        if (gridConfig.autocomplete.labelProp) {
             GridUtils.getNestedPropertyValue(gridConfig.autocomplete.labelProp, element)
-        }else{
+        } else {
             assert gridConfig.autocomplete.labelValue
             switch (gridConfig.autocomplete.labelValue?.parameterTypes?.size()) {
                 case 1:

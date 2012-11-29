@@ -1,7 +1,6 @@
 package org.grails.plugin.easygrid
 
-import groovy.util.logging.Log4j
-
+import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.builder.AstBuilder
@@ -15,9 +14,9 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Log4j
+@Slf4j
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
-class EasyGridASTTransformation extends AbstractASTTransformation {
+class EasygridASTTransformation extends AbstractASTTransformation {
 
     void visit(ASTNode[] nodes, SourceUnit source) {
         init(nodes, source)

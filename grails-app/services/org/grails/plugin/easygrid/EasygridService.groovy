@@ -1,10 +1,12 @@
 package org.grails.plugin.easygrid
 
-import groovy.util.logging.Log4j
-
+import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
-import java.util.concurrent.locks.*
 import org.grails.plugin.easygrid.builder.EasygridBuilder
+
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReadWriteLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 /**
  * main service class
@@ -13,7 +15,7 @@ import org.grails.plugin.easygrid.builder.EasygridBuilder
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Log4j
+@Slf4j
 @Mixin(EasygridContextHolder)
 class EasygridService {
 
