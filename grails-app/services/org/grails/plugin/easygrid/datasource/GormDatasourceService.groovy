@@ -123,7 +123,9 @@ class GormDatasourceService {
      * @param id
      */
     def getById(id) {
-        createCriteria([{params -> eq('id', params.id as long)}]).find()
+        if (id != null) {
+            createCriteria([{params -> eq('id', id as long)}]).find()
+        }
     }
 
     /**
@@ -135,6 +137,11 @@ class GormDatasourceService {
         createCriteria(filters).count()
     }
 
+    /**
+     * combines all the filters into a gorm criteria
+     * @param filters - list of closures
+     * @return
+     */
     Criteria createCriteria(filters) {
         def initial = new DetachedCriteria(gridConfig.domainClass)
         initial = gridConfig.initialCriteria ? initial.and(gridConfig.initialCriteria) : initial

@@ -54,9 +54,7 @@ class VisualizationGridService {
 
     def filters() {
         if (params._filter) {
-            def searchParams = params.findAll {k, v -> v}.collect {k, v -> k}.intersect(gridConfig.columns.collect {it.visualization.name })
-
-            searchParams.inject([]) {list, param ->
+            params.findAll {k, v -> v}.collect {k, v -> k}.intersect(gridConfig.columns.collect {it.visualization.name }).inject([]) {list, param ->
                 def closure = gridConfig.columns.find {col -> col.visualization.name == param}?.filterClosure
                 closure ? (list + closure) : list
             }

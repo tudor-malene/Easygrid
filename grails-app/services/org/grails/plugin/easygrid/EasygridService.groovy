@@ -251,6 +251,26 @@ class EasygridService {
                 def filters = implService.filters()
                 def listParams = implService.listParams()
 
+                //validation
+/*
+                def validationClosure = gridConfig.constraints
+                if (validationClosure) {
+                    def constrainedPropertyBuilder = new ConstrainedPropertyBuilder(cmdObject)
+                    validationClosure.setDelegate(constrainedPropertyBuilder)
+                    validationClosure()
+                    def messageSource = grailsApplication.mainContext?.containsBean('messageSource') ? grailsApplication.mainContext.getBean('messageSource') : null
+                    def localErrors = new ValidationErrors(cmdObject, gridConfig.id)
+
+                    for (prop in constrainedPropertyBuilder.constrainedProperties.values()) {
+                        prop.messageSource = messageSource
+                        prop.validate(cmdObject, cmdObject.getProperty(prop.propertyName), localErrors)
+                    }
+                    if(localErrors.hasErrors()){
+                        println localErrors.errorCount
+                    }
+                }
+*/
+
 
                 if (params.selectionComp) {
                     //add a new criteria

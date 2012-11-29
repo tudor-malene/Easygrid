@@ -59,7 +59,6 @@ string	sEcho	Information for DataTables to use for rendering.
         gridConfig.columns.findAll {it.datatable.search}.eachWithIndex {col, i ->
             if (params["bSearchable_$i"] && params["sSearch_$i"]) {
                 def val = params["sSearch_$i"]
-                println "val = $val"
                 filterClosures.add col.filterClosure
                 params["${col.datatable.name}"] = val
             }
@@ -79,7 +78,7 @@ string	sEcho	Information for DataTables to use for rendering.
 
             (0..(params.iSortingCols as int) - 1).each {
                 def sortCol = params["iSortCol_$it"] as int
-                println params["bSortable_${sortCol}"]
+//                println params["bSortable_${sortCol}"]
                 if (params["bSortable_${sortCol}"]) {
                     orderMap[gridConfig.columns[sortCol]] = params["sSortDir_$it"] ?: 'asc'
                 }
@@ -94,7 +93,7 @@ string	sEcho	Information for DataTables to use for rendering.
             sort = it.key.datatable.name
         }
 
-        [rowOffset: params.iDisplayStart as int, maxRows: maxRows, sort: sort, order: order]
+        [rowOffset: params.iDisplayStart ? params.iDisplayStart as int : 0, maxRows: maxRows, sort: sort, order: order]
     }
 
 /*
