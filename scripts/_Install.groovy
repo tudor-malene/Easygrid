@@ -151,7 +151,6 @@ easygrid {
             actions {
                 value = {''}
                 jqgrid {
-                    name = 'actions'
                     formatter = '"actions"'
                     editable = false
                     sortable = false

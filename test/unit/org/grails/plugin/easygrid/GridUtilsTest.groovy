@@ -82,4 +82,9 @@ class GridUtilsTest extends GroovyTestCase {
         assertEquals 4, GridUtils.restoreSearchParams(session, params, 'grid1')
 */
     }
+
+    void testColumnsConfig(){
+        ColumnConfig cc = new ColumnConfig()
+
+    }
 }

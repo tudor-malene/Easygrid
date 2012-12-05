@@ -38,11 +38,11 @@ class EasygridService {
     def initGrids(controller) {
 
         if (reloadGrids()) {
-            log.debug('clear cache')
+            log.debug('clear grid cache')
             //clear or initialize the cache
             memoizeGrids(controller)
         } else {
-            log.debug('use cache')
+            log.debug('use grid  cache')
             // do this to avoid NPE  in the rare case when - after a reload - a thread has not acquired the writeLock yet but is in the other if branch
             while (!gridsCacheClosure) {
                 sleep(2)
@@ -189,6 +189,21 @@ class EasygridService {
                 assert column.formatter
             }
 
+//            assert column.name
+            //todo - replace the label with the name in the internal map
+            //todo - move the default values stuff in the builder
+
+            if (!column.property && !column.value) {
+                column.property = column.name
+            }
+
+            if(!column.label){
+                assert gridConfig.labelPrefix || gridConfig.domainClass
+                def prefix = gridConfig.labelPrefix ?: grails.util.GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
+                assert prefix
+                column.label = grailsApplication?.config?.easygrid?.defaults?.labelFormat?.make(prefix: prefix, column: column.name)
+            }
+
         }
 
         //calls the "addDefaultValues" method of the service class for the specific implementation of the grid
@@ -201,8 +216,8 @@ class EasygridService {
 
     /**
      * returns the model for  the html/javascript template code that will render the grid
-     * called from the taglib
-     * by default passes the gridConfig
+     * called from the taglib - or from the controller - ( in case of dynamic loading)
+     * by default returns the gridConfig
      * @param gridConfig
      * @return - the map that will be passed to the renderer
      */

@@ -89,7 +89,7 @@ class EasygridASTTransformation extends AbstractASTTransformation {
                 source.addMethod(it)
             }
 
-            // for each grid - inject the 3 methods
+            // for each grid - inject the  methods
             gridNames.each { gridName ->
                 def gridAst = new AstBuilder().buildFromString(phase, false,
                         $/
@@ -102,7 +102,7 @@ class EasygridASTTransformation extends AbstractASTTransformation {
                         // renders the html code
                         def ${gridName}Html () {
                             def gridConfig = gridsConfig['${gridName}']
-                            def model = easygridService.htmlGridDefinition(gridConfig)
+                            def model = easygridService.htmlGridDefinition(gridConfig.deepClone())
                             if (model) {
                                 render(template: gridConfig.gridRenderer, model: model)
                             }
@@ -110,18 +110,18 @@ class EasygridASTTransformation extends AbstractASTTransformation {
 
                         // renders the elements to be displayed by the grid
                         def ${gridName}Rows () {
-                            render easygridService.gridData(gridsConfig['${gridName}'])
+                            render easygridService.gridData(gridsConfig['${gridName}'].deepClone())
                         }
 
                          // export the elements
                         def ${gridName}Export () {
-                            easygridService.export(gridsConfig['${gridName}'])
+                            easygridService.export(gridsConfig['${gridName}'].deepClone())
                         }
 
                         //inline Edit
                         def ${gridName}InlineEdit (){
-                          if(easygridService.supportsInlineEdit(gridsConfig['${gridName}'])){
-                               def result = easygridService.inlineEdit(gridsConfig['${gridName}'])
+                          if(easygridService.supportsInlineEdit(gridsConfig['${gridName}'].deepClone())){
+                               def result = easygridService.inlineEdit(gridsConfig['${gridName}'].deepClone())
 //                               render(template: gridsConfig['${gridName}'].editRenderer, model: result?.model)
                                render(template: gridsConfig['${gridName}'].editRenderer)
                           }else{
@@ -131,8 +131,8 @@ class EasygridASTTransformation extends AbstractASTTransformation {
 
                         //autocomplete
                         def ${gridName}AutocompleteResult (){
-                          if(autocompleteService.supportsAutocomplete(gridsConfig['${gridName}'])){
-                              render autocompleteService.response(gridsConfig['${gridName}'])
+                          if(autocompleteService.supportsAutocomplete(gridsConfig['${gridName}'].deepClone())){
+                              render autocompleteService.response(gridsConfig['${gridName}'].deepClone())
                           }else{
                             throw new UnsupportedOperationException("Autocomplete not available for this grid: ${gridName}")
                           }
@@ -140,7 +140,7 @@ class EasygridASTTransformation extends AbstractASTTransformation {
 
                         def ${gridName}SelectionLabel (){
                           if(autocompleteService.supportsAutocomplete(gridsConfig['${gridName}'])){
-                              render autocompleteService.label(gridsConfig['${gridName}'])
+                              render autocompleteService.label(gridsConfig['${gridName}'].deepClone())
                           }else{
                             throw new UnsupportedOperationException("Autocomplete not available for this grid: ${gridName}")
                           }

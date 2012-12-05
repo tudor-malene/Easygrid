@@ -39,7 +39,6 @@ class EasygridTagLib {
         out << export.formats(action: "${gridConfig.id}Export", formats: ['excel'])
     }
 
-
     /**
      * Generates a selection widget -
      * which is a replacement for drop-down boxes, when the data to select from is larger
@@ -72,7 +71,6 @@ class EasygridTagLib {
         out << render(plugin: 'easygrid', template: "/templates/autocompleteRenderer", model: [attrs: attrs])
     }
 
-
     /**
      * iterates the columns of a grid - depending on the context
      *
@@ -95,6 +93,12 @@ class EasygridTagLib {
     private GridConfig getGridConfig(attrs) {
         def instance = attrs.controllerInstance ?: grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, attrs.controller ?: controllerName).newInstance()
         assert instance
-        instance.gridsConfig."${attrs.id}"
+        def gridConfig = instance.gridsConfig."${attrs.id}".deepClone()
+
+        //overwrite grid properties
+        attrs.findAll {it.key != 'id'}.each {k, v ->
+            GridUtils.setNestedPropertyValue(k, gridConfig, v)
+        }
+        gridConfig
     }
 }

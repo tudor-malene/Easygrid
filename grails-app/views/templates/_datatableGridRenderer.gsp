@@ -23,7 +23,7 @@
         "sAjaxSource":"${g.createLink(action: "${gridConfig.id}Rows")}",
         "aoColumns":[
             <g:each in="${gridConfig.columns}" var="col" status="idx">
-            { "sName":"${col.datatable.name}", "bSortable":true }  <g:if test="${idx < gridConfig.columns.size() - 1}">,
+            { "sName":"${col.name}", "bSortable":true }  <g:if test="${idx < gridConfig.columns.size() - 1}">,
             </g:if>
             </g:each>
         ]
@@ -80,7 +80,7 @@
         <g:each in="${gridConfig.columns}" var="col">
             <td>%{--width="${col.datatable.width}">--}%
                 <g:if test="${col.datatable.search}">
-                    <input type="text" name="search_${col.datatable.name}" class="search_init" size="10"/>
+                    <input type="text" name="search_${col.name}" class="search_init" size="10"/>
                 </g:if>
                 <g:else>
                     &nbsp;

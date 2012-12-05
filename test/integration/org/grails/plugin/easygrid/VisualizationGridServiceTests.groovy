@@ -47,6 +47,7 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
         //initialize the custom grid
         customVisGridConfig = generateConfigForGrid {
             id 'authorGrid'
+            labelPrefix 'author'
             dataSourceType 'custom'
             gridImpl 'visualization'
             roles 'admin'
@@ -74,31 +75,27 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
                 2
             }
             columns {
-                'author.name.label' {
-                    property 'name'
+                name {
                     visualization {
                         valueType ValueType.TEXT
                     }
                 }
-                'author.nation.label' {
-                    property 'nation'
+                nation {
                     visualization {
                         valueType ValueType.TEXT
                     }
                 }
-                'author.age.label' {
+                age {
                     value { row ->
                         use(TimeCategory) {
                             new Date().year - row.birthDate.year
                         }
                     }
                     visualization {
-                        name 'age'
                         valueType ValueType.NUMBER
                     }
                 }
-                'author.birthDate.label' {
-                    property 'birthDate'
+                birthDate {
                     visualization {
                         valueType ValueType.DATE
                     }

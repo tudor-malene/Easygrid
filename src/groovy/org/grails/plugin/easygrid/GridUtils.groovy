@@ -105,7 +105,19 @@ class GridUtils {
      * @return
      */
     static getNestedPropertyValue(String expression, object) {
-        expression.tokenize('.').inject object, {obj, prop -> obj[prop]}
+        Eval.x(object,"x.${expression}")
+    }
+
+
+    /**
+     *
+     * @param expression
+     * @param object
+     * @param value
+     * @return
+     */
+    static setNestedPropertyValue(String expression, object, value) {
+        Eval.xy(object,value,"x.${expression}=y")
     }
 
     /**

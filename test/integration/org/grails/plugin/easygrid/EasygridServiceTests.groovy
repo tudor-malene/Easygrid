@@ -47,12 +47,12 @@ class EasygridServiceTests extends AbstractServiceTest {
 
     /// start builder tests-----------------
 
-    void testNewBuilder() {
+    void testCloning() {
 
         def gridConfigs = new EasygridBuilder(grailsApplication).evaluate {
             'authorGrid' {
                 dataSourceType 'custom'
-
+                labelPrefix 'author'
                 roles 'admin'
                 securityProvider { grid, oper ->
                     if (grid.roles) {
@@ -76,11 +76,10 @@ class EasygridServiceTests extends AbstractServiceTest {
                     height 150
                 }
                 columns {
-                    'author.id' {
+                    id {
                         type 'id'
                     }
-                    'author.name.label' {
-                        property 'name'
+                    name {
                         filterClosure {params ->
                             ilike('name', "%${params.name}%")
                         }
@@ -91,15 +90,14 @@ class EasygridServiceTests extends AbstractServiceTest {
                             width 100
                         }
                     }
-                    'author.nation.label' {
-                        property 'nation'
+                    nation {
                         filterClosure {params ->
                             ilike('nation', "%${params.nation}%")
                         }
                         jqgrid {
                         }
                     }
-                    'author.age.label' {
+                    age {
                         value { row ->
                             use(TimeCategory) {
                                 new Date().year - row.birthDate.time.year
@@ -109,12 +107,10 @@ class EasygridServiceTests extends AbstractServiceTest {
                             eq('age', params.age as int)
                         }
                         jqgrid {
-                            name 'age'
                             width 110
                         }
                     }
-                    'author.birthDate.label' {
-                        property 'birthDate'
+                    birthDate {
                         formatName 'stdDateFormatter'
                         filterClosure {params ->
                             eq('birthDate', params.birthDate)
@@ -128,6 +124,117 @@ class EasygridServiceTests extends AbstractServiceTest {
         }
 
         assertEquals 1, gridConfigs.size()
+
+        def gridCfg1 = gridConfigs.authorGrid
+        def gridCfg2 = gridConfigs.authorGrid.deepClone()
+        assertNotSame gridCfg1, gridCfg2
+
+
+        assertNotSame gridCfg1.columns, gridCfg2.columns
+        assertNotSame gridCfg1.dynamicProperties, gridCfg2.dynamicProperties
+
+        gridCfg1.xx = 0
+        assertNull gridCfg2.xx
+
+        assertNotSame gridCfg1.columns[0], gridCfg2.columns[0]
+
+        gridCfg1.columns[0].xx = 0
+        assertNull gridCfg2.columns[0].xx
+
+
+    }
+
+    void testNewColumn() {
+
+//        defaultValues.columns.buildStyle = 'columnNameAsHeader'
+        def gridConfigs = new EasygridBuilder(grailsApplication).evaluate {
+            'authorGrid' {
+                dataSourceType 'custom'
+                labelPrefix 'author'
+                roles 'admin'
+                securityProvider { grid, oper ->
+                    if (grid.roles) {
+                        if (grid.roles == 'admin') {
+                            return true
+                        }
+                        return false
+                    }
+                    return true
+                }
+                dataProvider {gridConfig, filters, listParams ->
+                    [
+                            [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', birthDate: new GregorianCalendar(1821, 10, 11)],
+                    ]
+                }
+                dataCount {filters ->
+                    1
+                }
+                jqgrid {
+                    width 650
+                    height 150
+                }
+                columns {
+                    id {
+                        type 'id'
+                    }
+                    name {
+                        label 'testLabel'
+                        filterClosure {params ->
+                            ilike('name', "%${params.name}%")
+                        }
+                        jqgrid {
+                            editable true
+                        }
+                        export {
+                            width 100
+                        }
+                    }
+                    nation {
+                        filterClosure {params ->
+                            ilike('nation', "%${params.nation}%")
+                        }
+                        jqgrid {
+                        }
+                    }
+                    age {
+                        value { row ->
+                            use(TimeCategory) {
+                                new Date().year - row.birthDate.time.year
+                            }
+                        }
+                        filterClosure {params ->
+                            eq('age', params.age as int)
+                        }
+                        jqgrid {
+                            width 110
+                        }
+                    }
+                    birthDate {
+                        formatName 'stdDateFormatter'
+                        filterClosure {params ->
+                            eq('birthDate', params.birthDate)
+                        }
+                        jqgrid {
+                            width 110
+                        }
+                    }
+                }
+            }
+        }
+
+
+        assertEquals 1, gridConfigs.size()
+
+        GridConfig gridCfg = gridConfigs.authorGrid
+        gridCfg.id = 'authorGrid'
+
+        easygridService.addDefaultValues(gridCfg, defaultValues)
+        assertNotNull gridCfg.columns[1]
+        assertNotNull gridCfg.columns['name']
+        assertEquals gridCfg.columns['name'], gridCfg.columns[1]
+        assertNull gridCfg.columns.age.property
+        assertEquals 'birthDate', gridCfg.columns.birthDate.property
+        assertEquals 'testLabel', gridCfg.columns.name.label
 
     }
 
@@ -143,6 +250,7 @@ class EasygridServiceTests extends AbstractServiceTest {
                 testIntProperty
             }
         }
+        easygridService.addDefaultValues(simpleGridConfig, defaultValues)
         assertEquals 'testDomain.testStringProperty.label', simpleGridConfig.columns[0].label
         assertEquals 'testStringProperty', simpleGridConfig.columns[0].property
 
@@ -159,6 +267,7 @@ class EasygridServiceTests extends AbstractServiceTest {
                 testIntProperty
             }
         }
+        easygridService.addDefaultValues(simpleGridConfig, defaultValues)
         assertEquals 'testDomainPrefix.testStringProperty.label', simpleGridConfig.columns[0].label
         assertEquals 'testDomainPrefix.testIntProperty.label', simpleGridConfig.columns[1].label
     }
@@ -170,6 +279,7 @@ class EasygridServiceTests extends AbstractServiceTest {
      */
     void testCustomBuilder() {
 
+        easygridService.addDefaultValues(customGridConfig, defaultValues)
 //        assertEquals 8, customGridConfig.size()         --todo
         assertEquals 'authorGrid', customGridConfig.id
         assertEquals 'custom', customGridConfig.dataSourceType
@@ -223,7 +333,7 @@ class EasygridServiceTests extends AbstractServiceTest {
 
         assertEquals 'listProviderGrid', listGridConfig.id
         assertEquals 'list', listGridConfig.dataSourceType
-        assertEquals 3, listGridConfig.columns.size
+        assertEquals 3, listGridConfig.columns.size()
     }
 
     /// end builder tests-----------------
@@ -246,11 +356,11 @@ class EasygridServiceTests extends AbstractServiceTest {
         assertEquals 40, customGridConfig.columns[0].jqgrid.width
 
         assertEquals 'name', customGridConfig.columns[1].property
-        assertEquals 'name', customGridConfig.columns[1].jqgrid.name
+        assertEquals 'name', customGridConfig.columns[1].name
         assertEquals true, customGridConfig.columns[1].jqgrid.editable
         assertEquals true, customGridConfig.columns[1].jqgrid.editable
 
-        assertEquals 'age', customGridConfig.columns[3].jqgrid.name
+        assertEquals 'age', customGridConfig.columns[3].name
         assertEquals 'author.age.label', customGridConfig.columns[3].label
         assertNull customGridConfig.columns[3].property
     }
@@ -266,11 +376,11 @@ class EasygridServiceTests extends AbstractServiceTest {
         assertEquals 40, domainGridConfig.columns[0].jqgrid.width
 
         assertEquals 'testIntProperty', domainGridConfig.columns[1].property
-        assert 'testDomain.testIntProperty.label' == domainGridConfig.columns[1].label
-        assertEquals 'testIntProperty', domainGridConfig.columns[1].jqgrid.name
+        assertEquals 'testDomain.testIntProperty.label', domainGridConfig.columns[1].label
+        assertEquals 'testIntProperty', domainGridConfig.columns[1].name
 
         assertEquals 'testStringProperty', domainGridConfig.columns[2].property
-        assertEquals 'testStringProperty', domainGridConfig.columns[2].jqgrid.name
+        assertEquals 'testStringProperty', domainGridConfig.columns[2].name
     }
 
     /// end default values tests-----------------

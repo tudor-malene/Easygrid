@@ -33,6 +33,7 @@ class JqueryGridService {
         }
 
 
+/*
         gridConfig.columns.each {ColumnConfig column ->
             if (column?.jqgrid?.name == null) {
                 column.jqgrid ?: (column.jqgrid = [:])
@@ -40,6 +41,7 @@ class JqueryGridService {
                 column.jqgrid.name = column.property
             }
         }
+*/
     }
 
 
@@ -47,12 +49,12 @@ class JqueryGridService {
 
         if (params._search) {
             // determine if there is a search
-            def searchParams = params.keySet().intersect(gridConfig.columns.collect {it.jqgrid.name })
+            def searchParams = params.keySet().intersect(gridConfig.columns.collect {it.name })
 
             // determine the search closure from the config
 //            searchParam ? (gridConfig.columns.find {it.jqgrid.name == searchParam}?.jqgrid?.search) : null
             searchParams.inject([]) {list, param ->
-                def closure = gridConfig.columns.find {col -> col.jqgrid.name == param}?.filterClosure
+                def closure = gridConfig.columns.find {col -> col.name == param}?.filterClosure
                 closure ? (list + closure) : list
             }
 

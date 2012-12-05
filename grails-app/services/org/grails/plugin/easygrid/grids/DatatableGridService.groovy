@@ -27,6 +27,7 @@ class DatatableGridService {
             gridConfig.datatable = [:]
         }
 
+/*
         gridConfig.columns.each {ColumnConfig column ->
             if (column?.datatable?.name == null) {
                 column.datatable ?: (column.datatable = [:])
@@ -34,6 +35,7 @@ class DatatableGridService {
                 column.datatable.name = column.property
             }
         }
+*/
     }
 
 /*
@@ -59,7 +61,7 @@ string	sEcho	Information for DataTables to use for rendering.
             if (params["bSearchable_$i"] && params["sSearch_$i"]) {
                 def val = params["sSearch_$i"]
                 filterClosures.add col.filterClosure
-                params["${col.datatable.name}"] = val
+                params["${col.name}"] = val
             }
         }
         filterClosures
@@ -89,7 +91,7 @@ string	sEcho	Information for DataTables to use for rendering.
         def order = null
         orderMap.find {1}.each {
             order = it.value
-            sort = it.key.datatable.name
+            sort = it.key.name
         }
 
         [rowOffset: params.iDisplayStart ? params.iDisplayStart as int : 0, maxRows: maxRows, sort: sort, order: order]

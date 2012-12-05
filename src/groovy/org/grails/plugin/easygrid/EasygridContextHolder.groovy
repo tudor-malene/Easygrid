@@ -8,6 +8,7 @@ import org.springframework.web.context.request.RequestContextHolder
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReadWriteLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 
 /**
  * utility class
@@ -42,7 +43,7 @@ class EasygridContextHolder {
         restoredParamsHolder.remove()
     }
 
-    static getParams() {
+    static GrailsParameterMap getParams() {
         def params = restoredParamsHolder.get()
         params ? params : RequestContextHolder.currentRequestAttributes().params
     }

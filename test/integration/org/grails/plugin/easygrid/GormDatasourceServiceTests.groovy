@@ -27,22 +27,21 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
 
         domainGridConfig = generateConfigForGrid {
             id 'testDomainGrid'
+            labelPrefix ''
             dataSourceType 'domain'
             domainClass TestDomain
             columns {
-                'id' {
+                id {
                     type 'id'
                 }
-                'testStringProperty' {
-                    property 'testStringProperty'
+                testStringProperty {
                     filterClosure { params ->
                         ilike('testStringProperty', "%${params.testStringProperty}%")
                     }
                     jqgrid {
                     }
                 }
-                'testIntProperty' {
-                    property 'testIntProperty'
+                testIntProperty {
                     filterClosure {  params ->
                         eq('testIntProperty', params.'testIntProperty' as int)
                     }
@@ -54,29 +53,24 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
 
         criteriaGridConfig = generateConfigForGrid {
             id 'testDomainGrid'
+            labelPrefix ''
             dataSourceType 'domain'
             domainClass TestDomain
             initialCriteria {
                 between("testIntProperty", 21, 40)
             }
             columns {
-                'id' {
+                id {
                     type 'id'
                 }
-                'testStringProperty' {
-                    property 'testStringProperty'
+                testStringProperty {
                     filterClosure { params ->
                         ilike('testStringProperty', "%${params.testStringProperty}%")
                     }
-                    jqgrid {
-                    }
                 }
-                'testIntProperty' {
-                    property 'testIntProperty'
+                testIntProperty {
                     filterClosure {  params ->
                         eq('testIntProperty', params.'testIntProperty' as int)
-                    }
-                    jqgrid {
                     }
                 }
             }

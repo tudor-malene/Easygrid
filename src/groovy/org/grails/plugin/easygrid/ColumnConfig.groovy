@@ -1,11 +1,17 @@
 package org.grails.plugin.easygrid
 
+import groovy.transform.AutoClone
+
 /**
  * defines a grid column
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
+@AutoClone
 class ColumnConfig {
+
+    // the name of the column
+    String name
 
     String label
     def type
@@ -25,8 +31,17 @@ class ColumnConfig {
     Boolean showInSelection
 
     //dynamic
-    Map properties = [:]
-    def propertyMissing(String name, value) { properties[name] = value }
-    def propertyMissing(String name) { properties[name] }
+    private Map dynamicProperties = [:]
 
+
+    //todo - this must be
+    def propertyMissing(String name, value) { dynamicProperties[name] = value }
+    def propertyMissing(String name) { dynamicProperties[name] }
+    def deepClone() {
+        def clone = this.clone()
+        clone.dynamicProperties = this.dynamicProperties.collectEntries {key, value ->
+            [(key): (value instanceof Cloneable) ? value.clone() : value]
+        }
+        clone
+    }
 }

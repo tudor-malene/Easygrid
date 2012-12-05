@@ -4,6 +4,7 @@ import grails.util.ClosureToMapPopulator
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
+import org.grails.plugin.easygrid.ColumnsConfig
 
 /**
  * implementation for the EasyGrid DSL
@@ -39,23 +40,25 @@ class EasygridBuilder {
     GridConfig evaluateGrid(Closure gridClosure) {
         def gridConfig = new GridConfig()
 
+        def defaultValues = grailsApplication?.config?.easygrid
         //build the grid
         buildWithDelegate(gridClosure, { String name, args ->
             switch (name) {
 
-                case (GridUtils.findImplementations(grailsApplication?.config?.easygrid)):    //handle simple key-value properties for the different implementations
+                case (GridUtils.findImplementations(defaultValues)):    //handle simple key-value properties for the different implementations
                     gridConfig[name] = new ClosureToMapPopulator().populate(args[0])
+
                     break;
 
 
                 case ('columns'):   //handle the columns section
-                    gridConfig.columns = []
+                    gridConfig.columns = new ColumnsConfig()
 
                     // handle the columns section
                     buildWithDelegate(args[0])
                             { colName, colArgs -> // method missing
-                                def column = new ColumnConfig(label: colName)
-                                gridConfig.columns.add(column)
+                                def column = new ColumnConfig()
+                                column.name = colName
 
                                 buildWithDelegate(colArgs[0]) { colProperty, colValue ->
                                     switch (colProperty) {
@@ -74,16 +77,13 @@ class EasygridBuilder {
                                             break
                                     }
                                 }
+
+                                assert column.name
+                                gridConfig.columns.add(column)
                             }
                             { colName ->     // handle property missing, the case when you only define the label of the column
-                                assert gridConfig.labelPrefix || gridConfig.domainClass
-                                def prefix = gridConfig.labelPrefix ?: grails.util.GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
-                                assert prefix
-
-                                def label = grailsApplication?.config?.easygrid?.defaults?.labelFormat?.make(prefix: prefix, column: colName)
-                                assert label
-
-                                def column = new ColumnConfig(label: label, property: colName)
+                                def column = new ColumnConfig(property: colName, name: colName)
+                                assert column.name
                                 gridConfig.columns.add(column)
                             }
                     break
@@ -101,19 +101,19 @@ class EasygridBuilder {
     }
 
     /**
-     * utility method that invokes the builder closure with the missingMethod of the delegate set as the delegate closure
-     * @param builder - the builder DSL
+     * utility method that invokes the builderClosure closure with the missingMethod of the delegate set as the delegate closure
+     * @param builderClosure - the builderClosure DSL
      * @param delegate - the method missing delegate
      * @param propertyDelegate - the property missing delegate
      * @return
      */
-    def buildWithDelegate(Closure builder, Closure delegate, Closure propertyDelegate = null) {
-        builder.delegate = [invokeMethod: delegate, getProperty: propertyDelegate] as GroovyObjectSupport
-        builder.resolveStrategy = Closure.DELEGATE_FIRST
+    def buildWithDelegate(Closure builderClosure, Closure delegate, Closure propertyDelegate = null) {
+        builderClosure.delegate = [invokeMethod: delegate, getProperty: propertyDelegate] as GroovyObjectSupport
+        builderClosure.resolveStrategy = Closure.DELEGATE_FIRST
         try {
-            builder()
+            builderClosure()
         } finally {
-            builder.delegate = null
+            builderClosure.delegate = null
         }
     }
 

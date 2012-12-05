@@ -72,7 +72,7 @@ class GormDatasourceService {
 //            todo - choose columns to exclude
             def idProperty = domainClass.properties.find {it.name == 'id'}
             if (idProperty) {
-                def idCol = new ColumnConfig(property: 'id', type: 'id', label: "${domainClass.propertyName}.id.label")
+                def idCol = new ColumnConfig(property: 'id', type: 'id', name: 'id')
                 if (easygridService.implService?.respondsTo('dynamicProperties')) {
                     easygridService.implService.dynamicProperties(idProperty, idCol)
                 }
@@ -84,9 +84,7 @@ class GormDatasourceService {
                 if (prop.isAssociation()) {
                     return
                 }
-                def column = new ColumnConfig()
-                column.property = prop.name
-                column.label = "${domainClass.propertyName}.${prop.name}.label"
+                def column = new ColumnConfig(property: prop.name, name: prop.name)
                 //todo -add other info from the property
                 if (easygridService.implService?.respondsTo('dynamicProperties')) {
                     easygridService.implService.dynamicProperties(prop, column)

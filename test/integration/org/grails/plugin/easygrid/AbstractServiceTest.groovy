@@ -30,11 +30,12 @@ abstract class AbstractServiceTest {
 //        easygridService.grailsApplication.config?.easygrid = defaultValues
         defaultValues = grailsApplication.config?.easygrid
 
+//        defaultValues.columns.buildStyle = 'columnLabelAsHeader'
         //initialize the custom grid
         customGridConfig = generateConfigForGrid {
             id 'authorGrid'
             dataSourceType 'custom'
-
+            labelPrefix 'author'
             roles 'admin'
             securityProvider { grid, oper ->
                 if (grid.roles) {
@@ -58,11 +59,10 @@ abstract class AbstractServiceTest {
                 height 150
             }
             columns {
-                'author.id' {
+                id {
                     type 'id'
                 }
-                'author.name.label' {
-                    property 'name'
+                name {
                     filterClosure {params ->
                         ilike('name', "%${params.name}%")
                     }
@@ -73,15 +73,14 @@ abstract class AbstractServiceTest {
                         width 100
                     }
                 }
-                'author.nation.label' {
-                    property 'nation'
+                nation {
                     filterClosure {params ->
                         ilike('nation', "%${params.nation}%")
                     }
                     jqgrid {
                     }
                 }
-                'author.age.label' {
+                age {
                     value { row ->
                         use(TimeCategory) {
                             new Date().year - row.birthDate.time.year
@@ -91,12 +90,10 @@ abstract class AbstractServiceTest {
                         eq('age', params.age as int)
                     }
                     jqgrid {
-                        name 'age'
                         width 110
                     }
                 }
-                'author.birthDate.label' {
-                    property 'birthDate'
+                birthDate {
                     formatName 'stdDateFormatter'
                     filterClosure {params ->
                         eq('birthDate', params.birthDate)
@@ -113,12 +110,12 @@ abstract class AbstractServiceTest {
         //initialize the list grid
         listGridConfig = generateConfigForGrid {
             id 'listProviderGrid'
+            labelPrefix 'list'
             dataSourceType 'list'
             context 'session'
             attributeName 'listData'
             columns {
-                'list.col1.label' {
-                    property 'col1'
+                col1 {
                     filterClosure {params, element ->
                         element.col1 > params.min
                     }
@@ -126,20 +123,16 @@ abstract class AbstractServiceTest {
                         editable true
                     }
                 }
-                'list.col2.label' {
-                    property 'col2'
+                col2 {
                     filterClosure { params, element ->
                         element.col2.contains(params.col2)
                     }
                     jqgrid {
                     }
                 }
-                'list.col3.label' {
+                col3 {
                     value {it.col1 * it.col1}
                     filterClosure { params, element ->
-                    }
-                    jqgrid {
-                        name 'col3'
                     }
                 }
             }

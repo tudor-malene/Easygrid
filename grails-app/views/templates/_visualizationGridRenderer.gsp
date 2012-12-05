@@ -65,10 +65,10 @@
             <g:hiddenField name="_filter" value="true"/>
             <g:findAll in="${gridConfig.columns}"   expr="${it.visualization.search}">
                 <div>
-                    <label for="${it.visualization.name}">
+                    <label for="${it.name}">
                         <g:message code="${it.label}" default="${it.label}"/>
                     </label>
-                    <g:field name="${it.visualization.name}" type="${it.visualization.searchType}"/>
+                    <g:field name="${it.name}" type="${it.visualization.searchType}"/>
                 </div>
             </g:findAll>
             <g:submitButton name="Filter"/>
