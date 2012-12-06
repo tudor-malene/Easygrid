@@ -2,7 +2,7 @@
 //def plugin = appCtx.pluginManager.getGrailsPlugin('easygrid')
 
 def jqgridVer = "4.4.0"
-def datatablesVer = "1.9.3"
+def dataTablesVer = "1.9.3"
 
 modules = {
     'easygrid-jqgrid-theme' {
@@ -25,7 +25,7 @@ modules = {
     'easygrid-datatables' {
         dependsOn 'jquery-ui'
 
-        resource id: 'js-datatable', url: [plugin: 'easygrid', dir: "DataTables-${datatablesVer}/media/js", file: "jquery.dataTables.min.js"],
+        resource id: 'js-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/js", file: "jquery.dataTables.min.js"],
                 nominify: true, disposition: 'head'
     }
 
@@ -44,7 +44,7 @@ modules = {
     'easygrid-datatables-dev' {
         dependsOn 'jquery-ui'
 
-        resource id: 'js-datatable', url: [plugin: 'easygrid', dir: "DataTables-${datatablesVer}/media/js", file: "jquery.dataTables.js"],
+        resource id: 'js-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/js", file: "jquery.dataTables.js"],
                 nominify: true, disposition: 'head'
     }
 

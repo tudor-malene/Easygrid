@@ -10,7 +10,7 @@ import org.grails.plugin.easygrid.EasygridContextHolder
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Mixin(EasygridContextHolder)
-class DatatableGridService {
+class DataTablesGridService {
 
     static transactional = false
 
@@ -38,7 +38,7 @@ string	sEcho	Information for DataTables to use for rendering.
 
     def filters() {
         def filterClosures = []
-        gridConfig.columns.findAll {it.datatable.search}.eachWithIndex {col, i ->
+        gridConfig.columns.findAll {it.dataTables.search}.eachWithIndex {col, i ->
             if (params["bSearchable_$i"] && params["sSearch_$i"]) {
                 def val = params["sSearch_$i"]
                 filterClosures.add col.filterClosure

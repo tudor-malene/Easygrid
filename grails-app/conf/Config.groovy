@@ -1,4 +1,5 @@
 import groovy.text.SimpleTemplateEngine
+import org.grails.plugin.easygrid.grids.DataTablesGridService
 // configuration for plugin testing - will not be included in the plugin zip
 
 log4j = {
@@ -106,9 +107,9 @@ easygrid {
             ]
         }
 
-        datatable {
-            gridImplService = org.grails.plugin.easygrid.grids.DatatableGridService
-            gridRenderer = '/templates/datatableGridRenderer'
+        dataTables {
+            gridImplService = DataTablesGridService
+            gridRenderer = '/templates/dataTablesGridRenderer'
             inlineEdit = false
             formats = [
                     (Date): {it.format("dd/MM/yyyy")},
@@ -142,7 +143,7 @@ easygrid {
                 searchType = 'text'
                 valueType = com.google.visualization.datasource.datatable.value.ValueType.TEXT
             }
-            datatable {
+            dataTables {
                 width = "'100%'"
             }
             export {

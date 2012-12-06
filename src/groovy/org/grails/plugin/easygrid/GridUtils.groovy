@@ -5,7 +5,7 @@ import org.grails.plugin.easygrid.datasource.CustomDatasourceService
 import org.grails.plugin.easygrid.datasource.GormDatasourceService
 import org.grails.plugin.easygrid.datasource.ListDatasourceService
 import org.grails.plugin.easygrid.grids.ClassicGridService
-import org.grails.plugin.easygrid.grids.DatatableGridService
+import org.grails.plugin.easygrid.grids.DataTablesGridService
 import org.grails.plugin.easygrid.grids.JqueryGridService
 import org.grails.plugin.easygrid.grids.VisualizationGridService
 
@@ -86,7 +86,7 @@ class GridUtils {
         EasygridService.mixin EasygridContextHolder
         ClassicGridService.mixin EasygridContextHolder
         VisualizationGridService.mixin EasygridContextHolder
-        DatatableGridService.mixin EasygridContextHolder
+        DataTablesGridService.mixin EasygridContextHolder
         JqueryGridService.mixin EasygridContextHolder
         EasygridExportService.mixin EasygridContextHolder
 

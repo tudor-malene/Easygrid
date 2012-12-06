@@ -62,11 +62,11 @@
 
 
 <table id="${attrs.id}_datatable" cellpadding="0" cellspacing="0" border="0"
-       class="display">%{--width="${gridConfig.datatable.width}">--}%
+       class="display">%{--width="${gridConfig.dataTables.width}">--}%
     <thead>
     <tr>
         <g:each in="${gridConfig.columns}" var="col">
-            <th %{--width="${col.datatable.width}"--}%>${message(code: col.label, default: col.label)}</th>
+            <th %{--width="${col.dataTables.width}"--}%>${message(code: col.label, default: col.label)}</th>
         </g:each>
     </tr>
     </thead>
@@ -78,8 +78,8 @@
     <tfoot>
     <tr>
         <g:each in="${gridConfig.columns}" var="col">
-            <td>%{--width="${col.datatable.width}">--}%
-                <g:if test="${col.datatable.search}">
+            <td>%{--width="${col.dataTables.width}">--}%
+                <g:if test="${col.dataTables.search}">
                     <input type="text" name="search_${col.name}" class="search_init" size="10"/>
                 </g:if>
                 <g:else>

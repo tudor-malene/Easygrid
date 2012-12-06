@@ -11,7 +11,7 @@ import grails.test.mixin.TestFor
  */
 @Mock(TestDomain)
 @TestFor(TestDomainController)
-class DatatableGridServiceTests extends  AbstractServiceTest {
+class DataTablesGridServiceTests extends  AbstractServiceTest {
 
     void test1(){
 
