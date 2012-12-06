@@ -35,7 +35,7 @@ class EasygridService {
      * @param controller - the annotated class which
      * @return the initialized grids structure for the controller
      */
-    def initGrids(controller) {
+    def Map<String,GridConfig> initGrids(controller) {
 
         if (reloadGrids()) {
             log.debug('clear grid cache')
@@ -58,10 +58,11 @@ class EasygridService {
 
     /**
      * write protected method that initializes the grids for a controller
+     * run only on the first usage  ( in dev mode - run on first usage after a reload)
      * @param controller
      * @return the initialized grids structure
      */
-    def memoizeGrids(controller) {
+    def Map<String,GridConfig> memoizeGrids(controller) {
         writeLock.lock()
         try {
             gridsCacheClosure = initGridsClosure.memoize()
@@ -211,7 +212,7 @@ class EasygridService {
         if (implService?.respondsTo('addDefaultValues')) {
             implService.addDefaultValues(defaultValues)
         }
-
+        gridConfig
     }
 
     /**

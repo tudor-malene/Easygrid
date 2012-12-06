@@ -41,6 +41,8 @@ easygrid {
         jqgrid {
             width = '"100%"'
             height = 250
+            // number of rows to display by default
+            rowNum = 20
         }
 
         // spring security implementation

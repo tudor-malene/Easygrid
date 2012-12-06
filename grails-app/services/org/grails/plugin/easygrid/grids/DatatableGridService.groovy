@@ -17,26 +17,7 @@ class DatatableGridService {
     def easygridService
     def grailsApplication
 
-    /**
-     * @param defaultValues
-     * @return
-     */
-    def addDefaultValues(Map defaultValues) {
 
-        if (!gridConfig.datatable) {
-            gridConfig.datatable = [:]
-        }
-
-/*
-        gridConfig.columns.each {ColumnConfig column ->
-            if (column?.datatable?.name == null) {
-                column.datatable ?: (column.datatable = [:])
-                assert column.property
-                column.datatable.name = column.property
-            }
-        }
-*/
-    }
 
 /*
 int	iDisplayStart	Display start point in the current data set.

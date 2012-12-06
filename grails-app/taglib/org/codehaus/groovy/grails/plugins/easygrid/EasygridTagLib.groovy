@@ -19,12 +19,19 @@ class EasygridTagLib {
     /**
      * Include the code for the grid
      *
-     * @attr id REQUIRED  the id of the grid
+     * @attr name REQUIRED - the name of the grid
+     * @attr id - the javascript id of the component ( by default the grid name)
+     * @attr controller - the controller where the grid is defined ( by default the current controller)
      */
     def grid = { attrs, body ->
+        if (attrs.id == null) {
+            attrs.id = attrs.name
+        }
+
         def gridConfig = getGridConfig(attrs)
         def model = easygridService.htmlGridDefinition(gridConfig)
         if (model) {
+            model.attrs = attrs
             out << render(template: gridConfig.gridRenderer, model: model)
         }
     }
@@ -32,9 +39,15 @@ class EasygridTagLib {
     /**
      * a simple excel export button for the grid
      *
-     * @attr id REQUIRED  the id of the grid
+     * @attr name REQUIRED - the name of the grid
+     * @attr id - the javascript id of the grid - if different from the name
+     * @attr controller - the controller where the grid is defined ( by default the current controller)
      */
     def exportButton = { attrs, body ->
+        if (attrs.id == null) {
+            attrs.id = attrs.name
+        }
+
         def gridConfig = getGridConfig(attrs)
         out << export.formats(action: "${gridConfig.id}Export", formats: ['excel'])
     }
@@ -93,10 +106,10 @@ class EasygridTagLib {
     private GridConfig getGridConfig(attrs) {
         def instance = attrs.controllerInstance ?: grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, attrs.controller ?: controllerName).newInstance()
         assert instance
-        def gridConfig = instance.gridsConfig."${attrs.id}".deepClone()
+        def gridConfig = instance.gridsConfig."${attrs.name}".deepClone()
 
         //overwrite grid properties
-        attrs.findAll {it.key != 'id'}.each {k, v ->
+        attrs.findAll {!(it.key in ['name', 'id',]) }.each {k, v ->
             GridUtils.setNestedPropertyValue(k, gridConfig, v)
         }
         gridConfig

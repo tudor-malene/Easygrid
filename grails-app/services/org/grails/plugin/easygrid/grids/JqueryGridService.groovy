@@ -17,33 +17,6 @@ class JqueryGridService {
     def easygridService
     def grailsApplication
 
-    /**
-     * @param defaultValues
-     * @return
-     */
-    def addDefaultValues(Map defaultValues) {
-
-        if (!gridConfig.jqgrid) {
-            gridConfig.jqgrid = [:]
-        }
-
-        // set the default max rows
-        if (gridConfig.defaultMaxRows) {
-            gridConfig.jqgrid.rowNum = gridConfig.defaultMaxRows
-        }
-
-
-/*
-        gridConfig.columns.each {ColumnConfig column ->
-            if (column?.jqgrid?.name == null) {
-                column.jqgrid ?: (column.jqgrid = [:])
-                assert column.property
-                column.jqgrid.name = column.property
-            }
-        }
-*/
-    }
-
 
     def filters() {
 

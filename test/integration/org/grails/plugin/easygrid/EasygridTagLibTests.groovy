@@ -29,7 +29,7 @@ class EasygridTagLibTests {
         controller.metaClass.getGridsConfig = {easygridService.initGrids(controller)}
         tagLib.easygridService = easygridService
 
-        def output = tagLib.grid(id: 'testGrid', controllerInstance: controller)
+        def output = tagLib.grid(name: 'testGrid', controllerInstance: controller)
         assertTrue output.contains(controller.gridsConfig.testGrid.id)
     }
 }

@@ -1,5 +1,5 @@
 <jq:jquery>
-    jQuery("#${gridConfig.id}_table").jqGrid(
+    jQuery("#${attrs.id}_table").jqGrid(
             {
         datatype: 'json',
         url: '${g.createLink(action: "${gridConfig.id}Rows", params: params)}',
@@ -25,11 +25,11 @@
     </grid:eachColumn>
     ],
    viewrecords: true,
-   pager: '#${gridConfig.id}Pager',
+   pager: '#${attrs.id}Pager',
     <g:if test="${gridConfig.inlineEdit}">
         onSelectRow: function(id){
 
-            jQuery("#${gridConfig.id}_table").jqGrid('editRow', id //, true
+            jQuery("#${attrs.id}_table").jqGrid('editRow', id //, true
                 , {
                     keys:true,
                     aftersavefunc:function (rowid, response) {
@@ -41,7 +41,7 @@
     </g:if>
     });
 
-    jQuery('#${gridConfig.id}_table').navGrid('#${gridConfig.id}Pager',
+    jQuery('#${attrs.id}_table').navGrid('#${attrs.id}Pager',
         {
             add: false,
             edit:false,
@@ -51,7 +51,7 @@
         });
 
 
-    jQuery('#${gridConfig.id}_table').filterToolbar(
+    jQuery('#${attrs.id}_table').filterToolbar(
         {
             autosearch: true,
             searchOnEnter: true
@@ -59,6 +59,6 @@
 
 </jq:jquery>
 
-<table id="${gridConfig.id}_table"></table>
-<div id="${gridConfig.id}Pager"></div>
+<table id="${attrs.id}_table"></table>
+<div id="${attrs.id}Pager"></div>
 

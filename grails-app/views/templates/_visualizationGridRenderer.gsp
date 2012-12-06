@@ -1,14 +1,14 @@
 <script type="text/javascript">
     google.load('visualization', '1', {'packages':['table']});
-    google.setOnLoadCallback(init${gridConfig.id});
+    google.setOnLoadCallback(init${attrs.id});
     var baseDataSourceUrl = '${g.createLink(action: "${gridConfig.id}Rows")}';
     var dataSourceUrl = baseDataSourceUrl;
 
     var query, options, container;
 
-    function init${gridConfig.id}() {
+    function init${attrs.id}() {
         query = new google.visualization.Query(dataSourceUrl);
-        container = document.getElementById("${gridConfig.id}_div");
+        container = document.getElementById("${attrs.id}_div");
 
     <g:if test="${gridConfig.visualization.loadAllData}">
         // Send the query with a callback function.
@@ -51,16 +51,16 @@
         var ser = jQuery(form).serialize();
         console.log(ser);
         dataSourceUrl = baseDataSourceUrl + "?" + ser;
-        init${gridConfig.id}();
+        init${attrs.id}();
         return false;
     }
 
 </script>
 
 
-<div id="${gridConfig.id}_FilterDiv">
-    %{--<g:formRemote name="${gridConfig.id}_FilterForm"  onSuccess="_reloadGrid(data,textStatus)" url='[action:"${gridConfig.id}Rows"]'>--}%
-    <form name="${gridConfig.id}_FilterForm" onsubmit="return rewriteDatasource(this)" action="${gridConfig.id}Rows">
+<div id="${attrs.id}_FilterDiv">
+    %{--<g:formRemote name="${attrs.id}_FilterForm"  onSuccess="_reloadGrid(data,textStatus)" url='[action:"${gridConfig.id}Rows"]'>--}%
+    <form name="${attrs.id}_FilterForm" onsubmit="return rewriteDatasource(this)" action="${gridConfig.id}Rows">
         <fieldset class="form">
             <g:hiddenField name="_filter" value="true"/>
             <g:findAll in="${gridConfig.columns}"   expr="${it.visualization.search}">
@@ -77,7 +77,7 @@
 
 </div>
 
-<div id="${gridConfig.id}_div"></div>
+<div id="${attrs.id}_div"></div>
 
 %{--
 <form action="">

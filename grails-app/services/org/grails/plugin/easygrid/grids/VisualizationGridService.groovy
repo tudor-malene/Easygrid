@@ -37,21 +37,6 @@ class VisualizationGridService {
         column.visualization.valueType = getValueType(prop.type)
     }
 
-    def addDefaultValues(Map defaultValues) {
-        gridConfig.columns.each {ColumnConfig column ->
-/*
-            if (column?.visualization?.name == null) {
-                column.visualization ?: (column.visualization = [:])
-                assert column.property
-                column.visualization.name = column.property
-            }
-*/
-            if (column?.visualization?.valueType == null) {
-                //fallback to text if
-                column.visualization.valueType = ValueType.TEXT
-            }
-        }
-    }
 
     def filters() {
         if (params._filter) {
