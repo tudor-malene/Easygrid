@@ -36,12 +36,8 @@ class JqgridServiceTests extends AbstractServiceTest {
 
         def gridsConfig = easygridService.initGrids(controller)
         EasygridContextHolder.setLocalGridConfig(gridsConfig.testGrid)
-//        assertEquals 16, gridsConfig.testGrid.size()--todo
         assertEquals false, gridsConfig.testGrid.columns[0].jqgrid.editable
 
-//        assertEquals "'testDomain.id.label','testDomain.testIntProperty.label','testDomain.testStringProperty.label'", colNames
-//        assertEquals "{name:'id', width:40,fixed:true,editable:false,},{name:'testIntProperty', editable:true,},{name:'testStringProperty', editable:true,}", colModel
-//        assertEquals "width:300,height:150,", jqgridProperties
     }
 
     void testEditRow() {

@@ -27,8 +27,8 @@ class EasygridService {
     static gridsCacheClosure
 
     private final ReadWriteLock initLock = new ReentrantReadWriteLock();
-    private final Lock readLock = initLock.readLock();
-    private final Lock writeLock = initLock.writeLock();
+    private final Lock rLock = initLock.readLock();
+    private final Lock wLock = initLock.writeLock();
 
     /**
      * constructs the configuration from the builder
@@ -47,11 +47,11 @@ class EasygridService {
             while (!gridsCacheClosure) {
                 sleep(2)
             }
-            readLock.lock()
+            rLock.lock()
             try {
                 gridsCacheClosure(controller)
             } finally {
-                readLock.unlock()
+                rLock.unlock()
             }
         }
     }
@@ -63,12 +63,12 @@ class EasygridService {
      * @return the initialized grids structure
      */
     def Map<String,GridConfig> memoizeGrids(controller) {
-        writeLock.lock()
+        wLock.lock()
         try {
             gridsCacheClosure = initGridsClosure.memoize()
             gridsCacheClosure(controller)
         } finally {
-            writeLock.unlock()
+            wLock.unlock()
         }
     }
 
@@ -190,16 +190,11 @@ class EasygridService {
                 assert column.formatter
             }
 
-//            assert column.name
-            //todo - replace the label with the name in the internal map
-            //todo - move the default values stuff in the builder
-
             if (!column.property && !column.value) {
                 column.property = column.name
             }
 
             if(!column.label){
-                assert gridConfig.labelPrefix || gridConfig.domainClass
                 def prefix = gridConfig.labelPrefix ?: grails.util.GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
                 assert prefix
                 column.label = grailsApplication?.config?.easygrid?.defaults?.labelFormat?.make(prefix: prefix, column: column.name)

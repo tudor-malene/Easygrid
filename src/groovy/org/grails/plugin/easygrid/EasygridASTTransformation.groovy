@@ -104,6 +104,7 @@ class EasygridASTTransformation extends AbstractASTTransformation {
                             def gridConfig = gridsConfig['${gridName}']
                             def model = easygridService.htmlGridDefinition(gridConfig.deepClone())
                             if (model) {
+                                model.attrs = [id : "$${gridConfig.id}" ]
                                 render(template: gridConfig.gridRenderer, model: model)
                             }
                         }

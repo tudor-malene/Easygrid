@@ -34,7 +34,6 @@ class ColumnConfig {
     private Map dynamicProperties = [:]
 
 
-    //todo - this must be
     def propertyMissing(String name, value) { dynamicProperties[name] = value }
     def propertyMissing(String name) { dynamicProperties[name] }
     def deepClone() {
