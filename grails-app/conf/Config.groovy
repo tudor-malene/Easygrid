@@ -1,4 +1,3 @@
-import groovy.text.SimpleTemplateEngine
 import org.grails.plugin.easygrid.grids.DataTablesGridService
 // configuration for plugin testing - will not be included in the plugin zip
 

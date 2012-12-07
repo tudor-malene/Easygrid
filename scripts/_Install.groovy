@@ -199,7 +199,7 @@ easygrid {
 }
 
 // copy the templates
-copyTemplates([ 'jqGridRenderer', 'jqGridEditResponse','classicGridRenderer', 'datatableGridRenderer', 'visualizationGridRenderer', ])
+copyTemplates([ 'jqGridRenderer', 'jqGridEditResponse','classicGridRenderer', 'dataTablesGridRenderer', 'visualizationGridRenderer', ])
 
 
 def copyTemplates(templates) {

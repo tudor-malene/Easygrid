@@ -1,7 +1,7 @@
 Easygrid
 =======================
 
-This plugin provides a convenient and agile way of defining a DataGrid.
+This plugin provides a convenient and agile way of defining Data Grids.
 It also provides a powerful selection widget ( a direct replacement for drop-boxes )
 
 
@@ -36,14 +36,14 @@ Easygrid solves these problems by proposing a solution based on declarations & c
 
 - custom builder - for defining the grid
 - easy to mock and test: able to generate a Grid from a domain class without any custom configuration
-- reloads & regenerates the grid when source code is changed
+- agile: reloads & regenerates the grid when source code is changed
 - convenient default values for grid & column properties
-- predefined column types - ( sets of properties )
+- DRY: predefined column types - ( sets of properties )
 - define the column formatters in one place
 - customizable html/javascript grid templates
 - built-in support for exporting to XLS ( using the exporter plugin )
 
-- Jquery-ui widget and custom tag for a powerful selection widget
+- Jquery-ui widget and custom tag for a powerful selection widget featuring a jquery autocomplete textbox and a selection dialog built with Easygrid ( with filtering, sorting,etc)
 
 
 Concepts
@@ -57,7 +57,7 @@ For each grid you need to configure the following aspects.
 - datasource
 - grid implementation
 - columns:
-    - label
+    - name
     - value ( could be a property of the datasource row, or a closure )
     - formatting
     - Optional specific grid implementation properties ( that will be available in the renderer)
@@ -94,10 +94,10 @@ Ex:  grid to display Authors with 4 columns: id, name, nation and birthdate
             gridImpl 'jqgrid'
             roles 'ROLE_USER'
             columns {
-                'author.id' {
+                id {
                     type 'id'
                 }
-                'author.name.label' {
+                name {
                     property 'name'
                     filterClosure {params ->
                         ilike('name', "%${params.name}%")
@@ -109,28 +109,24 @@ Ex:  grid to display Authors with 4 columns: id, name, nation and birthdate
                         width 100
                     }
                 }
-                'author.nation.label' {
+                nation {
                     property 'nation'
                     filterClosure {params ->
                         ilike('nation', "%${params.nation}%")
                     }
-                    jqgrid {
-                    }
                 }
-                'author.age.label' {
+                age {
                     value { row ->
                         use(TimeCategory) {
                             new Date().year - row.birthDate.time.year
                         }
                     }
                     jqgrid {
-                        name 'age'
                         width 110
                         search false
                     }
                 }
-                'author.birthDate.label' {
-                    property 'birthDate'
+                birthDate{
                     filterClosure {params ->
                         eq('birthDate', params.birthDate)
                     }
@@ -177,7 +173,7 @@ On installation of the plugin , the renderer templates for the default implement
         - domainClass - the domain ( mandatory)
         - initialCriteria  - a filter that will be applied all the time
 
-    For fast mock-up , grids with this type can be defined without columns, in which case these will be generated at runtime.
+    For fast mock-up , grids with this type can be defined without columns, in which case these will be generated at runtime from the domain properties.
 
     The search closure is defined per column and will have to be a closure which will be used by a  GORM CriteriaBuilder
 
@@ -220,7 +216,14 @@ If you want to create your own datasource:
 
 
 #### Columns section
-The label of each column (displayed in the header ) will be the actual name of the closure.
+The _name_ of each column will be the actual name of the closure. The _name_ has multiple implications:
+    - the label can be automatically formed ( see below)
+    - in case there is no property or value setting ( see below ), the _name_ will be used as the column property ( see below)
+    - also you can access the columns using this _name_ ( in case you want to override some properties in the taglib - see below)
+    - the _name_ is also used as the name of the parameters when searching or sorting a column
+
+- Column Label:
+The label can be defined , but in case it's missing it will be composed automatically using the 'labelFormat' template - defined in Config.groovy.
 
 - Column Value:
 For each column you have to define the value that will be displayed.
@@ -230,32 +233,33 @@ Otherwise you can use the "value" closure, whose first parameter will be the act
 
 (There is a possibility to define the "property" columns more compact by using the actual property as the name of the column ( the label will be generated using labelPrefix)
 
-- Column view:
+- Javascript settings:
 Another important section of each column is the javascript implementation section.
-All the properties defined here except "filterClosure" will be available in the render template to be used in whatever way.
+All the properties defined here will be available in the render template to be used in whatever way.
 
-- "filterClosure" has a special treatment. It is a closure called after a search was made from the interface.
-In case of grid type=domain, the search closure is actually a GORM CriteriaBuilder which will be passed to the list method of the domain.
+- _filterClosure_:
+When the user filters the grid content, these closures will be applied to the dataset.
+In case of grid _type_ = _domain_, the search closure is actually a GORM CriteriaBuilder which will be passed to the list method of the domain.
 
 #### Export
-Easygrid also comes integrated with the export plugin. Basically, you can set export properties in the export section.
+Easygrid also comes integrated with the export plugin.
+Each column has an optional export section, where you can set additional properties like width, etc.
 
 From the example you can also notice the "type" property of a column.
 Types are defined in Config.groovy, and represent a collection of properties that will be applied to this column, to avoid duplicate settings.
 
 Default values:
-- all columns can have default values - which can be overriden
+- all columns have default values ( defined in Config)- which are overriden.
 
 
 #### Formatters:
  - defined globally (Config.groovy) based on the type(class) of the value ( because - usually , applications, have global settings for displaying data . Ex: date format, Bigdecimal - no of decimals, etc.)
-
-- formatters can also be defined per column
+ - formatters can also be defined per column
 
 The format to apply to a value is chosen  this way:
 
-1) with a formatClosure - provided at the column level
-2) with a formatName - of a previously defined format
+1) _formatClosure_ - provided at the column level
+2) _formatName_    - of a previously defined format
 3) depending of the type of the value
 4) the value ast it is
 
@@ -264,7 +268,8 @@ The format to apply to a value is chosen  this way:
 
 If you define the property securityProvider: then it will automatically guard all calls to the grid
 
-Easygrid comes by default with a spring security implementation
+Easygrid comes by default with a spring security implementation.
+Using this default implementation you can specify which _roles_ are allowed to view or inline edit the grid
 
 
 #### Other grid properties:
@@ -272,15 +277,21 @@ Easygrid comes by default with a spring security implementation
 You can customize every aspect of the grid - because everything is a property and can be overriden
 
 
-#### Selection widget
+Selection widget
+------------------------------
 
-( currently works only for JqGrid & Gorm )
+The Selection widget is meant to replace drop down boxes on forms where users have to select something from a medium or large table.
+It is composed from a autocomplete textbox ( which has a closure attached on the server side) and from a selection dialog whith a full grid (with filtering & sorting), where the user can find what he's looking for.
+It can also by constrained by other elements from the same page or by statical values. ( for ex: in the demo , if you only want to select from british authors)
 
-You can expose any grid to be used to select elements by configuring an "autocomplete" section
+You can use any grid as a selection widget by configuring an "autocomplete" section ( currently works only with JqGrid & Gorm )
+
+[Online demo ](http://localhost:8080/easygrid_example/book/create)
+
+Like this:
 
     autocomplete {
         idProp 'id'                             // the id property
-        // labelProp 'name'                     // the label property
         labelValue { val, params ->             //  or a closure
             "${val.name} (${val.nationality})"
         }
@@ -294,37 +305,72 @@ You can expose any grid to be used to select elements by configuring an "autocom
         }
     }
 
+- idProp       - represents the id
+- labelProp    - each widget will display a label once an item has been selected ( which could be a property of the object
+- labelValue    - or a custom value
+- textBoxFilterClosure   - this closure is similar to _filterClosure_ - and is called by the jquery autocomplete widget
+- constraintsFilterClosure - in case additional constraints are defined this closure is applied on top of all other closures to restrict the dataset
+
+
 
 Tablib:
 -------------
 
 Easygrid provies the following tags:
 
-- <grid:grid id="grid id"> - will render the taglib
-- <grid:exportButton id="grid id"> - the export button
+- <grid:grid name="grid_name"> - will render the taglib ( see doc )
 
-- <grid:selection > - renders a powerful replacement for the standard combo-box see the taglib document
+- <grid:exportButton name="grid_name"> - the export button ( see doc )
+
+- <grid:selection > - renders a powerful replacement for the standard combo-box see the taglib document    ( see doc and Example)
 
 
 Testing:
 ---------------
 
-- in each annotated controller, for each grid defined in "grids" , the plugin injects 3 methods:
+- in each annotated controller, for each grid defined in "grids" , the plugin injects multiple methods:
+                def ${gridName}Html ()
                 def ${gridName}Rows ()
                 def ${gridName}Export ()
                 def ${gridName}InlineEdit ()
+                def ${gridName}AutocompleteResult ()
+                def ${gridName}SelectionLabel ()
 - these can be tested in integration tests
 
 
 
+Version History
+------------------------
+
+#### 1.0.0
+    - changed the column definition ( instead of the label, the column will be defined by the name)
+    - resolved some name inconsistencies ( @Easygrid instead of @EasyGrid, etc )
+    - grids are customizable from the taglib
+    - columns are accessible by index and by name
+    - rezolved some taglib inconsistencies
+    - replaced log4j with sl4j
+
+
+#### 0.9.9
+    - first version
 
 
 
+Upgrading to 1.0
+-----------------
 
-Example application
--------------------------
+- change the annotation to @Easygrid
+- change the columns ( the column name/property in the head now instead of label)
+- replace datatable to dataTables
+- overwrite or merge the renderers
 
-For a showcase application [Easygrid Showcase](http://199.231.186.169:8080/easygrid ) .
+- In Config.groovy
+    - the labelFormat is now a plain string:  labelFormat = '${labelPrefix}.${column.name}.label'
+    - replace EasyGridExportService with EasygridExportService
+    - replace DatatableGridService with DataTablesGridService and datatableGridRenderer with dataTablesGridRenderer
+
+- configure the label format for grids
+- in the taglib - replace id with name
 
 
 
@@ -333,6 +379,10 @@ Next features:
 
 - other grid implementations ( like TreeGrid , Yui datatable)
 - users should be able to select the columns they want to see ( & store these settings)
+- other export formats and more export options
+- selection widget extended to other grids
+
+
 
 License
 -------
