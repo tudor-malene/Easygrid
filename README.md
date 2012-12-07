@@ -85,7 +85,7 @@ In each annotated controller you need to define a static closure called "grids" 
 
 The plugin provides a custom Builder for making the configuration more straight forward
 
-Ex:  grid to display Authors with 4 columns: id, name, nation and birthdate
+Ex:  grid to display Authors with 5 columns: id, name, nation , age and birthdate
 
     static grids = {
         'authorGrid' {
