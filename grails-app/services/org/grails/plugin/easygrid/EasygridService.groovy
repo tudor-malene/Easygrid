@@ -1,5 +1,6 @@
 package org.grails.plugin.easygrid
 
+import groovy.text.SimpleTemplateEngine
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
@@ -35,7 +36,7 @@ class EasygridService {
      * @param controller - the annotated class which
      * @return the initialized grids structure for the controller
      */
-    def Map<String,GridConfig> initGrids(controller) {
+    def Map<String, GridConfig> initGrids(controller) {
 
         if (reloadGrids()) {
             log.debug('clear grid cache')
@@ -62,7 +63,7 @@ class EasygridService {
      * @param controller
      * @return the initialized grids structure
      */
-    def Map<String,GridConfig> memoizeGrids(controller) {
+    def Map<String, GridConfig> memoizeGrids(controller) {
         wLock.lock()
         try {
             gridsCacheClosure = initGridsClosure.memoize()
@@ -79,7 +80,7 @@ class EasygridService {
         log.debug("run init grids for ${controller}")
 
         //call the builder & add the default settings from the config
-        generateConfigForGrids(controller.grids).each {gridName, gridConfig ->
+        generateConfigForGrids(controller.grids).each { gridName, gridConfig ->
 
             gridConfig.id = gridName
 
@@ -157,7 +158,7 @@ class EasygridService {
         }
 
         //add the predefined types  to the columns
-        gridConfig.columns.each {ColumnConfig column ->
+        gridConfig.columns.each { ColumnConfig column ->
             if (!column[gridConfig.gridImpl]) {
                 column[gridConfig.gridImpl] = [:]
             }
@@ -194,10 +195,10 @@ class EasygridService {
                 column.property = column.name
             }
 
-            if(!column.label){
+            if (!column.label) {
                 def prefix = gridConfig.labelPrefix ?: grails.util.GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
                 assert prefix
-                column.label = grailsApplication?.config?.easygrid?.defaults?.labelFormat?.make(prefix: prefix, column: column.name)
+                column.label = grailsApplication.config.easygrid.defaults.labelFormatTemplate.make(labelPrefix: prefix, column: column)
             }
 
         }
@@ -329,7 +330,7 @@ class EasygridService {
         }
 
         // apply the default value formats
-        def formatClosure = gridConfig.formats.find {clazz, closure -> clazz.isAssignableFrom(val.getClass())}?.value
+        def formatClosure = gridConfig.formats.find { clazz, closure -> clazz.isAssignableFrom(val.getClass()) }?.value
         formatClosure ? formatClosure.call(val) : val
     }
 

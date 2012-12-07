@@ -9,8 +9,8 @@ easygrid {
 
     //default values added to each defined grid
     defaults {
-        defaultMaxRows = 20
-        labelFormat = new SimpleTemplateEngine().createTemplate('${prefix}.${column}.label')
+        defaultMaxRows = 10
+        labelFormat = '${labelPrefix}.${column.name}.label'
         //called before inline editing : transforms the parameters into the actual object to be stored
         beforeSave = {params -> params}
         gridImpl = 'jqgrid'

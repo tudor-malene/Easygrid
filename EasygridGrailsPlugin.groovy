@@ -1,3 +1,4 @@
+import groovy.text.SimpleTemplateEngine
 import org.grails.plugin.easygrid.GridUtils
 import org.grails.plugin.easygrid.EasygridContextHolder
 
@@ -35,5 +36,9 @@ class EasygridGrailsPlugin {
     def onChange = { event ->
         GridUtils.addMixins()
         EasygridContextHolder.classReloaded()
+    }
+
+    def doWithApplicationContext = { appCtx ->
+        appCtx.grailsApplication.config.easygrid.defaults.labelFormatTemplate = new SimpleTemplateEngine().createTemplate(appCtx.grailsApplication.config.easygrid.defaults.labelFormat)
     }
 }
