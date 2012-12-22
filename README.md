@@ -286,7 +286,7 @@ It can also by constrained by other elements from the same page or by statical v
 
 You can use any grid as a selection widget by configuring an "autocomplete" section ( currently works only with JqGrid & Gorm )
 
-[Online demo ](http://localhost:8080/easygrid_example/book/create)
+[Online demo ](http://199.231.186.169:8080/easygrid/book/create)
 
 Like this:
 
