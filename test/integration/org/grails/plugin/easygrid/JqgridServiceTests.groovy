@@ -110,8 +110,8 @@ class JqgridServiceTests extends AbstractServiceTest {
         gridElements = easygridService.gridData(gridsConfig.testGrid)
         assertEquals N, gridElements.target.records
         assertEquals 1, gridElements.target.page
-        assertEquals 5, gridElements.target.total
-        assertEquals 20, gridElements.target.rows.size()
+        assertEquals 10, gridElements.target.total
+        assertEquals 10, gridElements.target.rows.size()
 
         //test a different page
         params.page = 2

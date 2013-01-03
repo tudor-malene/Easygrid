@@ -69,7 +69,7 @@ class EasygridContextHolder {
      * @param code
      * @return
      */
-    static message(code) {
+    static messageLabel(code) {
         new ValidationTagLib().message(code: code)
     }
 

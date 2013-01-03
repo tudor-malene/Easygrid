@@ -187,8 +187,8 @@ class EasygridService {
 
             // set the format closure
             if (column.formatName) {
+                assert defaultValues?.formats[column.formatName]: "No ${column.formatName} formatter defined "
                 column.formatter = defaultValues?.formats[column.formatName]
-                assert column.formatter
             }
 
             if (!column.property && !column.value) {
@@ -198,8 +198,44 @@ class EasygridService {
             if (!column.label) {
                 def prefix = gridConfig.labelPrefix ?: grails.util.GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
                 assert prefix
-                column.label = grailsApplication.config.easygrid.defaults.labelFormatTemplate.make(labelPrefix: prefix, column: column)
+                column.label = grailsApplication.config.easygrid.defaults.labelFormatTemplate.make(labelPrefix: prefix, column: column, gridConfig: gridConfig)
             }
+
+            // add default filterClosure
+            if (column.enableFilter && column.filterClosure == null) {
+
+                if (column.filterFieldType == null) {
+                    if (gridConfig.domainClass) {
+//                        assert column.property: "you must specify a filterFieldType for ${column.name}"
+                        if (column.property) {
+                            Class columnPropertyType = GridUtils.getPropertyType(grailsApplication, gridConfig.domainClass, column.property)
+                            //todo externalize  = de mutat in gorm
+                            switch (columnPropertyType) {
+                                case String:
+                                    column.filterFieldType = 'text'
+                                    break
+                                case int:
+                                case Integer:
+                                case BigDecimal:
+                                    column.filterFieldType = 'number'
+                                    break
+                                case Date:
+                                    column.filterFieldType = 'date'
+                                    break
+                                default:
+                                    break
+                            }
+                        }
+                    }
+                }
+
+                if (column.filterFieldType) {
+                    def filterClosure = defaultValues?.dataSourceImplementations?."${gridConfig.dataSourceType}"?.filters?."${column.filterFieldType}"
+                    assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
+                    column.filterClosure = filterClosure
+                }
+            }
+
 
         }
 
@@ -261,12 +297,13 @@ class EasygridService {
                 assert implService.respondsTo('listParams')
                 assert implService.respondsTo('transform')
 
-                //returns a list of search Closures
+                //returns a map of search [colName: Closure]
                 def filters = implService.filters()
                 def listParams = implService.listParams()
 
                 //validation
 /*
+todo
                 def validationClosure = gridConfig.constraints
                 if (validationClosure) {
                     def constrainedPropertyBuilder = new ConstrainedPropertyBuilder(cmdObject)
@@ -288,7 +325,7 @@ class EasygridService {
 
                 if (params.selectionComp) {
                     //add a new criteria
-                    filters.add gridConfig.autocomplete.constraintsFilterClosure
+                    filters.add new Filter(autocompleteConstraint: true, searchFilter: gridConfig.autocomplete.constraintsFilterClosure)
                 }
 
                 def rows = dataSourceService.list(listParams, filters)

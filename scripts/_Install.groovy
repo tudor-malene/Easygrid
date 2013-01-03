@@ -1,6 +1,7 @@
 // add the configurations to the Config file
-def configFile = new File(basedir, 'grails-app/conf/Config.groovy')
-if (configFile.exists() && configFile.text.indexOf("easygrid") == -1) {
+File configFile = new File(basedir, 'grails-app/conf/Config.groovy')
+//todo - de verificat
+if (configFile.exists() && configFile.text.matches("easygrid[\\s*]{") == -1) {
     configFile.withWriterAppend {
         it.writeLine '\n// Added by Easygrid:'
         it.writeLine '''

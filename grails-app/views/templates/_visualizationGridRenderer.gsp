@@ -10,19 +10,19 @@
         query = new google.visualization.Query(dataSourceUrl);
         container = document.getElementById("${attrs.id}_div");
 
-    <g:if test="${gridConfig.visualization.loadAllData}">
+        <g:if test="${gridConfig.visualization.loadAllData}">
         // Send the query with a callback function.
         query.send(handleQueryResponse);
         //todo - add options
 
-    </g:if>
-    <g:else>
+        </g:if>
+        <g:else>
         options = {};
         query.abort();
         var tableQueryWrapper = new TableQueryWrapper(query, container, options);
         tableQueryWrapper.sendAndDraw();
 
-    </g:else>
+        </g:else>
 
 
     }
@@ -63,7 +63,7 @@
     <form name="${attrs.id}_FilterForm" onsubmit="return rewriteDatasource(this)" action="${gridConfig.id}Rows">
         <fieldset class="form">
             <g:hiddenField name="_filter" value="true"/>
-            <g:findAll in="${gridConfig.columns}"   expr="${it.visualization.search}">
+            <g:findAll in="${gridConfig.columns}"   expr="${it.enableFilter}">
                 <div>
                     <label for="${it.name}">
                         <g:message code="${it.label}" default="${it.label}"/>

@@ -4,9 +4,11 @@ import grails.gorm.DetachedCriteria
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
+import org.grails.datastore.mapping.query.Query
 import org.grails.datastore.mapping.query.api.Criteria
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
+import org.grails.plugin.easygrid.Filter
 import org.springframework.dao.DataIntegrityViolationException
 
 /**
@@ -35,7 +37,7 @@ class GormDatasourceService {
             //dynamically generate the columns
 
             //wtf?? - without .name - doesn't work for reloading domain classes
-            GrailsDomainClass domainClass = grailsApplication.domainClasses.find {it.clazz.name == gridConfig.domainClass.name}
+            GrailsDomainClass domainClass = grailsApplication.domainClasses.find { it.clazz.name == gridConfig.domainClass.name }
 
             assert domainClass != null
 
@@ -70,7 +72,7 @@ class GormDatasourceService {
                             </g:each>
             */
 //            todo - choose columns to exclude
-            def idProperty = domainClass.properties.find {it.name == 'id'}
+            def idProperty = domainClass.properties.find { it.name == 'id' }
             if (idProperty) {
                 def idCol = new ColumnConfig(property: 'id', type: 'id', name: 'id')
                 if (easygridService.implService?.respondsTo('dynamicProperties')) {
@@ -79,8 +81,8 @@ class GormDatasourceService {
                 gridConfig.columns.add(idCol)
             }
 
-            domainClass.properties.findAll {!(it.name in ['id', 'version'])}.sort {a, b -> a.name <=> b.name}
-                    .each { GrailsDomainClassProperty prop ->
+            domainClass.properties.findAll { !(it.name in ['id', 'version']) }.sort { a, b -> a.name <=> b.name }
+            .each { GrailsDomainClassProperty prop ->
                 if (prop.isAssociation()) {
                     return
                 }
@@ -112,7 +114,8 @@ class GormDatasourceService {
     def list(Map listParams = [:], filters = null) {
 
         listParams.with {
-            createCriteria(filters).list(max: maxRows, offset: rowOffset, sort: sort, order: order)
+//            createCriteria(filters).list(max: maxRows, offset: rowOffset, sort: sort, order: order)
+            createWhereQuery(filters).list(max: maxRows, offset: rowOffset, sort: sort, order: order)
         }
     }
 
@@ -122,7 +125,8 @@ class GormDatasourceService {
      */
     def getById(id) {
         if (id != null) {
-            createCriteria([{params -> eq('id', id as long)}]).find()
+//            createCriteria([{ params -> eq('id', id as long) }]).find()
+            createWhereQuery([{ params -> id == (id as long) }]).find()
         }
     }
 
@@ -132,7 +136,27 @@ class GormDatasourceService {
      * @return
      */
     def countRows(filters = null) {
-        createCriteria(filters).count()
+//        createCriteria(filters).count()
+        createWhereQuery(filters).count()
+    }
+
+    /**
+     * combines all the filters into a gorm where query
+     * @param filters - map of filter closures
+     * @return
+     */
+    DetachedCriteria createWhereQuery(filters) {
+
+        def initial = new DetachedCriteria(gridConfig.domainClass)
+        initial = gridConfig.initialCriteria ? initial.build(gridConfig.initialCriteria) : initial.build {}
+        filters.inject(initial) { DetachedCriteria criteria, Filter filter ->
+            if (getCriteria(filter) instanceof Closure) {
+                criteria.and(getCriteria(filter))
+            } else {
+                getCriteria(filter).criteria.criteria.each { Query.Criterion criterion -> criteria.add(criterion) }
+                criteria
+            }
+        }
     }
 
     /**
@@ -140,11 +164,33 @@ class GormDatasourceService {
      * @param filters - list of closures
      * @return
      */
+    @Deprecated
     Criteria createCriteria(filters) {
         def initial = new DetachedCriteria(gridConfig.domainClass)
         initial = gridConfig.initialCriteria ? initial.and(gridConfig.initialCriteria) : initial
-        filters.inject(initial) {criteria, searchCriteria ->
+        filters.inject(initial) { criteria, searchCriteria ->
             criteria.and(searchCriteria.curry(params))
+        }
+    }
+
+    def getCriteria(Filter filter) {
+        if (filter.searchFilter instanceof Closure) {
+            def curriedClosure = filter.searchFilter
+            if (curriedClosure.parameterTypes.size() == 1 && curriedClosure.parameterTypes[0] == Filter) {
+//            if (curriedClosure.parameterTypes[0] == Filter) {
+                return curriedClosure.curry(filter)
+            }
+
+            if (curriedClosure.parameterTypes.size() in [0, 1]) {
+                //todo - sa fac si conversia ( de ce pasez paramValue - daca e deja in filtru ?? )
+                curriedClosure = curriedClosure.curry(filter.paramValue)
+            } else {
+                curriedClosure = curriedClosure.curry(filter.paramValue, EasygridContextHolder.params)
+            }
+
+            return curriedClosure
+        } else {
+            return filter.searchFilter
         }
     }
 

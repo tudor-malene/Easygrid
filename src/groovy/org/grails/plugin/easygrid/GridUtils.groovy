@@ -1,6 +1,7 @@
 package org.grails.plugin.easygrid
 
 import org.codehaus.groovy.control.ConfigurationException
+import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.grails.plugin.easygrid.datasource.CustomDatasourceService
 import org.grails.plugin.easygrid.datasource.GormDatasourceService
 import org.grails.plugin.easygrid.datasource.ListDatasourceService
@@ -27,7 +28,9 @@ class GridUtils {
         from.each { prop, val ->
             if ((val instanceof Map)) {
                 if (level <= -1 || level > 1) {
-                    if (to[prop] == null) {to[prop] = [:]}
+                    if (to[prop] == null) {
+                        to[prop] = [:]
+                    }
                     if (!(to[prop] instanceof Map)) {
                         throw new ConfigurationException("Trying to copy properties from ${val} to ${to[prop]}. ${to[prop]} should be a map")
                     }
@@ -47,7 +50,7 @@ class GridUtils {
      * @return
      */
     static findImplementations(Map config) {
-        config.gridImplementations.collect {it.key}
+        config.gridImplementations.collect { it.key }
     }
 
     /**
@@ -105,9 +108,8 @@ class GridUtils {
      * @return
      */
     static getNestedPropertyValue(String expression, object) {
-        Eval.x(object,"x.${expression}")
+        Eval.x(object, "x.${expression}")
     }
-
 
     /**
      *
@@ -117,7 +119,7 @@ class GridUtils {
      * @return
      */
     static setNestedPropertyValue(String expression, object, value) {
-        Eval.xy(object,value,"x.${expression}=y")
+        Eval.xy(object, value, "x.${expression}=y")
     }
 
     /**
@@ -126,8 +128,8 @@ class GridUtils {
      * @param closure
      * @return
      */
-    static eachColumn(GridConfig grid, Closure closure){
-        grid.columns.findAll {col -> (EasygridContextHolder.params.selectionComp) ? col.showInSelection : true}.eachWithIndex { col, idx ->
+    static eachColumn(GridConfig grid, Closure closure) {
+        grid.columns.findAll { col -> (EasygridContextHolder.params.selectionComp) ? col.showInSelection : true }.eachWithIndex { col, idx ->
             switch (closure?.parameterTypes?.size()) {
                 case 1:
                     return closure.call(col)
@@ -136,4 +138,9 @@ class GridUtils {
             }
         }
     }
+
+    static Class getPropertyType(grailsApplication, Class clazz, String property) {
+        grailsApplication.domainClasses.find { it.clazz.name == clazz.name }.getPersistentProperty(property).type
+    }
+
 }

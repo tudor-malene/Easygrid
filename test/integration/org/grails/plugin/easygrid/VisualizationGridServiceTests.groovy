@@ -60,18 +60,18 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
                 }
                 return true
             }
-            dataProvider {filters,listParams ->
+            dataProvider { filters, listParams ->
                 def values = [
                         [name: 'Fyodor Dostoyevsky', nation: 'russian', birthDate: new GregorianCalendar(1821, 10, 11).time],
                         [name: 'Ion Creanga', nation: 'romanian', birthDate: new GregorianCalendar(1837, 2, 3).time],
                 ]
                 if (listParams.sort != 'age') {
-                    values.sort {o1, o2 -> def x = o1[listParams.sort] <=> o2[listParams.sort]; (listParams.order == 'asc') ? x : -x}
+                    values.sort { o1, o2 -> def x = o1[listParams.sort] <=> o2[listParams.sort]; (listParams.order == 'asc') ? x : -x }
                 } else {
-                    values.sort {o1, o2 -> def x = o1.birthDate <=> o2.birthDate; (listParams.order == 'asc') ? x : -x}
+                    values.sort { o1, o2 -> def x = o1.birthDate <=> o2.birthDate; (listParams.order == 'asc') ? x : -x }
                 }
             }
-            dataCount {filterClosure->
+            dataCount { filterClosure ->
                 2
             }
             columns {

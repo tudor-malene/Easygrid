@@ -12,6 +12,7 @@ import com.google.visualization.datasource.query.SortOrder
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
+import org.grails.plugin.easygrid.Filter
 
 /**
  * service class that implements the google visualization grid
@@ -41,8 +42,8 @@ class VisualizationGridService {
     def filters() {
         if (params._filter) {
             params.findAll {k, v -> v}.collect {k, v -> k}.intersect(gridConfig.columns.collect {it.name }).inject([]) {list, param ->
-                def closure = gridConfig.columns.find {col -> col.name == param}?.filterClosure
-                closure ? (list + closure) : list
+                def column = gridConfig.columns.find {col -> col.name == param}
+                column ? (list + new Filter(searchFilter: column?.filterClosure, paramName: param, paramValue: params[param], column: column)) : list
             }
         }
     }
@@ -79,7 +80,7 @@ class VisualizationGridService {
 
         //add columns
         dataTable.addColumns gridConfig.columns.collect {column ->
-            def cd = new ColumnDescription(column.name, column.visualization.valueType, message(column.label))
+            def cd = new ColumnDescription(column.name, column.visualization.valueType, messageLabel(column.label))
             // only className and style
             column.visualization.findAll {(it.key in ['className', 'style'])}.each {k, v ->
                 cd.setCustomProperty(k, v)

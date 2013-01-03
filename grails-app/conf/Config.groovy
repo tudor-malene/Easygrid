@@ -1,4 +1,6 @@
+import org.grails.plugin.easygrid.Filter
 import org.grails.plugin.easygrid.grids.DataTablesGridService
+
 // configuration for plugin testing - will not be included in the plugin zip
 
 log4j = {
@@ -31,9 +33,12 @@ easygrid {
     //default values added to each defined grid
     defaults {
         defaultMaxRows = 10
-        labelFormat = '${labelPrefix}.${column.name}.label'
+        //used for automatically generating label messages from the column name
+        //this will be transformed into a SimpleTemplateEngine instance ( '#' will be replaced with '$') and the binding variables will be: labelPrefix , column, gridConfig
+        labelFormat = '#{labelPrefix}.#{column.name}.label'
+
         //called before inline editing : transforms the parameters into the actual object to be stored
-        beforeSave = {params -> params}
+        beforeSave = { params -> params }
         gridImpl = 'jqgrid'
         exportService = org.grails.plugin.easygrid.EasygridExportService
 
@@ -52,27 +57,59 @@ easygrid {
             }
             def grantedRoles
             if (Map.isAssignableFrom(grid.roles.getClass())) {
-                grantedRoles = grid.roles.findAll {op, role -> oper == op}.collect {op, role -> role}
+                grantedRoles = grid.roles.findAll { op, role -> oper == op }.collect { op, role -> role }
             } else if (List.isAssignableFrom(grid.roles.getClass())) {
                 grantedRoles = grid.roles
             } else {
                 grantedRoles = [grid.roles]
             }
-            SpringSecurityUtils.ifAllGranted(grantedRoles.inject('') {roles, role -> "${roles},${role}"})
+            SpringSecurityUtils.ifAllGranted(grantedRoles.inject('') { roles, role -> "${roles},${role}" })
         }
+
 
     }
 
     // each grid has a "type" - which must be one of the datasources
     dataSourceImplementations {
+        //deprecated
         domain {
             // mandatory attribute: domainClass or initialCriteria
             dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
+            filters {
+                //default search closures
+                text = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
+                number = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
+                //todo
+                date = { Filter filter -> eq(filter.column.name, filter.paramValue as Date) }
+
+            }
+        }
+
+        // renamed for consistency - todo  -rename everywhere
+        gorm {
+            // mandatory attribute: domainClass or initialCriteria
+            dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
+            filters {
+                //default search closures
+                text = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
+                number = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
+                //todo
+                date = { Filter filter -> eq(filter.column.name, filter.paramValue as Date) }
+
+            }
         }
 
         list {
             //mandatory attributes: context, attributeName
             dataSourceService = org.grails.plugin.easygrid.datasource.ListDatasourceService
+            filters {
+                //default search closures
+                text = { Filter filter, row -> row[filter.column.name].contains filter.paramValue }
+                number = { Filter filter, row -> row[filter.column.name] == filter.paramValue as int }
+                //todo
+                date = { Filter filter, row -> row[filter.column.name] == filter.paramValue as Date }
+
+            }
         }
 
         custom {
@@ -89,7 +126,7 @@ easygrid {
             gridImplService = org.grails.plugin.easygrid.grids.ClassicGridService
             inlineEdit = false
             formats = [
-                    (Date): {it.format("dd/MM/yyyy")},
+                    (Date): { it.format("dd/MM/yyyy") },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }
@@ -100,8 +137,8 @@ easygrid {
             inlineEdit = true
             editRenderer = '/templates/jqGridEditResponse'
             formats = [
-                    (Date): {it.format("dd/MM/yyyy")},
-                    (Calendar): {Calendar cal ->cal.format("dd/MM/yyyy")},
+                    (Date): { it.format("dd/MM/yyyy") },
+                    (Calendar): { Calendar cal -> cal.format("dd/MM/yyyy") },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }
@@ -111,7 +148,7 @@ easygrid {
             gridRenderer = '/templates/dataTablesGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date): {it.format("dd/MM/yyyy")},
+                    (Date): { it.format("dd/MM/yyyy") },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }
@@ -121,7 +158,7 @@ easygrid {
             gridRenderer = '/templates/visualizationGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal}, //wtf?
+                    (Date): { def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal }, //wtf?
             ]
         }
 
@@ -172,7 +209,7 @@ easygrid {
             }
 
             actions {
-                value = {''}
+                value = { '' }
                 jqgrid {
                     formatter = '"actions"'
                     editable = false
@@ -217,5 +254,5 @@ easygrid {
     }
 }
 
-grails.views.default.codec="none" // none, html, base64
-grails.views.gsp.encoding="UTF-8"
+grails.views.default.codec = "none" // none, html, base64
+grails.views.gsp.encoding = "UTF-8"

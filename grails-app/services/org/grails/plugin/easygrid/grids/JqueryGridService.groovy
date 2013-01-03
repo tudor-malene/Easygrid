@@ -4,6 +4,7 @@ import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
+import org.grails.plugin.easygrid.Filter
 import org.grails.plugin.easygrid.GridUtils
 import org.springframework.validation.Errors
 import org.springframework.validation.ObjectError
@@ -22,13 +23,14 @@ class JqueryGridService {
 
         if (params._search) {
             // determine if there is a search
-            def searchParams = params.keySet().intersect(gridConfig.columns.collect {it.name })
+            def searchParams = params.keySet().intersect(gridConfig.columns.collect { it.name })
 
             // determine the search closure from the config
 //            searchParam ? (gridConfig.columns.find {it.jqgrid.name == searchParam}?.jqgrid?.search) : null
-            searchParams.inject([]) {list, param ->
-                def closure = gridConfig.columns.find {col -> col.name == param}?.filterClosure
-                closure ? (list + closure) : list
+            searchParams.inject([]) { list, param ->
+//                def closure = gridConfig.columns.find { col -> col.name == param }?.filterClosure
+                def column = gridConfig.columns.find { col -> col.name == param }
+                column?.filterClosure ? (list + new Filter(searchFilter: column?.filterClosure, paramName: param, paramValue: params[param], column: column)) : list
             }
 
             //todo - implement dynamic search: searchOper
@@ -57,7 +59,7 @@ class JqueryGridService {
             }
 */
 //            gridConfig.columns.findAll {col -> (params.selectionComp) ? col.showInSelection : true}.eachWithIndex { column, row ->
-            GridUtils.eachColumn(gridConfig){column, row ->
+            GridUtils.eachColumn(gridConfig) { column, row ->
                 cell.add easygridService.valueOfColumn(column, element, row + 1)
             }
 
@@ -104,7 +106,7 @@ class JqueryGridService {
                 Errors errors = result
                 if (errors.hasErrors()) {
                     def err = []
-                    errors.allErrors.each {ObjectError objectError ->
+                    errors.allErrors.each { ObjectError objectError ->
                         err << objectError.code
                     }
                     return err

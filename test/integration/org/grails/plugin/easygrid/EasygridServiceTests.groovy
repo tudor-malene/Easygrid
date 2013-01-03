@@ -63,12 +63,12 @@ class EasygridServiceTests extends AbstractServiceTest {
                     }
                     return true
                 }
-                dataProvider {gridConfig, filters, listParams ->
+                dataProvider { gridConfig, filters, listParams ->
                     [
                             [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', birthDate: new GregorianCalendar(1821, 10, 11)],
                     ]
                 }
-                dataCount {filters ->
+                dataCount { filters ->
                     1
                 }
                 jqgrid {
@@ -80,8 +80,8 @@ class EasygridServiceTests extends AbstractServiceTest {
                         type 'id'
                     }
                     name {
-                        filterClosure {params ->
-                            ilike('name', "%${params.name}%")
+                        filterClosure {
+                            ilike('name', "%${it}%")
                         }
                         jqgrid {
                             editable true
@@ -91,8 +91,8 @@ class EasygridServiceTests extends AbstractServiceTest {
                         }
                     }
                     nation {
-                        filterClosure {params ->
-                            ilike('nation', "%${params.nation}%")
+                        filterClosure {
+                            ilike('nation', "%${it}%")
                         }
                         jqgrid {
                         }
@@ -103,8 +103,8 @@ class EasygridServiceTests extends AbstractServiceTest {
                                 new Date().year - row.birthDate.time.year
                             }
                         }
-                        filterClosure {params ->
-                            eq('age', params.age as int)
+                        filterClosure {
+                            eq('age', it as int)
                         }
                         jqgrid {
                             width 110
@@ -112,8 +112,8 @@ class EasygridServiceTests extends AbstractServiceTest {
                     }
                     birthDate {
                         formatName 'stdDateFormatter'
-                        filterClosure {params ->
-                            eq('birthDate', params.birthDate)
+                        filterClosure {
+                            eq('birthDate', it)
                         }
                         jqgrid {
                             width 110
@@ -161,12 +161,12 @@ class EasygridServiceTests extends AbstractServiceTest {
                     }
                     return true
                 }
-                dataProvider {gridConfig, filters, listParams ->
+                dataProvider { gridConfig, filters, listParams ->
                     [
                             [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', birthDate: new GregorianCalendar(1821, 10, 11)],
                     ]
                 }
-                dataCount {filters ->
+                dataCount { filters ->
                     1
                 }
                 jqgrid {
@@ -179,8 +179,8 @@ class EasygridServiceTests extends AbstractServiceTest {
                     }
                     name {
                         label 'testLabel'
-                        filterClosure {params ->
-                            ilike('name', "%${params.name}%")
+                        filterClosure {
+                            ilike('name', "%${it}%")
                         }
                         jqgrid {
                             editable true
@@ -190,8 +190,8 @@ class EasygridServiceTests extends AbstractServiceTest {
                         }
                     }
                     nation {
-                        filterClosure {params ->
-                            ilike('nation', "%${params.nation}%")
+                        filterClosure {
+                            ilike('nation', "%${it}%")
                         }
                         jqgrid {
                         }
@@ -202,8 +202,8 @@ class EasygridServiceTests extends AbstractServiceTest {
                                 new Date().year - row.birthDate.time.year
                             }
                         }
-                        filterClosure {params ->
-                            eq('age', params.age as int)
+                        filterClosure {
+                            eq('age', it as int)
                         }
                         jqgrid {
                             width 110
@@ -211,8 +211,8 @@ class EasygridServiceTests extends AbstractServiceTest {
                     }
                     birthDate {
                         formatName 'stdDateFormatter'
-                        filterClosure {params ->
-                            eq('birthDate', params.birthDate)
+                        filterClosure {
+                            eq('birthDate', it)
                         }
                         jqgrid {
                             width 110
@@ -391,14 +391,14 @@ class EasygridServiceTests extends AbstractServiceTest {
 
 //        EasygridContextHolder.setLocalGridConfig(customGridConfig)
         easygridService.addDefaultValues(customGridConfig, defaultValues)
-        customGridConfig.formats = [(Calendar): {it.format("dd/MM/yyyy")}]
+        customGridConfig.formats = [(Calendar): { it.format("dd/MM/yyyy") }]
 
-        assertEquals 'Fyodor Dostoyevsky', easygridService.valueOfColumn(customGridConfig.columns[1], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', age: 191, birthDate: new GregorianCalendar(1821, 10, 11)], -1)
+        assertEquals 'Fyodor Dostoyevsky', easygridService.valueOfColumn(customGridConfig.columns[1], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', age: (Calendar.getInstance().get(Calendar.YEAR) - 1821), birthDate: new GregorianCalendar(1821, 10, 11)], -1)
 
         //test Format
         assertEquals 'stdDateFormatter', customGridConfig.columns[4].formatName
         assert customGridConfig.columns[4].formatter
-        assertEquals '11/11/1821', easygridService.valueOfColumn(customGridConfig.columns[4], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', age: 191, birthDate: new GregorianCalendar(1821, 10, 11)], -1)
+        assertEquals '11/11/1821', easygridService.valueOfColumn(customGridConfig.columns[4], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', age: (Calendar.getInstance().get(Calendar.YEAR) - 1821), birthDate: new GregorianCalendar(1821, 10, 11)], -1)
 
         //test valueOf on domain type
         easygridService.addDefaultValues(domainGridConfig, defaultValues)
@@ -406,7 +406,7 @@ class EasygridServiceTests extends AbstractServiceTest {
     }
 
     void testValueOfFieldForClosures() {
-        assertEquals 191, easygridService.valueOfColumn(customGridConfig.columns[3], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', birthDate: new GregorianCalendar(1821, 10, 11)], -1)
+        assertEquals Calendar.getInstance().get(Calendar.YEAR) - 1821, easygridService.valueOfColumn(customGridConfig.columns[3], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', birthDate: new GregorianCalendar(1821, 10, 11)], -1)
     }
 
     /// end valueOfColumn tests-----------------

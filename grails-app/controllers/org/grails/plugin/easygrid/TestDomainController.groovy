@@ -8,7 +8,7 @@ class TestDomainController {
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
     static grids = {
-        'testGrid'  {
+        testGrid  {
             dataSourceType 'domain'
             domainClass TestDomain
             gridRenderer '/templates/testGridRenderer'
@@ -18,13 +18,13 @@ class TestDomainController {
             }
         }
 
-        'visGrid'  {
+        visGrid  {
             dataSourceType 'domain'
             domainClass TestDomain
             gridImpl 'visualization'
         }
 
-        'test1'  {
+        test1  {
             dataSourceType 'domain'
             domainClass TestDomain
             gridRenderer '/templates/testGridRenderer'

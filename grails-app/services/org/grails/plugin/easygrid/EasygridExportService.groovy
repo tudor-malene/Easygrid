@@ -49,7 +49,7 @@ class EasygridExportService {
                     assert widths[index] // the width setting is mandatory
                 }
 
-                sheet(name: message(gridConfig.export_title) ?: "Export", widths: widths) {
+                sheet(name: messageLabel(gridConfig.export_title) ?: "Export", widths: widths) {
                     //Default format
                     format(name: "header") {
                         font(name: "arial", bold: true)

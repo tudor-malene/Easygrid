@@ -4,7 +4,7 @@ import org.grails.plugin.easygrid.EasygridContextHolder
 
 class EasygridGrailsPlugin {
 
-    def version = "0.9.9.2"
+    def version = "1.0.9"
 
     def grailsVersion = "2.0 > *"
 
@@ -39,6 +39,9 @@ class EasygridGrailsPlugin {
     }
 
     def doWithApplicationContext = { appCtx ->
-        appCtx.grailsApplication.config.easygrid.defaults.labelFormatTemplate = new SimpleTemplateEngine().createTemplate(appCtx.grailsApplication.config.easygrid.defaults.labelFormat)
+        appCtx.grailsApplication.config.easygrid.defaults.labelFormatTemplate =
+            new SimpleTemplateEngine().createTemplate(
+                    appCtx.grailsApplication.config.easygrid.defaults.labelFormat.toString().replace('#','$')
+            )
     }
 }

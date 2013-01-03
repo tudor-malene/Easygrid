@@ -15,7 +15,7 @@ import org.junit.Before
 @TestFor(TestDomainController)
 class GormDatasourceServiceTests extends AbstractServiceTest {
 
-    def domainGridConfig
+    GridConfig domainGridConfig
     def criteriaGridConfig
 
     def gormDatasourceService
@@ -35,16 +35,19 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
                     type 'id'
                 }
                 testStringProperty {
-                    filterClosure { params ->
-                        ilike('testStringProperty', "%${params.testStringProperty}%")
-                    }
+                    enableFilter true
+//                    filterFieldType 'text'
+//                    filterClosure {
+//                        ilike('testStringProperty', "%${it}%")
+//                    }
                     jqgrid {
                     }
                 }
                 testIntProperty {
-                    filterClosure {  params ->
-                        eq('testIntProperty', params.'testIntProperty' as int)
-                    }
+                    enableFilter true
+//                    filterClosure {
+//                        eq('testIntProperty', it as int)
+//                    }
                     jqgrid {
                     }
                 }
@@ -64,13 +67,13 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
                     type 'id'
                 }
                 testStringProperty {
-                    filterClosure { params ->
-                        ilike('testStringProperty', "%${params.testStringProperty}%")
+                    filterClosure {
+                        ilike('testStringProperty', "%${it}%")
                     }
                 }
                 testIntProperty {
-                    filterClosure {  params ->
-                        eq('testIntProperty', params.'testIntProperty' as int)
+                    filterClosure {
+                        eq('testIntProperty', it as int)
                     }
                 }
             }
@@ -93,7 +96,9 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
         assertEquals 31, domainRows[0].testIntProperty
 
         //test criteria search
-        domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 0], [{params -> between("testIntProperty", 31, 80)}])
+        domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 0],
+                [new Filter(searchFilter: { params -> between("testIntProperty", 31, 80) }, paramValue: 1)]
+        )
         assertEquals 10, domainRows.size()
         assertEquals 31, domainRows[0].testIntProperty
     }
@@ -112,7 +117,7 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
         assertEquals 11, domainRows[0].testIntProperty
 
         //test criteria search
-        domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 10], [{params -> between("testIntProperty", 31, 80)}])
+        domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 10], [new Filter(searchFilter: { params -> between("testIntProperty", 31, 80) })])
         assertEquals 10, domainRows.size()
         assertEquals 41, domainRows[0].testIntProperty
     }
@@ -122,17 +127,28 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
 
         params.testStringProperty = 1
 
-        assertEquals 20, gormDatasourceService.countRows(domainGridConfig.columns[1].filterClosure )
+        //todo - sa fac conversia, sa mut astea in config, sa bag parametru care sa reprezinte tipul ( sau sa-l iau din proprietati )
+//        domainGridConfig.columns.testStringProperty.filterClosure = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
+//        domainGridConfig.columns.testIntProperty.filterClosure = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
+
+
+        assertEquals 20, gormDatasourceService.countRows([Filter.initFromColumn(domainGridConfig.columns.testStringProperty)])
 
         assertArrayEquals(
                 [14, 15, 16, 17, 18].toArray(),
-                gormDatasourceService.list([maxRows: 5, rowOffset: 5, sort: 'testIntProperty'], [domainGridConfig.columns[1].filterClosure]).collect {it.testIntProperty}.toArray()
+                gormDatasourceService.list(
+                        [maxRows: 5, rowOffset: 5, sort: 'testIntProperty'],
+                        [Filter.initFromColumn(domainGridConfig.columns.testStringProperty)]
+                ).collect { it.testIntProperty }.toArray()
         )
 
         params.testIntProperty = 100
         assertArrayEquals(
                 [100].toArray(),
-                gormDatasourceService.list([maxRows: 5,  sort: 'testIntProperty'], [domainGridConfig.columns[1].filterClosure, domainGridConfig.columns[2].filterClosure,]).collect {it.testIntProperty}.toArray())
+                gormDatasourceService.list(
+                        [maxRows: 5, sort: 'testIntProperty'],
+                        [Filter.initFromColumn(domainGridConfig.columns.testStringProperty), Filter.initFromColumn(domainGridConfig.columns.testIntProperty),]
+                ).collect { it.testIntProperty }.toArray())
     }
 
     void testGormDelete() {

@@ -15,10 +15,10 @@ modules = {
     'easygrid-jqgrid' {
         dependsOn 'jquery-ui', 'easygrid-jqgrid-theme'
 
-        resource id: 'js-jqgrid', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js", file: "jquery.jqGrid.min.js"],
+        resource id: 'js-jqgrid-dev', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js", file: "jquery.jqGrid.min.js"],
                 nominify: true, disposition: 'head'
         //todo multilanguage
-        resource id: 'js-locale-jqgrid', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js/i18n", file: "grid.locale-en.js"],
+        resource id: 'js-locale-jqgrid-dev', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js/i18n", file: "grid.locale-en.js"],
                 nominify: true, disposition: 'head'
     }
 
@@ -31,7 +31,7 @@ modules = {
 
 
     'easygrid-jqgrid-dev' {
-        dependsOn 'jquery-ui', 'easygrid-jqgrid-theme'
+        dependsOn 'jquery-ui-dev', 'easygrid-jqgrid-theme'
 
         //JQGRID
         resource id: 'js-jqgrid', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js", file: "jquery.jqGrid.src.js"],

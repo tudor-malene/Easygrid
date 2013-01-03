@@ -26,7 +26,7 @@ class EasygridBuilder {
      */
     Map<String, GridConfig> evaluate(Closure gridsClosure) {
         def grids = [:]
-        buildWithDelegate(gridsClosure) {name, args ->
+        buildWithDelegate(gridsClosure) { name, args ->
             grids[name] = evaluateGrid args[0]
         }
         grids
@@ -42,7 +42,7 @@ class EasygridBuilder {
 
         def defaultValues = grailsApplication?.config?.easygrid
         //build the grid
-        buildWithDelegate(gridClosure, { String name, args ->
+        buildWithDelegate(gridClosure, { String name, Object args ->
             switch (name) {
 
                 case (GridUtils.findImplementations(defaultValues)):    //handle simple key-value properties for the different implementations
@@ -108,7 +108,20 @@ class EasygridBuilder {
      * @return
      */
     def buildWithDelegate(Closure builderClosure, Closure delegate, Closure propertyDelegate = null) {
-        builderClosure.delegate = [invokeMethod: delegate, getProperty: propertyDelegate] as GroovyObjectSupport
+//        builderClosure.delegate = [invokeMethod: delegate, getProperty: propertyDelegate] as GroovyObject
+
+        builderClosure.delegate = new GroovyObjectSupport() {
+            @Override
+            Object invokeMethod(String name, Object args) {
+                delegate.call(name, args)
+            }
+
+            @Override
+            public Object getProperty(String property) {
+                propertyDelegate?.call(property)
+            }
+
+        }
         builderClosure.resolveStrategy = Closure.DELEGATE_FIRST
         try {
             builderClosure()

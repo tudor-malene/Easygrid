@@ -5,6 +5,8 @@ import groovy.transform.AutoClone
 /**
  * Defines the grid
  *
+ * todo - annotation with ast transformation to add dynamicProperties & deepClone
+ *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @AutoClone

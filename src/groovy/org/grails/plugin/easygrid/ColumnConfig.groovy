@@ -23,7 +23,9 @@ class ColumnConfig {
     String formatName // one of the predefined formatters
     Closure formatter  //
 
-    Closure filterClosure
+    def enableFilter
+    def filterFieldType
+    def filterClosure
 
     /**
      *  if selection is enabled for the grid - this flag decides if this column will be shown in the dialog

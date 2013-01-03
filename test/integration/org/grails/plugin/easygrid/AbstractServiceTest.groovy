@@ -26,7 +26,7 @@ abstract class AbstractServiceTest {
 
         GridUtils.addMixins()
 
-        assert grailsApplication?.domainClasses?.size() == 1
+        assert grailsApplication?.domainClasses?.size() >= 1
 //        easygridService.grailsApplication.config?.easygrid = defaultValues
         defaultValues = grailsApplication.config?.easygrid
 
@@ -63,8 +63,8 @@ abstract class AbstractServiceTest {
                     type 'id'
                 }
                 name {
-                    filterClosure {params ->
-                        ilike('name', "%${params.name}%")
+                    filterClosure {
+                        ilike('name', "%${it}%")
                     }
                     jqgrid {
                         editable true
@@ -74,8 +74,8 @@ abstract class AbstractServiceTest {
                     }
                 }
                 nation {
-                    filterClosure {params ->
-                        ilike('nation', "%${params.nation}%")
+                    filterClosure {
+                        ilike('nation', "%${it}%")
                     }
                     jqgrid {
                     }
@@ -86,8 +86,8 @@ abstract class AbstractServiceTest {
                             new Date().year - row.birthDate.time.year
                         }
                     }
-                    filterClosure {params ->
-                        eq('age', params.age as int)
+                    filterClosure {
+                        eq('age', it as int)
                     }
                     jqgrid {
                         width 110
@@ -95,8 +95,8 @@ abstract class AbstractServiceTest {
                 }
                 birthDate {
                     formatName 'stdDateFormatter'
-                    filterClosure {params ->
-                        eq('birthDate', params.birthDate)
+                    filterClosure {
+                        eq('birthDate', it)
                     }
                     jqgrid {
                         width 110
@@ -116,7 +116,7 @@ abstract class AbstractServiceTest {
             attributeName 'listData'
             columns {
                 col1 {
-                    filterClosure {params, element ->
+                    filterClosure {Filter filter, params, element ->
                         element.col1 > params.min
                     }
                     jqgrid {
@@ -124,15 +124,17 @@ abstract class AbstractServiceTest {
                     }
                 }
                 col2 {
-                    filterClosure { params, element ->
-                        element.col2.contains(params.col2)
-                    }
+//                    filterClosure {val, params, element ->
+//                        element.col2.contains(params.col2)
+//                    }
+                    enableFilter true
+                    filterFieldType 'text'
                     jqgrid {
                     }
                 }
                 col3 {
                     value {it.col1 * it.col1}
-                    filterClosure { params, element ->
+                    filterClosure { val, params, element ->
                     }
                 }
             }

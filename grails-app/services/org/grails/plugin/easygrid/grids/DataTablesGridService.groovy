@@ -3,6 +3,7 @@ package org.grails.plugin.easygrid.grids
 import grails.converters.JSON
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
+import org.grails.plugin.easygrid.Filter
 
 /**
  * implementation for Datatable
@@ -38,11 +39,11 @@ string	sEcho	Information for DataTables to use for rendering.
 
     def filters() {
         def filterClosures = []
-        gridConfig.columns.findAll {it.dataTables.search}.eachWithIndex {col, i ->
+        gridConfig.columns.findAll {it.enableFilter}.eachWithIndex {col, i ->
             if (params["bSearchable_$i"] && params["sSearch_$i"]) {
                 def val = params["sSearch_$i"]
-                filterClosures.add col.filterClosure
                 params["${col.name}"] = val
+                filterClosures.add new Filter(searchFilter: col?.filterClosure, paramName: "${col.name}", paramValue: val, column: col)
             }
         }
         filterClosures

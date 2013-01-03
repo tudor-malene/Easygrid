@@ -1,9 +1,9 @@
 package org.grails.plugin.easygrid
 
-import javax.servlet.http.HttpSession
-
 import org.codehaus.groovy.control.ConfigurationException
 import org.springframework.mock.web.MockHttpSession
+
+import javax.servlet.http.HttpSession
 
 /**
  * tests for util methods
@@ -44,7 +44,7 @@ class GridUtilsTest extends GroovyTestCase {
         assertEquals 1, to.a
         assertEquals 2, to.b.size()
         assertEquals 2, to.b.ba
-        assertNull  to.d
+        assertNull to.d
 
         to = [a: 1, b: [ba: 2, bc: 3]]
         GridUtils.copyProperties([a: 2, b: [ba: 1, bb: 2], c: 3, d: [da: 1]], to, 2)
@@ -56,13 +56,13 @@ class GridUtilsTest extends GroovyTestCase {
 
     }
 
-    void nestedPropertyValueTest(){
-        assertEquals 2, GridUtils.getNestedPropertyValue('b.ba',[a: 1, b: [ba: 2, bc: 3]])
-        assertEquals 1, GridUtils.getNestedPropertyValue('a',[a: 1, b: [ba: 2, bc: 3]])
-        assertEquals 1, GridUtils.getNestedPropertyValue('b.bb.bbb',[a: 1, b: [ba: 2, bc: 3, bb: [bbb: 1]]])
+    void nestedPropertyValueTest() {
+        assertEquals 2, GridUtils.getNestedPropertyValue('b.ba', [a: 1, b: [ba: 2, bc: 3]])
+        assertEquals 1, GridUtils.getNestedPropertyValue('a', [a: 1, b: [ba: 2, bc: 3]])
+        assertEquals 1, GridUtils.getNestedPropertyValue('b.bb.bbb', [a: 1, b: [ba: 2, bc: 3, bb: [bbb: 1]]])
     }
 
-    void testRestoreSearchParams(){
+    void testRestoreSearchParams() {
         HttpSession session = new MockHttpSession()
 
         //simulates a series of requests
@@ -83,8 +83,4 @@ class GridUtilsTest extends GroovyTestCase {
 */
     }
 
-    void testColumnsConfig(){
-        ColumnConfig cc = new ColumnConfig()
-
-    }
 }

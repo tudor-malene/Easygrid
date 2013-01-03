@@ -2,6 +2,7 @@ package org.grails.plugin.easygrid.datasource
 
 import groovy.util.logging.Slf4j
 import org.grails.plugin.easygrid.EasygridContextHolder
+import org.grails.plugin.easygrid.Filter
 import org.springframework.web.context.request.RequestContextHolder
 
 /**
@@ -37,8 +38,8 @@ class ListDatasourceService {
      */
     def list(Map listParams, filters = null) {
 
-        def tempList = filters.inject(list) {list, search ->
-            list.findAll search.curry(params)
+        def tempList = filters.inject(list) { list, Filter filter ->
+            list.findAll getCriteria(filter)
         }
 
         if (tempList) {
@@ -50,6 +51,15 @@ class ListDatasourceService {
         []
     }
 
+    def getCriteria(Filter filter) {
+        Closure curriedClosure = filter.searchFilter
+        curriedClosure = curriedClosure.curry(filter)
+        if (curriedClosure.parameterTypes.size() > 1) {
+            curriedClosure = curriedClosure.curry(params)
+        }
+        curriedClosure
+    }
+
     /**
      * returns the total no of rows
      * @param gridConfig
@@ -57,8 +67,8 @@ class ListDatasourceService {
      * @return
      */
     def countRows(filters = null) {
-        filters.inject(list) {list, search ->
-            list.findAll search.curry(params)
+        filters.inject(list) { list, Filter filter ->
+            list.findAll getCriteria(filter)
         }.size()
 
     }
@@ -85,7 +95,7 @@ class ListDatasourceService {
 */
 
         //default returns params
-        gridConfig.beforeSave(params).each {k, v ->
+        gridConfig.beforeSave(params).each { k, v ->
             instance[k] = v
         }
 /*
@@ -117,9 +127,9 @@ class ListDatasourceService {
     }
 
 
-    def getList(){
+    def getList() {
         def ctx
-        switch (gridConfig.context){
+        switch (gridConfig.context) {
             case null:
             case 'session':
                 ctx = session

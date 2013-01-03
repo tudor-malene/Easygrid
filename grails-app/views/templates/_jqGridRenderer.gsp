@@ -18,6 +18,7 @@
    colModel: [
     <grid:eachColumn gridConfig="${gridConfig}" >
         {name:'${col.name}',
+        "search":${col.enableFilter},
         <g:each in="${col.jqgrid}" >
             "${it.key}":${it.value},
         </g:each>
