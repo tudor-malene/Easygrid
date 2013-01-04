@@ -48,7 +48,7 @@ class AutocompleteService {
 
             //todo - make maxrows configurable
             easygridService.dataSourceService.list(
-                    [rowOffset: 0, maxRows: 10], filters).collect {
+                    [rowOffset: 0, maxRows: grid.autocomplete.maxRows], filters).collect {
                 [
                         label: getLabel(it),
                         id: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.idProp, it)

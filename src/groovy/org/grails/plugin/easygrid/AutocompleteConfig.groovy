@@ -16,6 +16,8 @@ class AutocompleteConfig {
     Closure textBoxFilterClosure
     Closure constraintsFilterClosure
 
+    Integer maxRows
+
     //dynamic
     private Map dynamicProperties = [:]
 

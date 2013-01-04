@@ -66,7 +66,10 @@ easygrid {
             SpringSecurityUtils.ifAllGranted(grantedRoles.inject('') { roles, role -> "${roles},${role}" })
         }
 
-
+        autocomplete {
+            idProp = 'id'
+            maxRows = 10
+        }
     }
 
     // each grid has a "type" - which must be one of the datasources

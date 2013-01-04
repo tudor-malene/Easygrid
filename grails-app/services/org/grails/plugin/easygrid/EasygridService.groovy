@@ -111,7 +111,7 @@ class EasygridService {
      * @param defaultValues
      * @return
      */
-    def addDefaultValues(gridConfig, Map defaultValues) {
+    def addDefaultValues(GridConfig gridConfig, Map defaultValues) {
 
         log.trace "start: $gridConfig"
         setLocalGridConfig(gridConfig)
@@ -156,6 +156,8 @@ class EasygridService {
         if (dataSourceService?.respondsTo('generateDynamicColumns')) {
             dataSourceService.generateDynamicColumns()
         }
+
+        GridUtils.copyProperties defaultValues.defaults.autocomplete, gridConfig.autocomplete
 
         //add the predefined types  to the columns
         gridConfig.columns.each { ColumnConfig column ->

@@ -21,6 +21,7 @@ class AutocompleteTests extends AbstractServiceTest {
     def autocompleteService
 
     def autocompleteGridConfig
+    def autocomplete1GridConfig
 
 
     @Before
@@ -44,6 +45,18 @@ class AutocompleteTests extends AbstractServiceTest {
             }
         }
 
+        autocomplete1GridConfig = generateConfigForGrid {
+            id 'autocomplete1GridConfig'
+            dataSourceType 'gorm'
+            domainClass TestDomain
+            autocomplete {
+                labelProp 'testStringProperty'                // daca vrei sa afisezi o descriere
+                textBoxFilterClosure { val, params ->
+                    ilike('testStringProperty', "%${params.term}%")
+                }
+            }
+        }
+
         populateTestDomain(100)
     }
 
@@ -53,6 +66,15 @@ class AutocompleteTests extends AbstractServiceTest {
 //        assertEquals 'testStringProperty', autocompleteGridConfig.autocomplete.codeProp
         assertEquals 'testStringProperty', autocompleteGridConfig.autocomplete.labelProp
         assertNotNull autocompleteGridConfig.autocomplete.textBoxFilterClosure
+    }
+
+    void testDefaultValus() {
+
+        easygridService.addDefaultValues(autocomplete1GridConfig, defaultValues)
+
+        assertEquals 'id', autocomplete1GridConfig.autocomplete.idProp
+        assertEquals 'testStringProperty', autocomplete1GridConfig.autocomplete.labelProp
+        assertNotNull autocomplete1GridConfig.autocomplete.textBoxFilterClosure
     }
 
 
