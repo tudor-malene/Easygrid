@@ -30,19 +30,24 @@ log4j = {
 
 easygrid {
 
-    //default values added to each defined grid
+    //default values added to each defined grid  ( if they are not already set )
     defaults {
-        defaultMaxRows = 10
+
+        defaultMaxRows = 10 // the max no of rows displayed in the grid
+
         //used for automatically generating label messages from the column name
         //this will be transformed into a SimpleTemplateEngine instance ( '#' will be replaced with '$') and the binding variables will be: labelPrefix , column, gridConfig
         labelFormat = '#{labelPrefix}.#{column.name}.label'
 
         //called before inline editing : transforms the parameters into the actual object to be stored
         beforeSave = { params -> params }
-        gridImpl = 'jqgrid'
+
+        gridImpl = 'jqgrid' // the default grid implementation
+
         exportService = org.grails.plugin.easygrid.EasygridExportService
 
-        //jqgrid default properties
+        // jqgrid default properties
+        // check the jqgrid documentation
         jqgrid {
             width = '"100%"'
             height = 250
@@ -50,7 +55,9 @@ easygrid {
             rowNum = 20
         }
 
+        // default security provider
         // spring security implementation
+        // interprets the 'roles' property
         securityProvider = { grid, oper ->
             if (!grid.roles) {
                 return true
@@ -66,20 +73,21 @@ easygrid {
             SpringSecurityUtils.ifAllGranted(grantedRoles.inject('') { roles, role -> "${roles},${role}" })
         }
 
+        //default autocomplete settings
         autocomplete {
-            idProp = 'id'
-            maxRows = 10
+            idProp = 'id'  // the name of the property of the id of the selected element (optionKey - in the replaced select tag)
+            maxRows = 10 // the max no of elements to be displayed by the jquery autocomplete box
         }
     }
 
-    // each grid has a "type" - which must be one of the datasources
+    // each grid has a "type" - which must be one of the datasources defined here
     dataSourceImplementations {
         //deprecated
         domain {
             // mandatory attribute: domainClass or initialCriteria
             dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
             filters {
-                //default search closures
+                //default search closures for different column types
                 text = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
                 number = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
                 //todo
@@ -121,9 +129,11 @@ easygrid {
         }
     }
 
-    // will be specified using the 'gridImpl' property
+    // these are the actual UI grid implementations
+    // will be specified in the grid config using the 'gridImpl' property
     gridImplementations {
-        //grails classic implementation
+
+        //grails classic implementation - for demo purposes
         classic {
             gridRenderer = '/templates/classicGridRenderer'
             gridImplService = org.grails.plugin.easygrid.grids.ClassicGridService
@@ -134,11 +144,17 @@ easygrid {
             ]
         }
 
+        //  jqgrid implementation
         jqgrid {
-            gridRenderer = '/templates/jqGridRenderer'
-            gridImplService = org.grails.plugin.easygrid.grids.JqueryGridService
-            inlineEdit = true
+            gridRenderer = '/templates/jqGridRenderer'          //  a gsp template that will be rendered
+            gridImplService = org.grails.plugin.easygrid.grids.JqueryGridService  // the service class for this implementation
+            inlineEdit = true    // specifies that this implementation allows inline Editing
             editRenderer = '/templates/jqGridEditResponse'
+
+            // there are 3 options to format the data
+            // using the value closure in the column
+            // using the named formatters ( defined below )
+            // using the default type formats ( defined here ) - where you specify the type of data & the format closure
             formats = [
                     (Date): { it.format("dd/MM/yyyy") },
                     (Calendar): { Calendar cal -> cal.format("dd/MM/yyyy") },
@@ -146,6 +162,7 @@ easygrid {
             ]
         }
 
+        //  jquery datatables implementation
         dataTables {
             gridImplService = DataTablesGridService
             gridRenderer = '/templates/dataTablesGridRenderer'
@@ -156,6 +173,7 @@ easygrid {
             ]
         }
 
+        // google visualization implementation
         visualization {
             gridImplService = org.grails.plugin.easygrid.grids.VisualizationGridService
             gridRenderer = '/templates/visualizationGridRenderer'
@@ -167,6 +185,8 @@ easygrid {
 
     }
 
+
+    // section to define per column configurations
     columns {
 
         //default values for the columns
@@ -190,7 +210,8 @@ easygrid {
             }
         }
 
-        // predefined column types
+        // predefined column types  (set of configurations)
+        // used to avoid code duplication
         types {
             id {
                 property = 'id'
@@ -244,6 +265,8 @@ easygrid {
     }
 
     // here we define different formatters
+    // these are closures  which are called before the data is displayed to format the cell data
+    // these are specified in the column section using : formatName
     formats {
         stdDateFormatter = {
             it.format("dd/MM/yyyy")

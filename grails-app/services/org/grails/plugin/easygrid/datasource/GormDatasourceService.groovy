@@ -33,7 +33,6 @@ class GormDatasourceService {
         // only generate if there are no columns defined
         if (!gridConfig.columns && gridConfig.domainClass) {
             assert gridConfig.domainClass != null
-            gridConfig.columns = []
             //dynamically generate the columns
 
             //wtf?? - without .name - doesn't work for reloading domain classes
@@ -81,8 +80,7 @@ class GormDatasourceService {
                 gridConfig.columns.add(idCol)
             }
 
-            domainClass.properties.findAll { !(it.name in ['id', 'version']) }.sort { a, b -> a.name <=> b.name }
-            .each { GrailsDomainClassProperty prop ->
+            domainClass.properties.findAll { !(it.name in ['id', 'version']) }.sort { a, b -> a.name <=> b.name }.each { GrailsDomainClassProperty prop ->
                 if (prop.isAssociation()) {
                     return
                 }
@@ -126,7 +124,7 @@ class GormDatasourceService {
     def getById(id) {
         if (id != null) {
 //            createCriteria([{ params -> eq('id', id as long) }]).find()
-            createWhereQuery([ new Filter( searchFilter: {paramvalue, params -> eq('id', id as long)} )]).find()
+            createWhereQuery([new Filter(searchFilter: { paramvalue, params -> eq('id', id as long) })]).find()
         }
     }
 

@@ -4,7 +4,7 @@ import grails.util.ClosureToMapPopulator
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
-import org.grails.plugin.easygrid.ColumnsConfig
+import org.grails.plugin.easygrid.ListMapWrapper
 
 /**
  * implementation for the EasyGrid DSL
@@ -52,7 +52,7 @@ class EasygridBuilder {
 
 
                 case ('columns'):   //handle the columns section
-                    gridConfig.columns = new ColumnsConfig()
+                    gridConfig.columns = new ListMapWrapper<ColumnConfig>('name')
 
                     // handle the columns section
                     buildWithDelegate(args[0])

@@ -3,9 +3,7 @@ package org.grails.plugin.easygrid
 import groovy.transform.AutoClone
 
 /**
- * Defines the grid
- *
- * todo - annotation with ast transformation to add dynamicProperties & deepClone
+ * Defines the configuration for a grid
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
@@ -15,40 +13,44 @@ class GridConfig {
     String id
 
     // the columns
-//    List<ColumnConfig> columns = []
-    ColumnsConfig columns = new ColumnsConfig()
+//    ColumnsConfig columns = new ColumnsConfig()
+    ListMapWrapper<ColumnConfig> columns = new ListMapWrapper<ColumnConfig>('name')
 
-//    Map autocomplete = [:]
-    AutocompleteConfig autocomplete = new AutocompleteConfig()
-
-    // the datasource
+    // datasource settings
     String dataSourceType
-    Class dataSourceService  // the datasource
+    Class dataSourceService  // the datasource implementation
 
-    // the implementation
+    // UI implementation settings
     String gridImpl
-    Class gridImplService
-    String gridRenderer
+    Class gridImplService    // the UI service implementation
+    String gridRenderer      // the UI template renderer
 
-    // export
-    boolean export
-    String export_title
-    Class exportService
+    // export settings
+    boolean export          // allow exporting
+    String export_title     // the title of the exported file
+    Class exportService     // the implementation of the export service
 
-    //security
-    def roles
-    Closure securityProvider
+    //security settings
+    def roles                   // list of roles, or map of tipe [oper:Role] in case you need to fine grain
+    Closure securityProvider    // closure that enforces access control on the grid methods
 
-    // inline edit
-    boolean inlineEdit
-    String editRenderer
-    Closure beforeSave
+    // inline edit  settings
+    boolean inlineEdit      // allow inline editing
+    String editRenderer     // todo?
+    Closure beforeSave      // closure used to transform the incoming parameters in an object ready to be persisted
 
-    // formatters for each value ( depend on the class )
+    // formatters - map of type of data & the format closure
     Map<Class, Closure> formats
 
+    // autocomplete settings
+    AutocompleteConfig autocomplete = new AutocompleteConfig()
 
+    // other properties which can be used in custom implementations
     private Map dynamicProperties = [:]
+
+
+    /*************************************************************/
+    // todo - add a AST transformation to add dynamicProperties & deepClone
 
     //setter
     def propertyMissing(String name, value) {

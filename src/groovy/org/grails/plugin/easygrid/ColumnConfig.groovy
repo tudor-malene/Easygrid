@@ -10,28 +10,31 @@ import groovy.transform.AutoClone
 @AutoClone
 class ColumnConfig {
 
-    // the name of the column
-    String name
+    String name   // the name of the column - used for accessing the column in th grid or for other configurations ( like property or label)
 
-    String label
-    def type
+    String label   // the label that represents the header of the column
 
-    // the value
-    def property
-    Closure value
+    String type   // represents one of the predefined column types ( sets of configurations  )
 
-    String formatName // one of the predefined formatters
-    Closure formatter  //
+    // the value - how to determine the value for each cell
+    String property    // if the elements are maps or domain classes -this represents the property
+    Closure value      // if the value is more complex ( like a sum , or etc ) then this closure can be used
 
-    def enableFilter
-    def filterFieldType
-    def filterClosure
+    // formatting of the value - for the display
+    String formatName   // when you want to use one of the predefined formatters
+    Closure formatter   // a custom closure
 
-    /**
-     *  if selection is enabled for the grid - this flag decides if this column will be shown in the dialog
-     */
-    Boolean showInSelection
 
+    // filtering of data settings
+    Boolean enableFilter   // flag that specifies if filtering should be enabled on this column
+    String filterFieldType  // one of the predefined filters defined for each datasource
+    String filterClosure    // a closure called when filtering on a column from the UI ( either specified directly or through the filterFieldType
+
+    Boolean showInSelection // if selection is enabled for the grid - this flag decides if this column will be shown in the dialog
+
+
+
+    /************************************************************/
     //dynamic
     private Map dynamicProperties = [:]
 
