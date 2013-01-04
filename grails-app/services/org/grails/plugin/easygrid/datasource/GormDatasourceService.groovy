@@ -126,7 +126,7 @@ class GormDatasourceService {
     def getById(id) {
         if (id != null) {
 //            createCriteria([{ params -> eq('id', id as long) }]).find()
-            createWhereQuery([{ params -> id == (id as long) }]).find()
+            createWhereQuery([ new Filter( searchFilter: {paramvalue, params -> eq('id', id as long)} )]).find()
         }
     }
 

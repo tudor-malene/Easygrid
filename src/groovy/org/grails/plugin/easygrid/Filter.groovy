@@ -15,7 +15,7 @@ class Filter {
 
     ColumnConfig column
     String paramValue
-    Object convertedValue
+//    Object convertedValue
 
     /**
      * fast initializer used for testing
@@ -26,13 +26,13 @@ class Filter {
         filter.column = column
         filter.searchFilter = column.filterClosure
         filter.paramName = column.name
-        filter.paramValue = EasygridContextHolder.params[this.paramName]
+        filter.paramValue = EasygridContextHolder.params[filter.paramName]
         filter
     }
 
     /**
      *
-     */
+
     def convertValue() {
 
         //todo
@@ -41,5 +41,5 @@ class Filter {
         //todo
         convertedValue = paramValue
     }
-
+     */
 }

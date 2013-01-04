@@ -278,7 +278,7 @@ class EasygridService {
      * @param gridConfig
      * @return
      */
-    def gridData(gridConfig) {
+    def gridData(GridConfig gridConfig) {
         guard(gridConfig) {
 
             //store the grid to threadLocal

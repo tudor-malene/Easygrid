@@ -18,7 +18,8 @@ class GridConfig {
 //    List<ColumnConfig> columns = []
     ColumnsConfig columns = new ColumnsConfig()
 
-    Map autocomplete = [:]
+//    Map autocomplete = [:]
+    AutocompleteConfig autocomplete = new AutocompleteConfig()
 
     // the datasource
     String dataSourceType
@@ -63,7 +64,7 @@ class GridConfig {
         def clone = this.clone()
 
         //clone the collections
-        ['dynamicProperties', 'formats', 'autocomplete'].each {prop ->
+        ['dynamicProperties', 'formats'].each {prop ->
             if (this[prop]) {
                 clone[prop] = this[prop].collectEntries {key, value ->
                     [(key): (value instanceof Cloneable) ? value.clone() : value]
@@ -73,6 +74,7 @@ class GridConfig {
 
         //deep clone the columns container
         clone.columns = this.columns.deepClone()
+        clone.autocomplete = this.autocomplete.deepClone()
         clone
     }
 

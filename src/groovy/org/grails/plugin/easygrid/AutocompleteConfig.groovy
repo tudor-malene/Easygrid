@@ -8,29 +8,13 @@ import groovy.transform.AutoClone
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @AutoClone
-class ColumnConfig {
+class AutocompleteConfig {
 
-    // the name of the column
-    String name
+    String idProp
+    String labelProp
 
-    String label
-    def type
-
-    // the value
-    def property
-    Closure value
-
-    String formatName // one of the predefined formatters
-    Closure formatter  //
-
-    def enableFilter
-    def filterFieldType
-    def filterClosure
-
-    /**
-     *  if selection is enabled for the grid - this flag decides if this column will be shown in the dialog
-     */
-    Boolean showInSelection
+    Closure textBoxFilterClosure
+    Closure constraintsFilterClosure
 
     //dynamic
     private Map dynamicProperties = [:]
@@ -44,4 +28,5 @@ class ColumnConfig {
         }
         clone
     }
+
 }

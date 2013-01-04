@@ -46,8 +46,12 @@ class EasygridASTTransformation extends AbstractASTTransformation {
                     package ${source.packageName}
 
                     import org.grails.plugin.easygrid.*
+                    import org.slf4j.Logger
+                    import org.slf4j.LoggerFactory
 
                     class ${source.nameWithoutPackage} {
+
+                        final static Logger easyGridLogger = LoggerFactory.getLogger(${source.nameWithoutPackage}.class)
 
                         // added getters and setters  - because autowiring doesn't work without. (why?)
                         def easygridService
@@ -101,6 +105,7 @@ class EasygridASTTransformation extends AbstractASTTransformation {
 
                         // renders the html code
                         def ${gridName}Html () {
+                            easyGridLogger.debug("entering ${gridName}Html")
                             def gridConfig = gridsConfig['${gridName}']
                             def model = easygridService.htmlGridDefinition(gridConfig.deepClone())
                             if (model) {
@@ -111,16 +116,19 @@ class EasygridASTTransformation extends AbstractASTTransformation {
 
                         // renders the elements to be displayed by the grid
                         def ${gridName}Rows () {
+                            easyGridLogger.debug("entering ${gridName}Rows")
                             render easygridService.gridData(gridsConfig['${gridName}'].deepClone())
                         }
 
                          // export the elements
                         def ${gridName}Export () {
+                            easyGridLogger.debug("entering ${gridName}Export")
                             easygridService.export(gridsConfig['${gridName}'].deepClone())
                         }
 
                         //inline Edit
                         def ${gridName}InlineEdit (){
+                            easyGridLogger.debug("entering ${gridName}InlineEdit")
                           if(easygridService.supportsInlineEdit(gridsConfig['${gridName}'].deepClone())){
                                def result = easygridService.inlineEdit(gridsConfig['${gridName}'].deepClone())
 //                               render(template: gridsConfig['${gridName}'].editRenderer, model: result?.model)
@@ -132,14 +140,17 @@ class EasygridASTTransformation extends AbstractASTTransformation {
 
                         //autocomplete
                         def ${gridName}AutocompleteResult (){
+                          easyGridLogger.debug("entering ${gridName}AutocompleteResult")
+
                           if(autocompleteService.supportsAutocomplete(gridsConfig['${gridName}'].deepClone())){
-                              render autocompleteService.response(gridsConfig['${gridName}'].deepClone())
+                              render autocompleteService.searchedElementsJSON(gridsConfig['${gridName}'].deepClone())
                           }else{
                             throw new UnsupportedOperationException("Autocomplete not available for this grid: ${gridName}")
                           }
                         }
 
                         def ${gridName}SelectionLabel (){
+                          easyGridLogger.debug("entering ${gridName}SelectionLabel")
                           if(autocompleteService.supportsAutocomplete(gridsConfig['${gridName}'])){
                               render autocompleteService.label(gridsConfig['${gridName}'].deepClone())
                           }else{
