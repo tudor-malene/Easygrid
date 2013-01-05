@@ -52,12 +52,15 @@ class ListDatasourceService {
     }
 
     def getCriteria(Filter filter) {
+/*
         Closure curriedClosure = filter.searchFilter
         curriedClosure = curriedClosure.curry(filter)
-        if (curriedClosure.parameterTypes.size() > 1) {
-            curriedClosure = curriedClosure.curry(params)
-        }
+//        if (curriedClosure.parameterTypes.size() > 1) {
+//            curriedClosure = curriedClosure.curry(params)
+//        }
         curriedClosure
+*/
+        filter.searchFilter.curry(filter)
     }
 
     /**

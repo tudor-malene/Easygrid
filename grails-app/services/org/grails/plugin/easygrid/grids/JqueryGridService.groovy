@@ -30,7 +30,7 @@ class JqueryGridService {
             searchParams.inject([]) { list, param ->
 //                def closure = gridConfig.columns.find { col -> col.name == param }?.filterClosure
                 def column = gridConfig.columns.find { col -> col.name == param }
-                column?.filterClosure ? (list + new Filter(searchFilter: column?.filterClosure, paramName: param, paramValue: params[param], column: column)) : list
+                column?.filterClosure ? (list + new Filter(column)) : list
             }
 
             //todo - implement dynamic search: searchOper

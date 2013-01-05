@@ -43,7 +43,8 @@ string	sEcho	Information for DataTables to use for rendering.
             if (params["bSearchable_$i"] && params["sSearch_$i"]) {
                 def val = params["sSearch_$i"]
                 params["${col.name}"] = val
-                filterClosures.add new Filter(searchFilter: col?.filterClosure, paramName: "${col.name}", paramValue: val, column: col)
+//                filterClosures.add new Filter(searchFilter: col?.filterClosure, paramName: "${col.name}", paramValue: val, column: col)
+                filterClosures.add new Filter(col)
             }
         }
         filterClosures

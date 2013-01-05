@@ -123,8 +123,7 @@ class GormDatasourceService {
      */
     def getById(id) {
         if (id != null) {
-//            createCriteria([{ params -> eq('id', id as long) }]).find()
-            createWhereQuery([new Filter(searchFilter: { paramvalue, params -> eq('id', id as long) })]).find()
+            createWhereQuery([new Filter({ filter -> eq('id', id as long) })]).find()
         }
     }
 
@@ -172,24 +171,26 @@ class GormDatasourceService {
     }
 
     def getCriteria(Filter filter) {
-        if (filter.searchFilter instanceof Closure) {
-            def curriedClosure = filter.searchFilter
-            if (curriedClosure.parameterTypes.size() == 1 && curriedClosure.parameterTypes[0] == Filter) {
+        assert filter.searchFilter instanceof Closure
+        assert filter.searchFilter.parameterTypes.size() == 1
+
+        filter.searchFilter.curry(filter)
+
+
+//        if (curriedClosure.parameterTypes.size() == 1 && curriedClosure.parameterTypes[0] == Filter) {
 //            if (curriedClosure.parameterTypes[0] == Filter) {
-                return curriedClosure.curry(filter)
-            }
-
-            if (curriedClosure.parameterTypes.size() in [0, 1]) {
-                //todo - sa fac si conversia ( de ce pasez paramValue - daca e deja in filtru ?? )
-                curriedClosure = curriedClosure.curry(filter.paramValue)
-            } else {
-                curriedClosure = curriedClosure.curry(filter.paramValue, EasygridContextHolder.params)
-            }
-
-            return curriedClosure
+//            return curriedClosure.curry(filter)
+//        }
+/*
+        if (curriedClosure.parameterTypes.size() in [0, 1]) {
+            //todo - sa fac si conversia ( de ce pasez paramValue - daca e deja in filtru ?? )
+            curriedClosure = curriedClosure.curry(filter.paramValue)
         } else {
-            return filter.searchFilter
+            curriedClosure = curriedClosure.curry(filter.paramValue, EasygridContextHolder.params)
         }
+*/
+
+//        return curriedClosure
     }
 
     // inlineEdit implementations  - only works if domainClass is defined

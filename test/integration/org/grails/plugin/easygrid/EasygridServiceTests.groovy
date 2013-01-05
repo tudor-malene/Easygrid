@@ -425,32 +425,4 @@ class EasygridServiceTests extends AbstractServiceTest {
         TestDomain.list(sort: 'aa')
     }
 
-    void testRestoreParamsScenario() {
-/*
-        populateTestDomain()
-        def controller = new TestDomainController()
-        easygridService.initGrids(controller)
-        def gridConfig = controller.gridsConfig.test1
-
-        println gridConfig
-
-//        1) intru pe o pagina ( salvez params)
-        params.param1 =1
-        easygridService.gridData(gridConfig)
-
-//        2) cautare
-        params.param1 =1
-        params.param2 =2
-        easygridService.gridData(gridConfig)
-*/
-
-//        3) schimb pagina ( ? se pastreaza cautarea )
-// da
-
-//        4) intru pe un update
-
-//        5) ma intorc la grid ( vreau parametrii de la 3 )
-
-//        6) fac un export ( vreau parametrii de la 5)
-    }
 }

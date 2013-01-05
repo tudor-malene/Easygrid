@@ -37,17 +37,11 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
                 testStringProperty {
                     enableFilter true
 //                    filterFieldType 'text'
-//                    filterClosure {
-//                        ilike('testStringProperty', "%${it}%")
-//                    }
                     jqgrid {
                     }
                 }
                 testIntProperty {
                     enableFilter true
-//                    filterClosure {
-//                        eq('testIntProperty', it as int)
-//                    }
                     jqgrid {
                     }
                 }
@@ -67,13 +61,13 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
                     type 'id'
                 }
                 testStringProperty {
-                    filterClosure {
-                        ilike('testStringProperty', "%${it}%")
+                    filterClosure { filter ->
+                        ilike('testStringProperty', "%${filter.paramValue}%")
                     }
                 }
                 testIntProperty {
-                    filterClosure {
-                        eq('testIntProperty', it as int)
+                    filterClosure { filter ->
+                        eq('testIntProperty', filter.paramValue as int)
                     }
                 }
             }
@@ -97,7 +91,7 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
 
         //test criteria search
         domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 0],
-                [new Filter(searchFilter: { params -> between("testIntProperty", 31, 80) }, paramValue: 1)]
+                [new Filter({ params -> between("testIntProperty", 31, 80) }, 1)]
         )
         assertEquals 10, domainRows.size()
         assertEquals 31, domainRows[0].testIntProperty
@@ -117,7 +111,7 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
         assertEquals 11, domainRows[0].testIntProperty
 
         //test criteria search
-        domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 10], [new Filter(searchFilter: { params -> between("testIntProperty", 31, 80) })])
+        domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 10], [new Filter({ filter -> between("testIntProperty", 31, 80) })])
         assertEquals 10, domainRows.size()
         assertEquals 41, domainRows[0].testIntProperty
     }
@@ -132,13 +126,13 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
 //        domainGridConfig.columns.testIntProperty.filterClosure = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
 
 
-        assertEquals 20, gormDatasourceService.countRows([Filter.initFromColumn(domainGridConfig.columns.testStringProperty)])
+        assertEquals 20, gormDatasourceService.countRows([new Filter(domainGridConfig.columns.testStringProperty)])
 
         assertArrayEquals(
                 [14, 15, 16, 17, 18].toArray(),
                 gormDatasourceService.list(
                         [maxRows: 5, rowOffset: 5, sort: 'testIntProperty'],
-                        [Filter.initFromColumn(domainGridConfig.columns.testStringProperty)]
+                        [new Filter(domainGridConfig.columns.testStringProperty)]
                 ).collect { it.testIntProperty }.toArray()
         )
 
@@ -147,7 +141,7 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
                 [100].toArray(),
                 gormDatasourceService.list(
                         [maxRows: 5, sort: 'testIntProperty'],
-                        [Filter.initFromColumn(domainGridConfig.columns.testStringProperty), Filter.initFromColumn(domainGridConfig.columns.testIntProperty),]
+                        [new Filter(domainGridConfig.columns.testStringProperty), new Filter(domainGridConfig.columns.testIntProperty),]
                 ).collect { it.testIntProperty }.toArray())
     }
 

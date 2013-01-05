@@ -34,14 +34,10 @@ class AutocompleteTests extends AbstractServiceTest {
             domainClass TestDomain
             gridImpl 'jqgrid'
             autocomplete {
-                idProp 'id'                // the id of the selected element
-//                codeProp 'testStringProperty'                // valoarea care sa se afiseze - codul
-                labelProp 'testStringProperty'                // daca vrei sa afisezi o descriere
-                textBoxFilterClosure { val, params ->
-                    ilike('testStringProperty', "%${params.term}%")
+                labelProp 'testStringProperty'
+                textBoxFilterClosure { Filter filter ->
+                    ilike('testStringProperty', "%${filter.paramValue}%")
                 }
-//                constraintsFilterClosure { val, params ->
-//                }
             }
         }
 
@@ -50,9 +46,9 @@ class AutocompleteTests extends AbstractServiceTest {
             dataSourceType 'gorm'
             domainClass TestDomain
             autocomplete {
-                labelProp 'testStringProperty'                // daca vrei sa afisezi o descriere
-                textBoxFilterClosure { val, params ->
-                    ilike('testStringProperty', "%${params.term}%")
+                labelProp 'testStringProperty'
+                textBoxFilterClosure { Filter filter ->
+                    ilike('testStringProperty', "%${filter.paramValue}%")
                 }
             }
         }
@@ -62,10 +58,11 @@ class AutocompleteTests extends AbstractServiceTest {
 
     void testAutocompleteInit() {
 
-        assertEquals 'id', autocompleteGridConfig.autocomplete.idProp
-//        assertEquals 'testStringProperty', autocompleteGridConfig.autocomplete.codeProp
         assertEquals 'testStringProperty', autocompleteGridConfig.autocomplete.labelProp
         assertNotNull autocompleteGridConfig.autocomplete.textBoxFilterClosure
+        easygridService.addDefaultValues(autocompleteGridConfig, defaultValues)
+        assertEquals 'id', autocompleteGridConfig.autocomplete.idProp
+
     }
 
     void testDefaultValus() {

@@ -46,12 +46,12 @@ abstract class AbstractServiceTest {
                 }
                 return true
             }
-            dataProvider {gridConfig, filters, listParams ->
+            dataProvider { gridConfig, filters, listParams ->
                 [
                         [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', birthDate: new GregorianCalendar(1821, 10, 11)],
                 ]
             }
-            dataCount {filters ->
+            dataCount { filters ->
                 1
             }
             jqgrid {
@@ -63,8 +63,8 @@ abstract class AbstractServiceTest {
                     type 'id'
                 }
                 name {
-                    filterClosure {
-                        ilike('name', "%${it}%")
+                    filterClosure { filter ->
+                        ilike('name', "%${filter.paramValue}%")
                     }
                     jqgrid {
                         editable true
@@ -74,8 +74,8 @@ abstract class AbstractServiceTest {
                     }
                 }
                 nation {
-                    filterClosure {
-                        ilike('nation', "%${it}%")
+                    filterClosure { filter ->
+                        ilike('nation', "%${filter.paramValue}%")
                     }
                     jqgrid {
                     }
@@ -86,8 +86,8 @@ abstract class AbstractServiceTest {
                             new Date().year - row.birthDate.time.year
                         }
                     }
-                    filterClosure {
-                        eq('age', it as int)
+                    filterClosure { filter ->
+                        eq('age', filter.paramValue as int)
                     }
                     jqgrid {
                         width 110
@@ -95,8 +95,8 @@ abstract class AbstractServiceTest {
                 }
                 birthDate {
                     formatName 'stdDateFormatter'
-                    filterClosure {
-                        eq('birthDate', it)
+                    filterClosure { filter ->
+                        eq('birthDate', filter.paramValue as Date)
                     }
                     jqgrid {
                         width 110
@@ -105,7 +105,7 @@ abstract class AbstractServiceTest {
             }
         }
 
-        EasygridContextHolder.session.setAttribute('listData', (1..200).collect {[col1: it, col2: "$it"]})
+        EasygridContextHolder.session.setAttribute('listData', (1..200).collect { [col1: it, col2: "$it"] })
 
         //initialize the list grid
         listGridConfig = generateConfigForGrid {
@@ -116,8 +116,8 @@ abstract class AbstractServiceTest {
             attributeName 'listData'
             columns {
                 col1 {
-                    filterClosure {Filter filter, params, element ->
-                        element.col1 > params.min
+                    filterClosure { Filter filter, element ->
+                        element.col1 > filter.params.min
                     }
                     jqgrid {
                         editable true
@@ -133,8 +133,8 @@ abstract class AbstractServiceTest {
                     }
                 }
                 col3 {
-                    value {it.col1 * it.col1}
-                    filterClosure { val, params, element ->
+                    value { it.col1 * it.col1 }
+                    filterClosure { val, element ->
                     }
                 }
             }

@@ -327,7 +327,7 @@ todo
 
                 if (params.selectionComp) {
                     //add a new criteria
-                    filters.add new Filter(autocompleteConstraint: true, searchFilter: gridConfig.autocomplete.constraintsFilterClosure)
+                    filters.add new Filter(gridConfig.autocomplete.constraintsFilterClosure)
                 }
 
                 def rows = dataSourceService.list(listParams, filters)

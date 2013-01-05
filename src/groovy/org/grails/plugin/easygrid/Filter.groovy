@@ -1,5 +1,7 @@
 package org.grails.plugin.easygrid
 
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
+
 /**
  * represents a search filter
  *
@@ -7,39 +9,46 @@ package org.grails.plugin.easygrid
  */
 class Filter {
 
-    boolean autocompleteConstraint = false
-    boolean autocompleteTerm = false
-
-    String paramName
-    def searchFilter
-
+    // the column on which the filter was applied
     ColumnConfig column
+
+    // the name of the request parameter
+    String paramName
+
+    // the search filter
+    Closure searchFilter
+
+    // the actual value of the user input
     String paramValue
-//    Object convertedValue
 
-    /**
-     * fast initializer used for testing
-     * @param column
-     */
-    static Filter initFromColumn(ColumnConfig column) {
-        Filter filter = new Filter()
-        filter.column = column
-        filter.searchFilter = column.filterClosure
-        filter.paramName = column.name
-        filter.paramValue = EasygridContextHolder.params[filter.paramName]
-        filter
+    // the parameter map
+    GrailsParameterMap params
+
+//    def convertedValue - todo : convert type
+
+
+    public Filter(ColumnConfig columnConfig) {
+        init()
+        this.column = columnConfig
+        this.searchFilter = columnConfig.filterClosure
+        this.paramName = columnConfig.name
+        this.paramValue = this.params[this.paramName]
     }
 
-    /**
-     *
-
-    def convertValue() {
-
-        //todo
-        column.filterFieldType
-
-        //todo
-        convertedValue = paramValue
+    public Filter(Closure searchFilter, paramValue) {
+        init()
+        this.searchFilter = searchFilter
+        this.paramValue = paramValue
     }
-     */
+
+    public Filter(Closure searchFilter) {
+        init()
+        this.searchFilter = searchFilter
+    }
+
+
+    private init(){
+        this.params = EasygridContextHolder.params
+    }
+
 }

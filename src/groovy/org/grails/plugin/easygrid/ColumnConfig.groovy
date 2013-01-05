@@ -28,7 +28,7 @@ class ColumnConfig {
     // filtering of data settings
     Boolean enableFilter   // flag that specifies if filtering should be enabled on this column
     String filterFieldType  // one of the predefined filters defined for each datasource
-    String filterClosure    // a closure called when filtering on a column from the UI ( either specified directly or through the filterFieldType
+    Closure filterClosure    // a closure called when filtering on a column from the UI ( either specified directly or through the filterFieldType
 
     Boolean showInSelection // if selection is enabled for the grid - this flag decides if this column will be shown in the dialog
 

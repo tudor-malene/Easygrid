@@ -31,7 +31,7 @@ class EasygridContextHolder {
         gridConfigHolder.get()
     }
 
-    static setLocalGridConfig(config) {
+    static setLocalGridConfig(GridConfig config) {
         gridConfigHolder.set(config)
     }
 

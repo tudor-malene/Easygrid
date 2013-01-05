@@ -40,10 +40,10 @@ class AutocompleteService {
             //store the grid to threadLocal
             setLocalGridConfig(grid)
 
-            def filters = [new Filter(searchFilter: grid.autocomplete.textBoxFilterClosure, autocompleteTerm: true)]
+            def filters = [new Filter(grid.autocomplete.textBoxFilterClosure, params.term)]
 
             if (grid.autocomplete.constraintsFilterClosure != null) {
-                filters << new Filter(searchFilter: grid.autocomplete.constraintsFilterClosure, autocompleteConstraint: true)
+                filters << new Filter(grid.autocomplete.constraintsFilterClosure)
             }
 
             //todo - make maxrows configurable

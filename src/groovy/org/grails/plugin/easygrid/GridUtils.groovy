@@ -92,6 +92,7 @@ class GridUtils {
         DataTablesGridService.mixin EasygridContextHolder
         JqueryGridService.mixin EasygridContextHolder
         EasygridExportService.mixin EasygridContextHolder
+        AutocompleteService.mixin EasygridContextHolder
 
         GormDatasourceService.mixin EasygridContextHolder
         ListDatasourceService.mixin EasygridContextHolder

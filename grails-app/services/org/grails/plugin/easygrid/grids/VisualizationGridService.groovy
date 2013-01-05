@@ -41,9 +41,9 @@ class VisualizationGridService {
 
     def filters() {
         if (params._filter) {
-            params.findAll {k, v -> v}.collect {k, v -> k}.intersect(gridConfig.columns.collect {it.name }).inject([]) {list, param ->
-                def column = gridConfig.columns.find {col -> col.name == param}
-                column ? (list + new Filter(searchFilter: column?.filterClosure, paramName: param, paramValue: params[param], column: column)) : list
+            params.findAll { k, v -> v }.collect { k, v -> k }.intersect(gridConfig.columns.collect { it.name }).inject([]) { list, param ->
+                def column = gridConfig.columns.find { col -> col.name == param }
+                column ? (list + new Filter(column)) : list
             }
         }
     }
@@ -54,7 +54,7 @@ class VisualizationGridService {
         Query query = new DataSourceRequest(request).query
         assert query
         //only works for 1 column
-        query.sort?.sortColumns?.each {sortColumn ->
+        query.sort?.sortColumns?.each { sortColumn ->
             result.sort = sortColumn.column.id
             result.order = (sortColumn.order == SortOrder.DESCENDING) ? 'desc' : 'asc'
         }
@@ -74,15 +74,15 @@ class VisualizationGridService {
         DataTable dataTable = new DataTable()
 
         //add table properties
-        gridConfig.visualization.each {k, v ->
+        gridConfig.visualization.each { k, v ->
             dataTable.setCustomProperty(k, v.toString())
         }
 
         //add columns
-        dataTable.addColumns gridConfig.columns.collect {column ->
+        dataTable.addColumns gridConfig.columns.collect { column ->
             def cd = new ColumnDescription(column.name, column.visualization.valueType, messageLabel(column.label))
             // only className and style
-            column.visualization.findAll {(it.key in ['className', 'style'])}.each {k, v ->
+            column.visualization.findAll { (it.key in ['className', 'style']) }.each { k, v ->
                 cd.setCustomProperty(k, v)
             }
             cd
