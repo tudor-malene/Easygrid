@@ -9,6 +9,8 @@ import org.grails.datastore.mapping.query.api.Criteria
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.Filter
+import org.grails.plugin.easygrid.GridConfig
+import org.grails.plugin.easygrid.GridUtils
 import org.springframework.dao.DataIntegrityViolationException
 
 /**
@@ -94,6 +96,48 @@ class GormDatasourceService {
         }
     }
 
+
+    def addDefaultValues(Map defaultValues) {
+
+        gridConfig.columns.each { ColumnConfig column ->
+            // add default filterClosure
+            if (column.enableFilter && column.filterClosure == null) {
+
+                if (column.filterFieldType == null) {
+                    if (gridConfig.domainClass) {
+//                        assert column.property: "you must specify a filterFieldType for ${column.name}"
+                        if (column.property) {
+                            Class columnPropertyType = GridUtils.getPropertyType(grailsApplication, gridConfig.domainClass, column.property)
+                            switch (columnPropertyType) {
+                                case String:
+                                    column.filterFieldType = 'text'
+                                    break
+                                case int:
+                                case Integer:
+                                case BigDecimal:
+                                    column.filterFieldType = 'number'
+                                    break
+                                case Date:
+                                    column.filterFieldType = 'date'
+                                    break
+                                default:
+                                    break
+                            }
+                        }
+                    }
+                }
+
+                if (column.filterFieldType) {
+                    def filterClosure = defaultValues?.dataSourceImplementations?."${gridConfig.dataSourceType}"?.filters?."${column.filterFieldType}"
+                    assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
+                    column.filterClosure = filterClosure
+                }
+            }
+
+
+        }
+    }
+
     def verifyGridConstraints(gridConfig) {
         def errors = []
         if (!gridConfig.domainClass) {
@@ -175,7 +219,6 @@ class GormDatasourceService {
         assert filter.searchFilter.parameterTypes.size() == 1
 
         filter.searchFilter.curry(filter)
-
 
 //        if (curriedClosure.parameterTypes.size() == 1 && curriedClosure.parameterTypes[0] == Filter) {
 //            if (curriedClosure.parameterTypes[0] == Filter) {
