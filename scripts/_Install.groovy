@@ -63,7 +63,7 @@ easygrid {
     gridImplementations {
         //grails classic implementation
         classic {
-            gridRenderer = '/templates/classicGridRenderer'
+            gridRenderer = '/templates/easygrid/classicGridRenderer'
             gridImplService = org.grails.plugin.easygrid.grids.ClassicGridService
             inlineEdit = false
             formats = [
@@ -73,10 +73,10 @@ easygrid {
         }
 
         jqgrid {
-            gridRenderer = '/templates/jqGridRenderer'
+            gridRenderer = '/templates/easygrid/jqGridRenderer'
             gridImplService = org.grails.plugin.easygrid.grids.JqueryGridService
             inlineEdit = true
-            editRenderer = '/templates/jqGridEditResponse'
+            editRenderer = '/templates/easygrid/jqGridEditResponse'
             formats = [
                     (Date): {it.format("dd/MM/yyyy")},
                     (Calendar): {Calendar cal ->cal.format("dd/MM/yyyy")},
@@ -86,7 +86,7 @@ easygrid {
 
         dataTables {
             gridImplService = org.grails.plugin.easygrid.grids.DataTablesGridService
-            gridRenderer = '/templates/dataTablesGridRenderer'
+            gridRenderer = '/templates/easygrid/dataTablesGridRenderer'
             inlineEdit = false
             formats = [
                     (Date): {it.format("dd/MM/yyyy")},
@@ -96,7 +96,7 @@ easygrid {
 
         visualization {
             gridImplService = org.grails.plugin.easygrid.grids.VisualizationGridService
-            gridRenderer = '/templates/visualizationGridRenderer'
+            gridRenderer = '/templates/easygrid/visualizationGridRenderer'
             inlineEdit = false
             formats = [
                     (Date): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal}, //wtf?
@@ -205,8 +205,12 @@ copyTemplates([ 'jqGridRenderer', 'jqGridEditResponse','classicGridRenderer', 'd
 
 def copyTemplates(templates) {
     try {
+        File dest = new File(basedir, 'grails-app/views/templates/easygrid')
+        if (!dest.exists()){
+            dest.mkdir()
+        }
         templates.each {
-            ant.copy file: new File(easygridPluginDir, "grails-app/views/templates/_${it}.gsp"), todir: new File(basedir, 'grails-app/views/templates'), overwrite: false
+            ant.copy file: new File(easygridPluginDir, "grails-app/views/templates/_${it}.gsp"), todir: dest, overwrite: false
         }
     } catch (Exception e) {
         e.printStackTrace()
