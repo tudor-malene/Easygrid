@@ -1,6 +1,8 @@
 import org.grails.plugin.easygrid.Filter
 import org.grails.plugin.easygrid.grids.DataTablesGridService
 
+import java.text.SimpleDateFormat
+
 // configuration for plugin testing - will not be included in the plugin zip
 
 log4j = {
@@ -28,6 +30,7 @@ log4j = {
 
 // Added by Easygrid:
 
+def stdDateFormat =  'MM/dd/yyyy'
 easygrid {
 
     //default values added to each defined grid  ( if they are not already set )
@@ -90,13 +93,11 @@ easygrid {
                 //default search closures for different column types
                 text = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
                 number = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
-                //todo
-                date = { Filter filter -> eq(filter.column.name, filter.paramValue as Date) }
-
+                date = { Filter filter -> eq(filter.column.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue) ) }
             }
         }
 
-        // renamed for consistency - todo  -rename everywhere
+        // renamed for consistency
         gorm {
             // mandatory attribute: domainClass or initialCriteria
             dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
@@ -104,9 +105,7 @@ easygrid {
                 //default search closures
                 text = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
                 number = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
-                //todo
-                date = { Filter filter -> eq(filter.column.name, filter.paramValue as Date) }
-
+                date = { Filter filter -> eq(filter.column.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue) ) }
             }
         }
 
@@ -117,9 +116,7 @@ easygrid {
                 //default search closures
                 text = { Filter filter, row -> row[filter.column.name].contains filter.paramValue }
                 number = { Filter filter, row -> row[filter.column.name] == filter.paramValue as int }
-                //todo
-                date = { Filter filter, row -> row[filter.column.name] == filter.paramValue as Date }
-
+                date = { Filter filter, row -> row[filter.column.name] == new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)  }
             }
         }
 
@@ -139,7 +136,7 @@ easygrid {
             gridImplService = org.grails.plugin.easygrid.grids.ClassicGridService
             inlineEdit = false
             formats = [
-                    (Date): { it.format("dd/MM/yyyy") },
+                    (Date): { it.format(stdDateFormat) },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }
@@ -156,8 +153,8 @@ easygrid {
             // using the named formatters ( defined below )
             // using the default type formats ( defined here ) - where you specify the type of data & the format closure
             formats = [
-                    (Date): { it.format("dd/MM/yyyy") },
-                    (Calendar): { Calendar cal -> cal.format("dd/MM/yyyy") },
+                    (Date): { it.format(stdDateFormat) },
+                    (Calendar): { Calendar cal -> cal.format(stdDateFormat) },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }
@@ -168,7 +165,7 @@ easygrid {
             gridRenderer = '/templates/dataTablesGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date): { it.format("dd/MM/yyyy") },
+                    (Date): { it.format(stdDateFormat) },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }
@@ -269,7 +266,7 @@ easygrid {
     // these are specified in the column section using : formatName
     formats {
         stdDateFormatter = {
-            it.format("dd/MM/yyyy")
+            it.format(stdDateFormat)
         }
         visualizationDateFormatter = {
             def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(java.util.TimeZone.getTimeZone("GMT")); cal

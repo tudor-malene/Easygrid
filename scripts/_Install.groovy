@@ -1,56 +1,99 @@
 // add the configurations to the Config file
 File configFile = new File(basedir, 'grails-app/conf/Config.groovy')
 //todo - de verificat
-if (configFile.exists() && configFile.text.matches("easygrid[\\s*]{") == -1) {
+if (configFile.exists() && configFile.text.indexOf("easygrid") == -1) {
     configFile.withWriterAppend {
         it.writeLine '\n// Added by Easygrid:'
         it.writeLine '''
 
+def stdDateFormat =  'MM/dd/yyyy'
 easygrid {
 
-    //default values added to each defined grid
+    //default values added to each defined grid  ( if they are not already set )
     defaults {
-        defaultMaxRows = 10
-        labelFormat = '${labelPrefix}.${column.name}.label'
+
+        defaultMaxRows = 10 // the max no of rows displayed in the grid
+
+        //used for automatically generating label messages from the column name
+        //this will be transformed into a SimpleTemplateEngine instance ( '#' will be replaced with '$') and the binding variables will be: labelPrefix , column, gridConfig
+        labelFormat = '#{labelPrefix}.#{column.name}.label'
+
         //called before inline editing : transforms the parameters into the actual object to be stored
-        beforeSave = {params -> params}
-        gridImpl = 'jqgrid'
+        beforeSave = { params -> params }
+
+        gridImpl = 'jqgrid' // the default grid implementation
+
         exportService = org.grails.plugin.easygrid.EasygridExportService
 
-        //jqgrid default properties
+        // jqgrid default properties
+        // check the jqgrid documentation
         jqgrid {
             width = '"100%"'
             height = 250
+            // number of rows to display by default
+            rowNum = 20
         }
 
+        // default security provider
         // spring security implementation
+        // interprets the 'roles' property
         securityProvider = { grid, oper ->
             if (!grid.roles) {
                 return true
             }
             def grantedRoles
             if (Map.isAssignableFrom(grid.roles.getClass())) {
-                grantedRoles = grid.roles.findAll {op, role -> oper == op}.collect {op, role -> role}
+                grantedRoles = grid.roles.findAll { op, role -> oper == op }.collect { op, role -> role }
             } else if (List.isAssignableFrom(grid.roles.getClass())) {
                 grantedRoles = grid.roles
             } else {
                 grantedRoles = [grid.roles]
             }
-            SpringSecurityUtils.ifAllGranted(grantedRoles.inject('') {roles, role -> "${roles},${role}"})
+            SpringSecurityUtils.ifAllGranted(grantedRoles.inject('') { roles, role -> "${roles},${role}" })
         }
 
+        //default autocomplete settings
+        autocomplete {
+            idProp = 'id'  // the name of the property of the id of the selected element (optionKey - in the replaced select tag)
+            maxRows = 10 // the max no of elements to be displayed by the jquery autocomplete box
+        }
     }
 
-    // each grid has a "type" - which must be one of the datasources
+    // each grid has a "type" - which must be one of the datasources defined here
     dataSourceImplementations {
+        //deprecated
         domain {
             // mandatory attribute: domainClass or initialCriteria
             dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
+            filters {
+                //default search closures for different column types
+                text = { filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
+                number = { filter -> eq(filter.column.name, filter.paramValue as int) }
+                date = { filter -> eq(filter.column.name, new java.text.SimpleDateFormat(stdDateFormat).parse(filter.paramValue) ) }
+            }
+        }
+
+        // renamed for consistency - todo  -rename everywhere
+        gorm {
+            // mandatory attribute: domainClass or initialCriteria
+            dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
+            filters {
+                //default search closures
+                text = { filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
+                number = { filter -> eq(filter.column.name, filter.paramValue as int) }
+                date = { filter -> eq(filter.column.name, new java.text.SimpleDateFormat(stdDateFormat).parse(filter.paramValue) ) }
+            }
         }
 
         list {
             //mandatory attributes: context, attributeName
             dataSourceService = org.grails.plugin.easygrid.datasource.ListDatasourceService
+            filters {
+                //default search closures
+                text = { filter, row -> row[filter.column.name].contains filter.paramValue }
+                number = { filter, row -> row[filter.column.name] == filter.paramValue as int }
+                date = { filter, row -> row[filter.column.name] == new java.text.SimpleDateFormat(stdDateFormat).parse(filter.paramValue)  }
+            }
         }
 
         custom {
@@ -59,56 +102,70 @@ easygrid {
         }
     }
 
-    // will be specified using the 'gridImpl' property
+    // these are the actual UI grid implementations
+    // will be specified in the grid config using the 'gridImpl' property
     gridImplementations {
-        //grails classic implementation
+
+        //grails classic implementation - for demo purposes
         classic {
             gridRenderer = '/templates/easygrid/classicGridRenderer'
             gridImplService = org.grails.plugin.easygrid.grids.ClassicGridService
             inlineEdit = false
             formats = [
-                    (Date): {it.format("dd/MM/yyyy")},
+                    (Date): { it.format(stdDateFormat) },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }
 
+        //  jqgrid implementation
         jqgrid {
-            gridRenderer = '/templates/easygrid/jqGridRenderer'
-            gridImplService = org.grails.plugin.easygrid.grids.JqueryGridService
-            inlineEdit = true
+            gridRenderer = '/templates/easygrid/jqGridRenderer'          //  a gsp template that will be rendered
+            gridImplService = org.grails.plugin.easygrid.grids.JqueryGridService  // the service class for this implementation
+            inlineEdit = true    // specifies that this implementation allows inline Editing
             editRenderer = '/templates/easygrid/jqGridEditResponse'
+
+            // there are 3 options to format the data
+            // using the value closure in the column
+            // using the named formatters ( defined below )
+            // using the default type formats ( defined here ) - where you specify the type of data & the format closure
             formats = [
-                    (Date): {it.format("dd/MM/yyyy")},
-                    (Calendar): {Calendar cal ->cal.format("dd/MM/yyyy")},
+                    (Date): { it.format(stdDateFormat) },
+                    (Calendar): { Calendar cal -> cal.format(stdDateFormat) },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }
 
+        //  jquery datatables implementation
         dataTables {
-            gridImplService = org.grails.plugin.easygrid.grids.DataTablesGridService
+            gridImplService = DataTablesGridService
             gridRenderer = '/templates/easygrid/dataTablesGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date): {it.format("dd/MM/yyyy")},
+                    (Date): { it.format(stdDateFormat) },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }
 
+        // google visualization implementation
         visualization {
             gridImplService = org.grails.plugin.easygrid.grids.VisualizationGridService
             gridRenderer = '/templates/easygrid/visualizationGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal}, //wtf?
+                    (Date): { def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal }, //wtf?
             ]
         }
 
     }
 
+
+    // section to define per column configurations
     columns {
 
         //default values for the columns
         defaults {
+            enableFilter = true
+            showInSelection = true
             jqgrid {
                 editable = true
             }
@@ -128,10 +185,12 @@ easygrid {
             }
         }
 
-        // predefined column types
+        // predefined column types  (set of configurations)
+        // used to avoid code duplication
         types {
             id {
                 property = 'id'
+                enableFilter = false
 
                 jqgrid {
                     width = 40
@@ -150,7 +209,7 @@ easygrid {
             }
 
             actions {
-                value = {''}
+                value = { '' }
                 jqgrid {
                     formatter = '"actions"'
                     editable = false
@@ -182,9 +241,11 @@ easygrid {
     }
 
     // here we define different formatters
+    // these are closures  which are called before the data is displayed to format the cell data
+    // these are specified in the column section using : formatName
     formats {
         stdDateFormatter = {
-            it.format("dd/MM/yyyy")
+            it.format(stdDateFormat)
         }
         visualizationDateFormatter = {
             def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(java.util.TimeZone.getTimeZone("GMT")); cal

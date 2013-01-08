@@ -4,7 +4,7 @@ import org.grails.plugin.easygrid.EasygridContextHolder
 
 class EasygridGrailsPlugin {
 
-    def version = "1.0.9"
+    def version = "1.0.9.2"
 
     def grailsVersion = "2.0 > *"
 
@@ -17,6 +17,10 @@ class EasygridGrailsPlugin {
             'grails-app/views/templates/_testGridRenderer.gsp',
     ]
 
+    def dependsOn = [
+            'jquery-ui': "1.8.14 > *"
+    ]
+
     def observe = ["controllers", "services"]
 
     def title = "Easygrid Plugin"
@@ -26,8 +30,8 @@ class EasygridGrailsPlugin {
     def documentation = "https://github.com/tudor-malene/Easygrid"
 
     def license = "APACHE"
-    def issueManagement = [ system: "GITHUB", url: "https://github.com/tudor-malene/Easygrid/issues" ]
-    def scm = [ url: "https://github.com/tudor-malene/Easygrid" ]
+    def issueManagement = [system: "GITHUB", url: "https://github.com/tudor-malene/Easygrid/issues"]
+    def scm = [url: "https://github.com/tudor-malene/Easygrid"]
 
     def doWithDynamicMethods = { ctx ->
         GridUtils.addMixins()
@@ -41,7 +45,7 @@ class EasygridGrailsPlugin {
     def doWithApplicationContext = { appCtx ->
         appCtx.grailsApplication.config.easygrid.defaults.labelFormatTemplate =
             new SimpleTemplateEngine().createTemplate(
-                    appCtx.grailsApplication.config.easygrid.defaults.labelFormat.toString().replace('#','$')
+                    appCtx.grailsApplication.config.easygrid.defaults.labelFormat.toString().replace('#', '$')
             )
     }
 }

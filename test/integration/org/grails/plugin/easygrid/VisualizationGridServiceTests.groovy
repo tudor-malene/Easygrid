@@ -30,7 +30,7 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
         super.setup()
 /*
         defaultValues.formats = [
-//            (Date): {it.format("dd/MM/yyyy")},
+//            (Date): {it.format("MM/dd/yyyy")},
                 (Date): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(TimeZone.getTimeZone("GMT")); cal}, //wtf?
 //            (Boolean): { it ? "Yes" : "No" }
         ]

@@ -46,7 +46,6 @@ class AutocompleteService {
                 filters << new Filter(grid.autocomplete.constraintsFilterClosure)
             }
 
-            //todo - make maxrows configurable
             easygridService.dataSourceService.list(
                     [rowOffset: 0, maxRows: grid.autocomplete.maxRows], filters).collect {
                 [

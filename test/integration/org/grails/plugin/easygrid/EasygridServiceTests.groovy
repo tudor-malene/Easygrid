@@ -391,7 +391,7 @@ class EasygridServiceTests extends AbstractServiceTest {
 
 //        EasygridContextHolder.setLocalGridConfig(customGridConfig)
         easygridService.addDefaultValues(customGridConfig, defaultValues)
-        customGridConfig.formats = [(Calendar): { it.format("dd/MM/yyyy") }]
+        customGridConfig.formats = [(Calendar): { it.format("MM/dd/yyyy") }]
 
         assertEquals 'Fyodor Dostoyevsky', easygridService.valueOfColumn(customGridConfig.columns[1], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', age: (Calendar.getInstance().get(Calendar.YEAR) - 1821), birthDate: new GregorianCalendar(1821, 10, 11)], -1)
 

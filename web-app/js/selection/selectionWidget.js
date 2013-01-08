@@ -1,35 +1,37 @@
 
-// create custom widget for autocomplete
+// custom jquery-ui widget for the selection widget
 $(function() {
 
     $.widget( "easygrid.selectionComp", {
         // default options
         options: {
             gridName: null,
-            urlAjaxAutocomp: null,
-            urlAjaxGrid: null,
-            urlAjaxSelLabel: null,
 
-            showAutocompleteBox: true,
-            staticConstraints: {},
-            dynamicConstraints: {},
+            urlAjaxAutocomp: null,  // url used by the jquery autocomplete textbox
+            urlAjaxGrid: null,      // url used to render the html for the grid
+            urlAjaxSelLabel: null,  // url used to get the label for a certain element
 
-            label: null,
-            idValue: null,
-            value: null,
+            showAutocompleteBox: true,  // flag that enables/disables the display of the jquery autocomplete textbox
+            staticConstraints: {}, // map of key:value pairs of static constraints that will be passed over to the server to be handled by the "constraintsFilterClosure"
+            dynamicConstraints: {}, // map of key:value pairs of dynamic constraints ( the value part represents an id of a dom element that will be evaluated at runtime) that will be passed over to the server to be handled by the "constraintsFilterClosure"
 
             autocompleteSize:3,
             autocomMinLength:2,
             disabled:false,
 
-            onlyValue: null,
-            inputElem:null,
-            labelDiv:null,
-
             baseId:null,
             width: 940,
             height: 400,
             title: '',
+
+//            internal state
+            label: null,
+            idValue: null,
+            value: null,
+
+            onlyValue: null,
+            inputElem:null,
+            labelDiv:null,
 
             // callbacks
             changeData: function(x) {
@@ -144,7 +146,7 @@ $(function() {
 
             this._trigger('change');
         },
-        clear: function(){this.setValue(null,'')},
+        clear: function(){this.setValue('null','')},
 
         showJQGridSelectionPopup: function(){
             var thisWidget = this;
