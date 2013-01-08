@@ -121,7 +121,7 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
 
         params.testStringProperty = 1
 
-        //todo - sa fac conversia, sa mut astea in config, sa bag parametru care sa reprezinte tipul ( sau sa-l iau din proprietati )
+        //todo - conversion, move this to  config
 //        domainGridConfig.columns.testStringProperty.filterClosure = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
 //        domainGridConfig.columns.testIntProperty.filterClosure = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
 
