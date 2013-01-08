@@ -25,6 +25,7 @@
         },
     </grid:eachColumn>
     ],
+   rowNum:${gridConfig.defaultMaxRows},
    viewrecords: true,
    pager: '#${attrs.id}Pager',
     <g:if test="${gridConfig.inlineEdit}">
