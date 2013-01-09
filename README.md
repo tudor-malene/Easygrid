@@ -335,11 +335,10 @@ Testing:
 FAQ:
 ------------------
 
-Q: Why is the default configuration so large?
-
+### Why is the default configuration so large?    ###
 A: It is so large because the plugin is highly configurable, and designed to minimize code duplication.
 
-Q: I need to customize the grid template. What are the properties of the gridConfig variable from the various templates?
+### I need to customize the grid template. What are the properties of the gridConfig variable from the various templates? ###
 A: Check out [GridConfig](https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/GridConfig.groovy)
 
 Q: What is the deal with the Filter parameter of the filterClosures?
