@@ -80,6 +80,7 @@ easygrid {
         autocomplete {
             idProp = 'id'  // the name of the property of the id of the selected element (optionKey - in the replaced select tag)
             maxRows = 10 // the max no of elements to be displayed by the jquery autocomplete box
+            template = '/templates/autocompleteRenderer' //the default autocomplete renderer
         }
     }
 

@@ -81,7 +81,8 @@ class EasygridTagLib {
         attrs.showAutocompleteBox = (attrs.showAutocompleteBox != null) ? attrs.showAutocompleteBox : true
         attrs.disabled = (attrs.disabled != null) ? attrs.disabled : false
 
-        out << render(plugin: 'easygrid', template: "/templates/autocompleteRenderer", model: [attrs: attrs])
+        def template = grailsApplication.config.easygrid.defaults.autocomplete.template
+        out << render(plugin: 'easygrid', template: template, model: [attrs: attrs])
     }
 
     /**

@@ -34,7 +34,7 @@ modules = {
         resource id: 'js-jqgrid', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js", file: "jquery.jqGrid.src.js"],
                 nominify: true, disposition: 'head'
         //todo multilanguage
-        resource id: 'js-locale-jqgrid', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js/i18n", file: "grid.locale-en.js"],
+        resource id: 'js-locale-jqgrid', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/src/i18n", file: "grid.locale-en.js"],
                 nominify: true, disposition: 'head'
     }
 
@@ -64,7 +64,7 @@ modules = {
     'easygrid-selection-dev' {
         dependsOn 'easygrid-jqgrid-dev'
 
-        resource id: 'js-selection', url: [plugin: 'easygrid', dir: "js/selection", file: "selectionWidget.js"],
+        resource id: 'js-selection-dev', url: [plugin: 'easygrid', dir: "js/selection", file: "selectionWidget.js"],
                 nominify: true, disposition: 'head'
     }
 

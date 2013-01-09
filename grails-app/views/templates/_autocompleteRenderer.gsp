@@ -2,12 +2,13 @@
 
 <script type="text/javascript">
     $(function() {
-        // initialize with two customized options
         $( "#${attrs.id}" ).selectionComp({
             urlAjaxAutocomp: "${createLink(controller: attrs.controller, action: "${attrs.gridName}AutocompleteResult")}",
             urlAjaxSelLabel: "${createLink(controller: attrs.controller, action: "${attrs.gridName}SelectionLabel")}",
             urlAjaxGrid:    "${createLink(controller: attrs.controller, action: "${attrs.gridName}Html")}",
             gridName: "${attrs.gridName}" ,
+            selButton: "<a href='#'>Sel    <a>",
+            labelElement: "<div style='display:inline;'/>",
             showAutocompleteBox: ${attrs.showAutocompleteBox},
             staticConstraints: {
                 <g:each in="${attrs.staticConstraints}" >
@@ -26,7 +27,8 @@
             width: '${attrs.width}',
             height: '${attrs.height}'
         });
-
+        $( "#${attrs.id}" ).selectionComp("addElements");
+        // on editing - set the label value
         if($('#${attrs.id}').val()){
             $( "#${attrs.id}" ).selectionComp('setLabel', $('#${attrs.id}').val());
         }

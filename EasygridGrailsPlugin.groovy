@@ -4,7 +4,7 @@ import org.grails.plugin.easygrid.EasygridContextHolder
 
 class EasygridGrailsPlugin {
 
-    def version = "1.0.9.2"
+    def version = "1.1.0"
 
     def grailsVersion = "2.0 > *"
 
@@ -26,7 +26,11 @@ class EasygridGrailsPlugin {
     def title = "Easygrid Plugin"
     def author = "Tudor Malene"
     def authorEmail = "tudor.malene@gmail.com"
-    def description = 'Provides a convenient and agile way of defining Data Grids. And also a powerful selection widget.'
+    def description = '''
+        This plugin provides a convenient and agile way of defining Data Grids.
+        It also provides a powerful selection widget ( a direct replacement for drop-boxes )
+        '''
+
     def documentation = "https://github.com/tudor-malene/Easygrid"
 
     def license = "APACHE"
