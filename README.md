@@ -21,12 +21,12 @@ Overview
 
 The issues that Easygrid tackles are:
 
-- big learning curve for each ajax Grid framework
-- once integrated into a grails project the logic for each ajax Grid resides in multiple places ( Controller, gsp ). Usually, in the controller, there's a different method for each aspect ( search, export, security, etc)
-- a lot of concerns are addressed programmatically, instead of declaratively (like search, formats )
-- duplicated code (javascript, gsp, controllers). Each project has to create individual mechanisms to address it.
+* big learning curve for each ajax Grid framework
+* once integrated into a grails project the logic for each ajax Grid resides in multiple places ( Controller, gsp ). Usually, in the controller, there's a different method for each aspect ( search, export, security, etc)
+* a lot of concerns are addressed programmatically, instead of declaratively (like search, formats )
+* duplicated code (javascript, gsp, controllers). Each project has to create individual mechanisms to address it.
 
-- combo-boxes are suitable only when the dataset is small. Easygrid proposes a custom widget based on the same mechanism of defining grids, where for selecting an element you open a grid (with pagination & filtering) in a dialog and select the desired element
+* combo-boxes are suitable only when the dataset is small. Easygrid proposes a custom widget based on the same mechanism of defining grids, where for selecting an element you open a grid (with pagination & filtering) in a dialog and select the desired element
 
 
 [Online demo ](http://199.231.186.169:8080/easygrid)
@@ -299,12 +299,12 @@ Like this:
         }
     }
 
-- _idProp_       - the name of the property of the id of the selected element (optionKey - in the replaced select tag)
-- _labelProp_    - each widget will display a label once an item has been selected - which could be a property of the object
-- _labelValue_    - or a custom value (the equivalent of "optionValue" in a select tag)
-- _textBoxFilterClosure_   - this closure is similar to _filterClosure_ - and is called by the jquery autocomplete widget to filter
-- _constraintsFilterClosure_ - in case additional constraints are defined this closure is applied on top of all other closures to restrict the dataset
-- _maxRows_ - the maximum rows to be shown in the jquery autocomplete widget
+* _idProp_       - the name of the property of the id of the selected element (optionKey - in the replaced select tag)
+* _labelProp_    - each widget will display a label once an item has been selected - which could be a property of the object
+* _labelValue_    - or a custom value (the equivalent of "optionValue" in a select tag)
+* _textBoxFilterClosure_   - this closure is similar to _filterClosure_ - and is called by the jquery autocomplete widget to filter
+* _constraintsFilterClosure_ - in case additional constraints are defined this closure is applied on top of all other closures to restrict the dataset
+* _maxRows_ - the maximum rows to be shown in the jquery autocomplete widget
 
 
 Tablib:
@@ -341,61 +341,61 @@ A: It is so large because the plugin is highly configurable, and designed to min
 ### I need to customize the grid template. What are the properties of the gridConfig variable from the various templates? ###
 A: Check out [GridConfig](https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/GridConfig.groovy)
 
-Q: What is the deal with the Filter parameter of the filterClosures?
+### What is the deal with the Filter parameter of the filterClosures?  ###
 A: Check out [Filter](https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/Filter.groovy)
 
-Q: Why does the filterClosure of the _list_ implementation have 2 parameters?
+### Why does the filterClosure of the _list_ implementation have 2 parameters? ###
 A: Because on this implementation you also get the current row so that you can apply the filter on it, as opposed to the _gorm_ implementation where the filter closure is a criteria.
 
-Q: Isn't it bad practice to put view stuff in the controller?
+### Isn't it bad practice to put view stuff in the controller?  ###
 A: You don't have to put view stuff in the controller. You are encouraged to define column types and group view stuff in the config, and just reference that.
 
-Q: I need to pass other view attributes to the ajax grid.
+### I need to pass other view attributes to the ajax grid.  ###
 A: No problem, everything is extensible, just put it in the builder, and you can access it in the template. If it is a implementation attribute, you are encouraged to put it in the implementation section.
 
-Q: I don't use spring security, can I remove the default implementation?
+### I don't use spring security, can I remove the default implementation?  ###
 A: Yes you can. If there is no securityProvider defined, then no security restrictions are in place.
 
-Q: Is it possible to reference the same grid in multimple gsp pages, but with slight differences?
+### Is it possible to reference the same grid in multimple gsp pages, but with slight differences?   ###
 A: Yes, you can override the defined grid properties from the taglib. Check out the taglib section.
 
-Q: I don't like the default export.
+### I don't like the default export.    ###
 A: No problem, you can replace the export service with your own.
 
-Q: Are the grid configs thread safe?
+### Are the grid configs thread safe?    ###
 A: Yes.
 
-Q: The labelFormat property is weird.
+### The labelFormat property is weird.  ###
 A: The labelFormat is transformed into a SimpleTemplateEngine instance and populated at runtime with the gridConfig and the prefix.
 
-Q: Are there any security holes I should be aware of?
+### Are there any security holes I should be aware of?  ###
 A: All public methods are guarded by the security provider you defined either in the config or in the grid.
 
-Q: What is the difference between Easygrid and the JqGrid plugin?
+### What is the difference between Easygrid and the JqGrid plugin?   ###
 A: The JqGrid plugin is a wrapper over JqGrid. It provides the resources and a nice taglib. But you still have to code yourself all the server side logic.
   Easygrid goes a step further and allows you to define a grid and it will render it for you.
 
-Q: I use the jqgrid plugin. How difficult is it to switch to easygrid?
+### I use the jqgrid plugin. How difficult is it to switch to easygrid?   ###
 A: If you already use jqgrid, then you probably have the grid logic split between the controller and the view.
    If you have inline editing enabled, then you probably have at least 2 methods in the controller.
    Basically, you need to strip the grid to the minimum properties ( the columns and additional properties) , translate that intro the easygrid builder and just use the simple easygrid taglib.
    If, after converting a couple of grids, you realize there's common patterns, you are encouraged to set default values and define column types, to minimize code duplication.
    After the work is done, you will realize the grid code is down to 10%.
 
-Q: I have one grid with very different view requirements from the rest. What should I do.
+### I have one grid with very different view requirements from the rest. What should I do.      ###
 A: You can create a gsp template just for it and set it in the builder.
 
-Q: The value formatting is complicated.
+### The value formatting is complicated.       ###
 A: It's designed to be flexible, to be able to be used in multiple contexts.
 
-Q: Can I just replace a select box with a selection widget?
+### Can I just replace a select box with a selection widget?    ###
 A:  Yes, but you will need to also specify the controller & gridName
 
-Q: I want to customize the selection widget.
+### I want to customize the selection widget.   ###
 A: Just create a new autocomplete renderer template and use the selection jquery ui widget
 
-Q: I need more information on how to.. ?
-Q: I have a suggestion.
+### I need more information on how to.. ?   ###
+### I have a suggestion.  ###
 A: You can raise a ticket or drop me an email : tudor.malene at gmail.com, or use the mailing list
 
 
