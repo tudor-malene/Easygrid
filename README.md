@@ -197,15 +197,15 @@ If you want to create your own datasource (skip this as a beginner):
 #### Columns section [see] (https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/ColumnConfig.groovy)
 
 The _name_ of each column will be the actual name of the closure. Beside the actual column name, from the _name_ property other properties can be inferred, like:
-    - the label ( the column header ) can be automatically generated ( see below)
-    - in case there is no property or value setting ( see below ), _name_ will be used as the column property ( see below)
-    - also you can access the columns using this _name_ ( in case you want to override some properties in the taglib - see below)
-    - _name_ is also used as the name of the http parameter when filtering or sorting on a column
+    * the label ( the column header ) can be automatically generated ( see below)
+    * in case there is no property or value setting ( see below ), _name_ will be used as the column property ( see below)
+    * also you can access the columns using this _name_ ( in case you want to override some properties in the taglib - see below)
+    * _name_ is also used as the name of the http parameter when filtering or sorting on a column
 
-* Column Label:
+1. Column Label:
 The _label_ can be defined , but in case it's missing it will be composed automatically using the 'labelFormat' template - defined in Config.groovy. ( see comments in Config.groovy)
 
-* Column Value:
+2. Column Value:
 For each column you have to define the value that will be displayed in the cell.
 There's 2 options for this:
 In case the type of the grid is "gorm" or "list", and you just want do display a plain property you can use "property".
@@ -214,7 +214,7 @@ Otherwise you need to use the "value" closure, whose first parameter will be the
 
 (There is a possibility to define the "property" columns more compact by using the actual property as the name of the column )
 
-* Javascript settings:
+3. Javascript settings:
 Another important section of each column is the javascript implementation section.
 All the properties defined here will be available in the render template to be used in whatever way.
 
@@ -315,12 +315,12 @@ Testing:
 ---------------
 
 - in each annotated controller, for each grid defined in "grids" , the plugin injects multiple methods:
-                def ${gridName}Html ()
-                def ${gridName}Rows ()
-                def ${gridName}Export ()
-                def ${gridName}InlineEdit ()
-                def ${gridName}AutocompleteResult ()
-                def ${gridName}SelectionLabel ()
+       * ``` def ${gridName}Html ()```
+       * ``` def ${gridName}Rows ()```
+       * ``` def ${gridName}Export ()```
+       * ``` def ${gridName}InlineEdit ()```
+       * ``` def ${gridName}AutocompleteResult ()```
+       * ```def ${gridName}SelectionLabel ()  ```
 - these can be tested in integration tests
 
 
