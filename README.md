@@ -196,7 +196,7 @@ If you want to create your own datasource (skip this as a beginner):
                                                            * @param filters - array of filters )
       - countRows(filters = null)
 
-      - in case you want to support inline editint you need to define 3 closures ( updateRow , saveRow ,delRow)
+      - in case you want to support inline editing you need to define 3 closures ( updateRow , saveRow ,delRow)
 2) declare this service in Config.groovy , under easygrid.dataSourceImplementations
 
 
@@ -336,6 +336,7 @@ FAQ:
 ------------------
 
 Q: Why is the default configuration so large?
+
 A: It is so large because the plugin is highly configurable, and designed to minimize code duplication.
 
 Q: I need to customize the grid template. What are the properties of the gridConfig variable from the various templates?
