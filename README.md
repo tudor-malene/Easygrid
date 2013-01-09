@@ -307,16 +307,16 @@ Like this:
 * _maxRows_ - the maximum rows to be shown in the jquery autocomplete widget
 
 
-Tablib:
+Taglib:
 -------------
 
 Easygrid provies the following tags:
 
-- <grid:grid name="grid_name"> - will render the taglib ( see doc )
+*  ``` <grid:grid name="grid_name">  ``` will render the taglib ( see doc )
 
-- <grid:exportButton name="grid_name"> - the export button ( see doc )
+*  ``` <grid:exportButton name="grid_name">  ``` the export button ( see doc )
 
-- <grid:selection > - renders a powerful replacement for the standard combo-box see the taglib document    ( see doc and Example)
+*  ``` <grid:selection >  ```  renders a powerful replacement for the standard combo-box see the taglib document    ( see doc and Example)
 
 
 Testing:
