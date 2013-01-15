@@ -29,7 +29,9 @@ class ExportServiceTests extends AbstractServiceTest {
     /**
      * test the export feature
      */
-    void testExport() {
+    void testXlsExport() {
+
+        params.format = 'excel'
         def controller = new TestDomainController()
         def gridsConfig = easygridService.initGrids(controller)
         easygridService.addDefaultValues(gridsConfig.testGrid, defaultValues)
@@ -63,4 +65,24 @@ class ExportServiceTests extends AbstractServiceTest {
 
         assertEquals 101, sheet.getRows()
     }
+
+
+    void testCsvExport() {
+
+        params.format = 'csv'
+
+        def controller = new TestDomainController()
+        def gridsConfig = easygridService.initGrids(controller)
+        easygridService.addDefaultValues(gridsConfig.testGrid, defaultValues)
+
+        populateTestDomain(100)
+
+        easygridService.export(gridsConfig.testGrid)
+
+//        EasygridContextHolder.setLocalGridConfig(gridsConfig.testGrid)
+//        easygridExportService.exportCSV()
+
+        println  response.contentAsString
+    }
+
 }

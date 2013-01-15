@@ -49,7 +49,8 @@ class EasygridTagLib {
         }
 
         def gridConfig = getGridConfig(attrs)
-        out << export.formats(action: "${gridConfig.id}Export", formats: ['excel'])
+        attrs.action = "${gridConfig.id}Export"
+        out << export.formats(attrs)
     }
 
     /**

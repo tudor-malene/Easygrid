@@ -26,9 +26,7 @@ class GridConfig {
     String gridRenderer      // the UI template renderer
 
     // export settings
-    boolean export          // allow exporting
-    String export_title     // the title of the exported file
-    Class exportService     // the implementation of the export service
+    ExportConfig export = new ExportConfig()
 
     //security settings
     def roles                   // list of roles, or map of tipe [oper:Role] in case you need to fine grain
@@ -77,6 +75,7 @@ class GridConfig {
         //deep clone the columns container
         clone.columns = this.columns.deepClone()
         clone.autocomplete = this.autocomplete.deepClone()
+        clone.exportConfig = this.export.deepClone()
         clone
     }
 

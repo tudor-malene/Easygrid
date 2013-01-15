@@ -1,4 +1,5 @@
 import org.grails.plugin.easygrid.Filter
+import org.grails.plugin.easygrid.GridUtils
 import org.grails.plugin.easygrid.grids.DataTablesGridService
 
 import java.text.SimpleDateFormat
@@ -28,9 +29,28 @@ log4j = {
     warn 'org.mortbay.log'
 }
 
+//export plugin
+grails.mime.types = [html: ['text/html', 'application/xhtml+xml'],
+        xml: ['text/xml', 'application/xml'],
+        text: 'text-plain',
+        js: 'text/javascript',
+        rss: 'application/rss+xml',
+        atom: 'application/atom+xml',
+        css: 'text/css',
+        csv: 'text/csv',
+        pdf: 'application/pdf',
+        rtf: 'application/rtf',
+        excel: 'application/vnd.ms-excel',
+        ods: 'application/vnd.oasis.opendocument.spreadsheet',
+        all: '*/*',
+        json: ['application/json', 'text/json'],
+        form: 'application/x-www-form-urlencoded',
+        multipartForm: 'multipart/form-data'
+]
+
 // Added by Easygrid:
 
-def stdDateFormat =  'MM/dd/yyyy'
+def stdDateFormat = 'MM/dd/yyyy'
 easygrid {
 
     //default values added to each defined grid  ( if they are not already set )
@@ -47,7 +67,63 @@ easygrid {
 
         gridImpl = 'jqgrid' // the default grid implementation
 
-        exportService = org.grails.plugin.easygrid.EasygridExportService
+
+        //default export settings for various formats
+        export {
+            exportService = org.grails.plugin.easygrid.EasygridExportService
+
+            //this section provides default values for the different export formats
+            // for more options check out the export plugin
+
+            // csv settings
+            csv {
+                separator = ','
+                quoteCharacter  = '"'
+            }
+            csv['header.enabled'] = true
+
+
+            // excel settings
+            excel['header.enabled'] = true
+            //property that aggregates the widths defined per column
+            excel['column.widths'] = { gridConfig ->
+                def widths = []
+                GridUtils.eachColumn(gridConfig, true) { column ->
+                    widths.add(column?.export?.width ?: 0.2)
+                }
+                widths
+            }
+
+            // pdf settings
+            pdf['header.enabled'] = true
+            pdf['column.widths'] = { gridConfig ->
+                def widths = []
+                GridUtils.eachColumn(gridConfig, true) { column ->
+                    widths.add(column?.export?.width ?: 0.2)
+                }
+                widths
+            }
+            pdf['border.color'] = java.awt.Color.BLACK
+            pdf['pdf.orientation'] = 'landscape'
+
+
+            // rtf settings
+            rtf['header.enabled'] = true
+            rtf {
+            }
+
+            // ods settings
+            ods {
+            }
+
+            // xml settings
+            xml['xml.root']= { gridConfig ->
+                //defaults to the export title
+                gridConfig.export.export_title
+            }
+            xml {
+            }
+        }
 
         // jqgrid default properties
         // check the jqgrid documentation
@@ -94,7 +170,7 @@ easygrid {
                 //default search closures for different column types
                 text = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
                 number = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
-                date = { Filter filter -> eq(filter.column.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue) ) }
+                date = { Filter filter -> eq(filter.column.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
             }
         }
 
@@ -106,7 +182,7 @@ easygrid {
                 //default search closures
                 text = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
                 number = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
-                date = { Filter filter -> eq(filter.column.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue) ) }
+                date = { Filter filter -> eq(filter.column.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
             }
         }
 
@@ -117,7 +193,7 @@ easygrid {
                 //default search closures
                 text = { Filter filter, row -> row[filter.column.name].contains filter.paramValue }
                 number = { Filter filter, row -> row[filter.column.name] == filter.paramValue as int }
-                date = { Filter filter, row -> row[filter.column.name] == new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)  }
+                date = { Filter filter, row -> row[filter.column.name] == new SimpleDateFormat(stdDateFormat).parse(filter.paramValue) }
             }
         }
 
@@ -182,7 +258,6 @@ easygrid {
         }
 
     }
-
 
     // section to define per column configurations
     columns {

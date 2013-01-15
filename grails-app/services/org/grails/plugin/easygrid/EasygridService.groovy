@@ -1,6 +1,5 @@
 package org.grails.plugin.easygrid
 
-import groovy.text.SimpleTemplateEngine
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
@@ -117,9 +116,6 @@ class EasygridService {
         setLocalGridConfig(gridConfig)
 
         assert gridConfig.id
-        if (gridConfig?.export_title == null) {
-            gridConfig.export_title = gridConfig.id
-        }
 
         log.trace "before defaults: $gridConfig"
 
@@ -158,6 +154,7 @@ class EasygridService {
         }
 
         GridUtils.copyProperties defaultValues.defaults.autocomplete, gridConfig.autocomplete
+        GridUtils.copyProperties defaultValues.defaults.export, gridConfig.export
 
         //add the predefined types  to the columns
         gridConfig.columns.each { ColumnConfig column ->
@@ -219,6 +216,10 @@ class EasygridService {
 
         if (dataSourceService?.respondsTo('addDefaultValues')) {
             dataSourceService.addDefaultValues(defaultValues)
+        }
+
+        if (exportService?.respondsTo('addDefaultValues')) {
+            exportService.addDefaultValues(defaultValues)
         }
 
         gridConfig
@@ -388,7 +389,7 @@ todo   validation
     def export(gridConfig) {
         guard(gridConfig) {
             setLocalGridConfig(gridConfig)
-            exportService.exportXls()
+            exportService.export()
         }
     }
 
@@ -427,7 +428,7 @@ todo   validation
      * @return
      */
     def getExportService() {
-        grailsApplication.mainContext.getBean(gridConfig.exportService)
+        grailsApplication.mainContext.getBean(gridConfig.export.exportService)
     }
 
     /**

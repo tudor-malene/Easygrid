@@ -1,7 +1,7 @@
 package org.grails.plugin.easygrid
 
-import de.andreasschmitt.export.builder.ExcelBuilder
 import groovy.util.logging.Slf4j
+import org.springframework.web.servlet.support.RequestContextUtils
 
 /**
  * Standard export service
@@ -17,58 +17,60 @@ class EasygridExportService {
     def easygridService
     def grailsApplication
 
-    def exportXls() {
+    def exportService
 
-        response.contentType = grailsApplication.config?.grails?.mime?.types?.xls
-//        response.setHeader("Content-disposition", "attachment; filename=export_${message(code: gridConfig.exportTitle)}.xls")
-//            response.setHeader("Content-disposition", "attachment; filename=${message(code: gridConfig.export_title)}.xls")
-        //todo
-        response.setHeader("Content-disposition", "attachment; filename=${gridConfig.export_title}.xls")
+    def addDefaultValues(Map defaultValues) {
+        if (gridConfig.export.export_title == null) {
+            gridConfig.export.export_title = gridConfig.id
+        }
+    }
 
-        setLocalGridConfig(gridConfig)
+    def export() {
+        //export parameters
+        def extension = params.extension
+        def format = params.format
 
-        GridUtils.markRestorePreviousSearch()
-        GridUtils.restoreSearchParams()
+        if (format && format != "html") {
 
-        //returns a list of search Closures
-        def filters = easygridService.implService.filters()
+            response.contentType = grailsApplication.config.grails.mime.types[format]
+            response.setHeader("Content-disposition", "attachment; filename=${gridConfig.export.export_title}.${extension}")
 
-        def data = easygridService.dataSourceService.list([:], filters)
+            // restore the previous search
+            GridUtils.markRestorePreviousSearch()
+            GridUtils.restoreSearchParams()
 
-        def startAt = 0
-
-        //call a collect closure to add more fields
-        def builder = new ExcelBuilder()
-        def visibleColumns = gridConfig.columns.findAll{!it.export.hidden}
-
-        builder {
-            workbook(outputStream: response.outputStream) {
-                def widths = []
-                visibleColumns.eachWithIndex {  column, index ->
-                    widths[index] = column.export.width
-                    assert widths[index] // the width setting is mandatory
+            //apply the previous filters , retrieve the raw data & transform the data to an export friendly format
+            def filters = easygridService.implService.filters()
+            def data = easygridService.dataSourceService.list([:], filters).collect { element ->
+                def resultRow = [:]
+                GridUtils.eachColumn(gridConfig, true) { column, row ->
+                    resultRow[column.name] = easygridService.valueOfColumn(column, element, row + 1)
                 }
+                resultRow
+            }
 
-                sheet(name: messageLabel(gridConfig.export_title) ?: "Export", widths: widths) {
-                    //Default format
-                    format(name: "header") {
-                        font(name: "arial", bold: true)
-                    }
+            // compose other parameters needed by the export parameter
+            def fields = []
+            def labels = [:]
+            GridUtils.eachColumn(gridConfig, true) { ColumnConfig column ->
+                fields << column.name
+                labels[column.name] = grailsApplication.mainContext.getMessage(column.label, new Object[0], column.label, RequestContextUtils.getLocale(request))
+            }
+            log.debug("export fields: $fields")
+            log.debug("export labels: $labels")
 
-                    //Create header
-                    visibleColumns.eachWithIndex { ColumnConfig column, index ->
-                        cell(row: startAt, column: index, value: grailsApplication.mainContext.getMessage(column.label, new Object[0], column.label, Locale.getDefault()), format: "header")
-                    }
-
-                    //Rows
-                    data.eachWithIndex { element, row ->
-                        visibleColumns.eachWithIndex { column, idx ->
-                            cell(row: startAt + row + 1, column: idx, value: easygridService.valueOfColumn(column, element, row))
-                        }
-                    }
+            //aggregate export properties defined in columns like 'column.widths'
+            Map parameters = gridConfig.export[format].collectEntries { k, v ->
+                if (v instanceof Closure) {
+                    [(k): v.call(gridConfig)]
+                } else {
+                    [(k): v]
                 }
             }
+            log.debug("export parameters: $parameters")
+
+            // invoke the export plugin
+            exportService.export(format, response.outputStream, data, fields, labels, [:], parameters)
         }
-        builder.write()
     }
 }

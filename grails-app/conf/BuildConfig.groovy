@@ -30,5 +30,8 @@ grails.project.dependency.resolution = {
 		runtime ':jquery:1.8.0'
 		runtime ':jquery-ui:1.8.24'
 		runtime ':google-visualization:0.5.6'
+
+        //only for 2.2.0
+//        runtime ":resources:1.2.RC2"
 	}
 }

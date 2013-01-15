@@ -22,7 +22,62 @@ easygrid {
 
         gridImpl = 'jqgrid' // the default grid implementation
 
-        exportService = org.grails.plugin.easygrid.EasygridExportService
+        //default export settings for various formats
+        export {
+            exportService = org.grails.plugin.easygrid.EasygridExportService
+
+            //this section provides default values for the different export formats
+            // for more options check out the export plugin
+
+            // csv settings
+            csv {
+                separator = ','
+                quoteCharacter  = '"'
+            }
+            csv['header.enabled'] = true
+
+
+            // excel settings
+            excel['header.enabled'] = true
+            //property that aggregates the widths defined per column
+            excel['column.widths'] = { gridConfig ->
+                def widths = []
+                GridUtils.eachColumn(gridConfig, true) { column ->
+                    widths.add(column?.export?.width ?: 0.2)
+                }
+                widths
+            }
+
+            // pdf settings
+            pdf['header.enabled'] = true
+            pdf['column.widths'] = { gridConfig ->
+                def widths = []
+                GridUtils.eachColumn(gridConfig, true) { column ->
+                    widths.add(column?.export?.width ?: 0.2)
+                }
+                widths
+            }
+            pdf['border.color'] = java.awt.Color.BLACK
+            pdf['pdf.orientation'] = 'landscape'
+
+
+            // rtf settings
+            rtf['header.enabled'] = true
+            rtf {
+            }
+
+            // ods settings
+            ods {
+            }
+
+            // xml settings
+            xml['xml.root']= { gridConfig ->
+                //defaults to the export title
+                gridConfig.export.export_title
+            }
+            xml {
+            }
+        }
 
         // jqgrid default properties
         // check the jqgrid documentation

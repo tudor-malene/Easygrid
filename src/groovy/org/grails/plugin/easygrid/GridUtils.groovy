@@ -124,13 +124,16 @@ class GridUtils {
     }
 
     /**
-     * iterates columns -
+     * iterates columns - excluding certain columns depending on the context
      * @param grid
+     * @param export - if we need the columns for exporting
      * @param closure
      * @return
      */
-    static eachColumn(GridConfig grid, Closure closure) {
-        grid.columns.findAll { col -> (EasygridContextHolder.params.selectionComp) ? col.showInSelection : true }.eachWithIndex { col, idx ->
+    static eachColumn(GridConfig grid, boolean export = false, Closure closure) {
+        grid.columns.findAll { col -> (EasygridContextHolder.params.selectionComp) ? col.showInSelection : true }
+        .findAll { col -> ! ( export && col.export.hidden)}
+        .eachWithIndex { col, idx ->
             switch (closure?.parameterTypes?.size()) {
                 case 1:
                     return closure.call(col)
@@ -140,6 +143,14 @@ class GridUtils {
         }
     }
 
+
+    /**
+     * returns the property type of a gorm domain class
+     * @param grailsApplication
+     * @param clazz
+     * @param property
+     * @return
+     */
     static Class getPropertyType(grailsApplication, Class clazz, String property) {
         grailsApplication.domainClasses.find { it.clazz.name == clazz.name }.getPersistentProperty(property).type
     }

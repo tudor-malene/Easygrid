@@ -1,7 +1,9 @@
 package org.grails.plugin.easygrid.builder
 
 import grails.util.ClosureToMapPopulator
+import org.grails.plugin.easygrid.AutocompleteConfig
 import org.grails.plugin.easygrid.ColumnConfig
+import org.grails.plugin.easygrid.ExportConfig
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 import org.grails.plugin.easygrid.ListMapWrapper
@@ -60,23 +62,24 @@ class EasygridBuilder {
                                 def column = new ColumnConfig()
                                 column.name = colName
 
-                                buildWithDelegate(colArgs[0]) { colProperty, colValue ->
-                                    switch (colProperty) {
-                                        case 'value':
-                                            column.value = colValue[0]
-                                            break
-                                        case 'export':
-                                            column.export = new ClosureToMapPopulator().populate(colValue[0])
-                                            break
-                                        default:
-                                            if (colProperty in GridUtils.findImplementations(grailsApplication?.config?.easygrid)) {
-                                                column[colProperty] = new ClosureToMapPopulator().populate(colValue[0])
-                                            } else {
-                                                column[colProperty] = colValue[0]
+                                buildWithDelegate(colArgs[0])
+                                        { colProperty, colValue ->
+                                            switch (colProperty) {
+                                                case 'value':
+                                                    column.value = colValue[0]
+                                                    break
+                                                case 'export':
+                                                    column.export = new ClosureToMapPopulator().populate(colValue[0])
+                                                    break
+                                                default:
+                                                    if (colProperty in GridUtils.findImplementations(grailsApplication?.config?.easygrid)) {
+                                                        column[colProperty] = new ClosureToMapPopulator().populate(colValue[0])
+                                                    } else {
+                                                        column[colProperty] = colValue[0]
+                                                    }
+                                                    break
                                             }
-                                            break
-                                    }
-                                }
+                                        }
 
                                 assert column.name
                                 gridConfig.columns.add(column)
@@ -89,7 +92,19 @@ class EasygridBuilder {
                     break
 
                 case ('autocomplete'): //handle the autocomplete section
-                    gridConfig.autocomplete = new ClosureToMapPopulator().populate(args[0])
+                    gridConfig.autocomplete = new AutocompleteConfig(new ClosureToMapPopulator().populate(args[0]))
+                    break
+
+                case ('export'): //handle the autocomplete section
+                    gridConfig.export = new ExportConfig()
+                    buildWithDelegate(args[0])
+                            { expProperty, expValue ->
+                                if (expValue[0] instanceof Closure) {
+                                    gridConfig.export[expProperty] = new ClosureToMapPopulator().populate(expValue[0])
+                                }else{
+                                    gridConfig.export[expProperty]= expValue[0]
+                                }
+                            }
                     break
 
                 default:   // handle other properties
@@ -107,7 +122,7 @@ class EasygridBuilder {
      * @param propertyDelegate - the property missing delegate
      * @return
      */
-    def buildWithDelegate(Closure builderClosure, Closure delegate, Closure propertyDelegate = null) {
+    static def buildWithDelegate(Closure builderClosure, Closure delegate, Closure propertyDelegate = null) {
 //        builderClosure.delegate = [invokeMethod: delegate, getProperty: propertyDelegate] as GroovyObject
 
         builderClosure.delegate = new GroovyObjectSupport() {

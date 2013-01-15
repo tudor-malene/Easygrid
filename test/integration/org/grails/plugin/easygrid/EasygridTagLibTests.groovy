@@ -19,6 +19,7 @@ class EasygridTagLibTests {
     @Before
     void setUp() {
         GridUtils.addMixins()
+        EasygridContextHolder.resetParams()
     }
 
     void testGridRender() {

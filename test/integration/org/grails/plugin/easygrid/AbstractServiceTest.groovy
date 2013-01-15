@@ -25,6 +25,7 @@ abstract class AbstractServiceTest {
     void setup() {
 
         GridUtils.addMixins()
+        EasygridContextHolder.resetParams()
 
         assert grailsApplication?.domainClasses?.size() >= 1
 //        easygridService.grailsApplication.config?.easygrid = defaultValues

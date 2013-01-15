@@ -180,7 +180,9 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
 
         params.testIntProperty = 101
         params.testStringProperty = '101'
-        gormDatasourceService.saveRow()
+        def errors = gormDatasourceService.saveRow()
+
+//        assertEquals 0, errors.size()
 
         assertEquals N + 1, gormDatasourceService.countRows()
         def instance = TestDomain.get(101)
