@@ -91,6 +91,12 @@ Ex:  grid to display Authors with 5 columns: id, name, nation , age and birthdat
             domainClass Author
             gridImpl 'jqgrid'
             roles 'ROLE_USER'
+            export {
+                export_title 'Author'
+                pdf {
+                    'border.color' java.awt.Color.BLUE
+                }
+            }
             columns {
                 id {
                     type 'id'
@@ -218,7 +224,7 @@ Otherwise you need to use the "value" closure, whose first parameter will be the
 Another important section of each column is the javascript implementation section.
 All the properties defined here will be available in the render template to be used in whatever way.
 
-#### filtering:
+#### Filtering:
 
 * _enableFilter_ - if this columns has filtering enabled
 * _filterFieldType_ - one of the types defined per datasource - used to generate implicit filterClosures. In case of _gorm_ the type can be inferred
@@ -228,9 +234,12 @@ When the user filters the grid content, these closures will be applied to the da
 In case of grid _type_ = _gorm_, the search closure is actually a GORM CriteriaBuilder which will be passed to the list method of the domain.
 
 #### Export
-Easygrid also comes integrated with the export plugin.
+Easygrid also comes integrated with the [export plugin](http://grails.org/plugin/export)
+This plugin has different settings for each export format , which can pe declared in the config file or in the grid.
+
 Each column has an optional export section, where you can set additional properties like width, etc.
 
+#### Column types
 From the example you can also notice the _type_ property of a column.
 Types are defined in Config.groovy, and represent a collection of properties that will be applied to this column, to avoid duplicate settings.
 
@@ -304,9 +313,10 @@ Taglib:
 
 Easygrid provies the following tags:
 
-*  ``` <grid:grid name="grid_name">  ``` will render the taglib ( see doc )
+*  ``` <grid:grid name="grid_name">  ``` will render the taglib - see [doc] (https://github.com/tudor-malene/Easygrid/blob/master/grails-app/taglib/org/codehaus/groovy/grails/plugins/easygrid/EasygridTagLib.groovy)
 
-*  ``` <grid:exportButton name="grid_name">  ``` the export button ( see doc )
+*  ``` <grid:exportButton name="grid_name">  ``` the export button - see [doc] (https://github.com/tudor-malene/Easygrid/blob/master/grails-app/taglib/org/codehaus/groovy/grails/plugins/easygrid/EasygridTagLib.groovy)
+    has all the attributes of the export tag from the export plugin, plus the name of the grid
 
 *  ``` <grid:selection >  ```  renders a powerful replacement for the standard combo-box see the taglib document    ( see doc and Example)
 
@@ -397,6 +407,9 @@ A: You can raise a ticket or drop me an email : tudor.malene at gmail.com, or us
 Version History
 ------------------------
 
+### 1.2.0
+    - refactored exporting so that to take full advantage over the export plugin
+
 ### 1.1.0
     - upgraded to grails 2.2.0
     - upgraded jqgrid & visualization javascript libraries
@@ -418,6 +431,10 @@ Version History
 
 #### 0.9.9
     - first version
+
+Upgrading to 1.2.0
+-----------------
+ - in the 'defaults' section of the configuration, you must add a export section, where you need to define the service and default parameters for each export type
 
 
 Upgrading to 1.1.0
@@ -453,7 +470,6 @@ Next features:
 
 - other grid implementations ( like TreeGrid , Yui datatable)
 - users should be able to select the columns they want to see ( & store these settings)
-- other export formats and more export options
 - selection widget extended to other grids
 - selection widget with multiple selection
 - scaffolding templates
