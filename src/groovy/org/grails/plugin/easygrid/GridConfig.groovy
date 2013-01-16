@@ -44,27 +44,4 @@ class GridConfig {
 
     // autocomplete settings
     AutocompleteConfig autocomplete = new AutocompleteConfig()
-
-
-/************************************************/
-
-    def deepClone() {
-        def clone = this.clone()
-
-        //clone the collections
-        ['dynamicProperties', 'formats'].each {prop ->
-            if (this[prop]) {
-                clone[prop] = this[prop].collectEntries {key, value ->
-                    [(key): (value instanceof Cloneable) ? value.clone() : value]
-                }
-            }
-        }
-
-        //deep clone the columns container
-        clone.columns = this.columns.deepClone()
-        clone.autocomplete = this.autocomplete.deepClone()
-        clone.exportConfig = this.export.deepClone()
-        clone
-    }
-
 }

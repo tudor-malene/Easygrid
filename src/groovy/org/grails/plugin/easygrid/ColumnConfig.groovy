@@ -33,14 +33,4 @@ class ColumnConfig {
     Closure filterClosure    // a closure called when filtering on a column from the UI ( either specified directly or through the filterFieldType
 
     Boolean showInSelection // if selection is enabled for the grid - this flag decides if this column will be shown in the dialog
-
-
-    /************************************************************/
-    def deepClone() {
-        def clone = this.clone()
-        clone.dynamicProperties = this.dynamicProperties.collectEntries {key, value ->
-            [(key): (value instanceof Cloneable) ? value.clone() : value]
-        }
-        clone
-    }
 }

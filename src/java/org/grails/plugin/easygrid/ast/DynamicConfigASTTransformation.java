@@ -32,20 +32,35 @@ public class DynamicConfigASTTransformation extends AbstractASTTransformation {
 
         try {
             String inject = "                        package " + source.getPackageName() + "\n" +
-                    "\n" +
                     "                        class  " + source.getNameWithoutPackage() + " {\n" +
-                    "\n" +
                     "                            private Map dynamicProperties = [:]\n" +
-                    "                            //setter\n" +
                     "                            def propertyMissing(String name, value) {\n" +
                     "                                dynamicProperties[name] = value\n" +
                     "                            }\n" +
-                    "\n" +
-                    "                            //getter\n" +
                     "                            def propertyMissing(String name) {\n" +
                     "                                dynamicProperties[name]\n" +
                     "                            }\n" +
-                    "\n" +
+                    "                            def deepClone() {\n" +
+                    "                                def clone = this.clone()\n" +
+                    "                                clone.dynamicProperties = this.dynamicProperties.collectEntries { key, value ->\n" +
+                    "                                    [(key): (value instanceof Cloneable) ? value.clone() : value]\n" +
+                    "                                }\n" +
+                    "                                this.properties.findAll { propName, propValue -> propName != 'class' }.each { propName, propValue ->\n" +
+                    "                                    def val = this[propName]\n" +
+                    "                                    if (val) {\n" +
+                    "                                        //clone maps\n" +
+                    "                                        if (val.respondsTo('collectEntries')) {\n" +
+                    "                                            clone[propName] = val.collectEntries { key, value ->\n" +
+                    "                                                [(key): (value instanceof Cloneable) ? value.clone() : value]\n" +
+                    "                                            }\n" +
+                    "                                        }\n" +
+                    "                                        if (val.respondsTo('deepClone')) {\n" +
+                    "                                            clone[propName] = val.deepClone()\n" +
+                    "                                        }\n" +
+                    "                                    }\n" +
+                    "                                }\n" +
+                    "                                clone\n" +
+                    "                            }\n"+
                     "                        }\n";
 
 //inject services & init method

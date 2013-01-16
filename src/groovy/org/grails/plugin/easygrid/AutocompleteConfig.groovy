@@ -25,14 +25,4 @@ class AutocompleteConfig {
 
     Integer maxRows  //maximum rows to be shown in the jquery autocomplete widget
 
-
-    /***********************************************************/
-    def deepClone() {
-        def clone = this.clone()
-        clone.dynamicProperties = this.dynamicProperties.collectEntries {key, value ->
-            [(key): (value instanceof Cloneable) ? value.clone() : value]
-        }
-        clone
-    }
-
 }

@@ -129,6 +129,9 @@ class EasygridServiceTests extends AbstractServiceTest {
         def gridCfg2 = gridConfigs.authorGrid.deepClone()
         assertNotSame gridCfg1, gridCfg2
 
+        gridCfg1.jqgrid.height = 200
+        assertEquals 150, gridCfg2.jqgrid.height
+        assertEquals gridCfg1.columns.birthDate.jqgrid.width, gridCfg2.columns.birthDate.jqgrid.width
 
         assertNotSame gridCfg1.columns, gridCfg2.columns
         assertNotSame gridCfg1.dynamicProperties, gridCfg2.dynamicProperties
@@ -140,7 +143,6 @@ class EasygridServiceTests extends AbstractServiceTest {
 
         gridCfg1.columns[0].xx = 0
         assertNull gridCfg2.columns[0].xx
-
 
     }
 

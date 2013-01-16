@@ -16,18 +16,4 @@ class ExportConfig {
     String export_title     // the title of the exported file
     Class exportService     // the implementation of the export service
 
-
-    /***********************************************************/
-    def toMap(){
-        this.properties.findAll {k,v -> k != 'dynamicProperties'} + dynamicProperties
-    }
-
-    def deepClone() {
-        def clone = this.clone()
-        clone.dynamicProperties = this.dynamicProperties.collectEntries {key, value ->
-            [(key): (value instanceof Cloneable) ? value.clone() : value]
-        }
-        clone
-    }
-
 }
