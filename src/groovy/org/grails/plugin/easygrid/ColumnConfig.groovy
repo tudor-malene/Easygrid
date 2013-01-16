@@ -1,12 +1,14 @@
 package org.grails.plugin.easygrid
 
 import groovy.transform.AutoClone
+import org.grails.plugin.easygrid.ast.DynamicConfig
 
 /**
  * defines a grid column
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
+@DynamicConfig
 @AutoClone
 class ColumnConfig {
 
@@ -33,13 +35,7 @@ class ColumnConfig {
     Boolean showInSelection // if selection is enabled for the grid - this flag decides if this column will be shown in the dialog
 
 
-
     /************************************************************/
-    //dynamic
-    private Map dynamicProperties = [:]
-
-    def propertyMissing(String name, value) { dynamicProperties[name] = value }
-    def propertyMissing(String name) { dynamicProperties[name] }
     def deepClone() {
         def clone = this.clone()
         clone.dynamicProperties = this.dynamicProperties.collectEntries {key, value ->

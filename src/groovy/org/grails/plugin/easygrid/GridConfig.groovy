@@ -1,12 +1,14 @@
 package org.grails.plugin.easygrid
 
 import groovy.transform.AutoClone
+import org.grails.plugin.easygrid.ast.DynamicConfig
 
 /**
  * Defines the configuration for a grid
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
+@DynamicConfig
 @AutoClone
 class GridConfig {
 
@@ -43,22 +45,8 @@ class GridConfig {
     // autocomplete settings
     AutocompleteConfig autocomplete = new AutocompleteConfig()
 
-    // other properties which can be used in custom implementations
-    private Map dynamicProperties = [:]
 
-
-    /*************************************************************/
-    // todo - add a AST transformation to add dynamicProperties & deepClone
-
-    //setter
-    def propertyMissing(String name, value) {
-        dynamicProperties[name] = value
-    }
-
-    //getter
-    def propertyMissing(String name) {
-        dynamicProperties[name]
-    }
+/************************************************/
 
     def deepClone() {
         def clone = this.clone()
