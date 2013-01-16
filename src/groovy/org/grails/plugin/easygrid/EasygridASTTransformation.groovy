@@ -6,6 +6,8 @@ import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
+import org.codehaus.groovy.control.messages.LocatedMessage
+import org.codehaus.groovy.syntax.Token
 import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 
@@ -163,9 +165,17 @@ class EasygridASTTransformation extends AbstractASTTransformation {
                     source.addMethod(it)
                 }
             }
-        } catch (Exception e) {
-            log.error("error adding grid methods to: ${source.nameWithoutPackage}", e)
-            throw e
+        } catch (any) {
+            String messageText = "error adding grid methods to: ${source.nameWithoutPackage}"
+//            Token token = Token.newString(
+//                    expression.getText(),
+//                    expression.getLineNumber(),
+//                    expression.getColumnNumber())
+            LocatedMessage message = new LocatedMessage(messageText, Token.NULL, sourceUnit)
+
+            sourceUnit
+                    .getErrorCollector()
+                    .addError(message);
         }
     }
 }
