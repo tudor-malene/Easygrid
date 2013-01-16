@@ -24,7 +24,7 @@ public class DynamicConfigASTTransformation extends AbstractASTTransformation {
 
     public void visit(ASTNode[] nodes, SourceUnit source) {
         init(nodes, source);
-        System.out.println("nodes = " + nodes);
+//        System.out.println("nodes = " + nodes);
         addDynamicFields((ClassNode) nodes[1]);
     }
 

@@ -4,7 +4,7 @@ import org.grails.plugin.easygrid.EasygridContextHolder
 
 class EasygridGrailsPlugin {
 
-    def version = "1.2.0"
+    def version = "1.2.1"
 
     def grailsVersion = "2.0 > *"
 
@@ -17,9 +17,9 @@ class EasygridGrailsPlugin {
             'grails-app/views/templates/_testGridRenderer.gsp',
     ]
 
-    def dependsOn = [
-            'jquery-ui': "1.8.14 > *"
-    ]
+//    def dependsOn = [
+//            'jquery-ui': "1.8.14 > *"
+//    ]
 
     def observe = ["controllers", "services"]
 
