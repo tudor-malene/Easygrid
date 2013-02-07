@@ -21,10 +21,10 @@
     <tr>
         <g:each in="${gridConfig.columns}" var="col">
             <g:if test="${col?.classic?.sortable}">
-                <g:sortableColumn property="${col.property}" title="${message(code: col.label, default: col.label)}" />
+                <g:sortableColumn property="${col.property}" title="${g.message(code: col.label, default: col.label)}" />
             </g:if>
             <g:else>
-                <th >${message(code: col.label, default: col.label)}</th>
+                <th >${g.message(code: col.label, default: col.label)}</th>
             </g:else>
         </g:each>
     </tr>

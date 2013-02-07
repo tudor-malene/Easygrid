@@ -5,6 +5,9 @@ import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import org.springframework.core.NamedThreadLocal
 import org.springframework.web.context.request.RequestContextHolder
 
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpSession
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReadWriteLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
@@ -48,15 +51,15 @@ class EasygridContextHolder {
         params ? params : RequestContextHolder.currentRequestAttributes().params
     }
 
-    static getRequest() {
+    static HttpServletRequest getRequest() {
         RequestContextHolder.currentRequestAttributes().request
     }
 
-    static getResponse() {
+    static HttpServletResponse getResponse() {
         RequestContextHolder.currentRequestAttributes().currentResponse
     }
 
-    static getSession() {
+    static HttpSession getSession() {
         RequestContextHolder.currentRequestAttributes().session
     }
 

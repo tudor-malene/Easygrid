@@ -44,4 +44,7 @@ class GridConfig {
 
     // autocomplete settings
     AutocompleteConfig autocomplete = new AutocompleteConfig()
+
+    // global filter
+    Closure globalFilterClosure
 }

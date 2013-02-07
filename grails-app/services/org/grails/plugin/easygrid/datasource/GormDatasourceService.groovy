@@ -156,7 +156,6 @@ class GormDatasourceService {
     def list(Map listParams = [:], filters = null) {
 
         listParams.with {
-//            createCriteria(filters).list(max: maxRows, offset: rowOffset, sort: sort, order: order)
             createWhereQuery(filters).list(max: maxRows, offset: rowOffset, sort: sort, order: order)
         }
     }
@@ -177,7 +176,6 @@ class GormDatasourceService {
      * @return
      */
     def countRows(filters = null) {
-//        createCriteria(filters).count()
         createWhereQuery(filters).count()
     }
 
@@ -187,30 +185,16 @@ class GormDatasourceService {
      * @return
      */
     DetachedCriteria createWhereQuery(filters) {
-
         def initial = new DetachedCriteria(gridConfig.domainClass)
-        initial = gridConfig.initialCriteria ? initial.build(gridConfig.initialCriteria) : initial.build {}
-        filters.inject(initial) { DetachedCriteria criteria, Filter filter ->
-            if (getCriteria(filter) instanceof Closure) {
-                criteria.and(getCriteria(filter))
+        filters.inject(gridConfig.initialCriteria ? initial.build(gridConfig.initialCriteria) : initial ) { DetachedCriteria criteria, Filter filter ->
+            def filterCriteria = getCriteria(filter);
+            if (filterCriteria instanceof Closure) {
+                criteria.and( filterCriteria)
             } else {
-                getCriteria(filter).criteria.criteria.each { Query.Criterion criterion -> criteria.add(criterion) }
+                //todo                   filterCriteria
+                filterCriteria.criteria.criteria.each { Query.Criterion criterion -> criteria.add(criterion) }
                 criteria
             }
-        }
-    }
-
-    /**
-     * combines all the filters into a gorm criteria
-     * @param filters - list of closures
-     * @return
-     */
-    @Deprecated
-    Criteria createCriteria(filters) {
-        def initial = new DetachedCriteria(gridConfig.domainClass)
-        initial = gridConfig.initialCriteria ? initial.and(gridConfig.initialCriteria) : initial
-        filters.inject(initial) { criteria, searchCriteria ->
-            criteria.and(searchCriteria.curry(params))
         }
     }
 
@@ -218,22 +202,8 @@ class GormDatasourceService {
         assert filter.searchFilter instanceof Closure
         assert filter.searchFilter.parameterTypes.size() == 1
 
-        filter.searchFilter.curry(filter)
-
-//        if (curriedClosure.parameterTypes.size() == 1 && curriedClosure.parameterTypes[0] == Filter) {
-//            if (curriedClosure.parameterTypes[0] == Filter) {
-//            return curriedClosure.curry(filter)
-//        }
-/*
-        if (curriedClosure.parameterTypes.size() in [0, 1]) {
-            //todo - sa fac si conversia ( de ce pasez paramValue - daca e deja in filtru ?? )
-            curriedClosure = curriedClosure.curry(filter.paramValue)
-        } else {
-            curriedClosure = curriedClosure.curry(filter.paramValue, EasygridContextHolder.params)
-        }
-*/
-
-//        return curriedClosure
+        //if a global filter , then pass the params
+        filter.searchFilter.curry(filter.global?params:filter)
     }
 
     // inlineEdit implementations  - only works if domainClass is defined

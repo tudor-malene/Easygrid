@@ -23,7 +23,7 @@
             change: function(){
                 ${attrs.onChange}
             },
-            title: '${message(code: attrs.title)}' ,
+            title: '${g.message(code: attrs.title)}' ,
             width: '${attrs.width}',
             height: '${attrs.height}'
         });

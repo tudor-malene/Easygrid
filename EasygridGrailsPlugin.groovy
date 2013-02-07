@@ -4,7 +4,7 @@ import org.grails.plugin.easygrid.EasygridContextHolder
 
 class EasygridGrailsPlugin {
 
-    def version = "1.2.1"
+    def version = "1.2.2.2"
 
     def grailsVersion = "2.0 > *"
 
@@ -13,6 +13,8 @@ class EasygridGrailsPlugin {
     def pluginExcludes = [
             'grails-app/controllers/org/grails/plugin/easygrid/TestDomainController.groovy',
             'grails-app/domain/org/grails/plugin/easygrid/TestDomain.groovy',
+            'grails-app/domain/org/grails/plugin/easygrid/OwnerTest.groovy',
+            'grails-app/domain/org/grails/plugin/easygrid/PetTest.groovy',
             'grails-app/services/org/grails/plugin/easygrid/grids/TestGridService.groovy',
             'grails-app/views/templates/_testGridRenderer.gsp',
     ]

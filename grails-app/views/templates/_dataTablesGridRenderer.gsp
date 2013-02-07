@@ -66,7 +66,7 @@
     <thead>
     <tr>
         <g:each in="${gridConfig.columns}" var="col">
-            <th %{--width="${col.datatable.width}"--}%>${message(code: col.label, default: col.label)}</th>
+            <th %{--width="${col.datatable.width}"--}%>${g.message(code: col.label, default: col.label)}</th>
         </g:each>
     </tr>
     </thead>

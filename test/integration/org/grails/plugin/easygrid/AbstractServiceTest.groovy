@@ -155,7 +155,7 @@ abstract class AbstractServiceTest {
     def populateTestDomain(N = 100) {
 //        def N = 100
         (1..N).each {
-            new TestDomain(testStringProperty: "$it", testIntProperty: it).save(true)
+            new TestDomain(testStringProperty: "$it", testIntProperty: it).save(failOnError: true)
         }
         assertEquals N, TestDomain.count()
     }

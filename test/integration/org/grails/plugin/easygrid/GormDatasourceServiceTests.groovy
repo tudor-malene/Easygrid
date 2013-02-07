@@ -1,5 +1,7 @@
 package org.grails.plugin.easygrid
 
+import grails.gorm.DetachedCriteria
+
 import static org.junit.Assert.*
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
@@ -11,7 +13,7 @@ import org.junit.Before
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Mock(TestDomain)
+@Mock([TestDomain, OwnerTest, PetTest])
 @TestFor(TestDomainController)
 class GormDatasourceServiceTests extends AbstractServiceTest {
 
@@ -91,7 +93,7 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
 
         //test criteria search
         domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 0],
-                [new Filter({ params -> between("testIntProperty", 31, 80) }, 1)]
+                [new Filter({ params -> between("testIntProperty", 31, 80) }, '1')]
         )
         assertEquals 10, domainRows.size()
         assertEquals 31, domainRows[0].testIntProperty
@@ -188,4 +190,76 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
         def instance = TestDomain.get(101)
         assertEquals(101, instance.testIntProperty)
     }
+
+    def void testComplexQuery() {
+        populatePets()
+        def petsGridConfig = generateConfigForGrid {
+            id 'petsGridConfig'
+            dataSourceType 'domain'
+            domainClass PetTest
+//            initialCriteria{
+//            }
+            columns {
+                id {
+                    type 'id'
+                }
+                name {
+                    enableFilter true
+//                    filterFieldType 'text'
+                    jqgrid {
+                    }
+                }
+                'owner.name' {
+                    enableFilter true
+                    jqgrid {
+                    }
+                }
+                'owner.city' {
+                    enableFilter true
+                    jqgrid {
+                    }
+                }
+            }
+        }
+        easygridService.addDefaultValues(petsGridConfig, defaultValues)
+        def data = easygridService.gridData(petsGridConfig)
+        assertEquals 5, data.target.rows.size()
+        assertEquals 1, data.target.rows[0].cell[0]
+        assertEquals 'Bonkers', data.target.rows[0].cell[1]
+        assertEquals 'John', data.target.rows[0].cell[2]
+
+    }
+
+    //utility
+    def populatePets() {
+        def john = new OwnerTest(name: 'John', city: 'NY').save()
+        def mary = new OwnerTest(name: 'Mary', city: 'NJ').save()
+        def joe = new OwnerTest(name: 'Joe', city: 'LA').save()
+
+        def bonkers = new PetTest(name: 'Bonkers', owner: john).save()
+        def tommy = new PetTest(name: 'tommy', owner: john).save()
+        def pandora = new PetTest(name: 'pandora', owner: mary).save()
+        def wanikiy = new PetTest(name: 'wanikiy', owner: mary).save()
+        def severin = new PetTest(name: 'severin', owner: joe).save()
+
+        john.addToPets(bonkers).addToPets(tommy).save()
+        mary.addToPets(pandora).addToPets(wanikiy).save()
+        joe.addToPets(severin).save()
+
+        assertEquals 3, OwnerTest.count()
+        assertEquals 2, OwnerTest.findByName('John').pets.size()
+    }
+
+    void testStuff() {
+        populatePets()
+        DetachedCriteria d = OwnerTest.where {}
+        println d.list()
+        Closure f = { eq('name', 'John') }
+        d = d.where f
+        println d.list()
+
+//        OwnerTest.nameQuery.
+
+    }
+
 }

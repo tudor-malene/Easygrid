@@ -1,5 +1,7 @@
 package org.grails.plugin.easygrid
 
+import groovy.json.JsonSlurper
+
 import static org.junit.Assert.*
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
@@ -42,6 +44,11 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
             dataSourceType 'domain'
             gridImpl 'visualization'
             domainClass TestDomain
+            globalFilterClosure { params ->
+                if (params.min && params.max) {
+                    between("testIntProperty", params.min as int, params.max as int)
+                }
+            }
         }
 
         //initialize the custom grid
@@ -104,12 +111,12 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
         }
     }
 
-    void testSetup() {
+    void testGlobalFilter() {
 
         def N = 100
         populateTestDomain(N)
 
-        params.tq = 'order by `testIntProperty` desc limit 50 offset 30'
+        params.tq = 'order by `testIntProperty` desc limit 50 offset 0'
         params.tqx = ''
 
         //hack
@@ -122,18 +129,13 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
         def errors = easygridService.verifyGridConstraints(domainGridConfig)
         assertEquals 0, errors.size()
 
-        visualizationGridService.filters()
-        visualizationGridService.listParams()
+        params.min = 1
+        params.max = 3
 
-        //todo
-//        visualizationGridService.transform(domainGridConfig,[:],[:])
         def data = easygridService.gridData(domainGridConfig)
-//        println data
+        def response = new JsonSlurper().parseText data['google.visualization.Query.setResponse('.length()..-3]
 
-//        def gridDef = visualizationGridService.htmlGridDefinition(domainGridConfig)
-//        assertEquals 1, gridDef.size()
-//        assertEquals N, gridDef.rows.size()
-//        assertEquals domainGridConfig, gridDef.gridConfig
+        assertEquals 3, response.table.rows.size()
     }
 
     void testValueTypes() {

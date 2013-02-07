@@ -25,7 +25,7 @@ class Filter {
     GrailsParameterMap params
 
 //    def convertedValue - todo : convert type
-
+    boolean global = false
 
     public Filter(ColumnConfig columnConfig) {
         init()
@@ -35,19 +35,20 @@ class Filter {
         this.paramValue = this.params[this.paramName]
     }
 
-    public Filter(Closure searchFilter, paramValue) {
+    public Filter(Closure searchFilter, String paramValue) {
         init()
         this.searchFilter = searchFilter
         this.paramValue = paramValue
     }
 
-    public Filter(Closure searchFilter) {
+    public Filter(Closure searchFilter, boolean global = true) {
         init()
         this.searchFilter = searchFilter
+        this.global = global
     }
 
 
-    private init(){
+    private init() {
         this.params = EasygridContextHolder.params
     }
 

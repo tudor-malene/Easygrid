@@ -2,6 +2,7 @@ package org.grails.plugin.easygrid
 
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
+import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
 
 import java.util.concurrent.locks.Lock
@@ -84,7 +85,12 @@ class EasygridService {
             gridConfig.id = gridName
 
             //add default & types
-            addDefaultValues(gridConfig, grailsApplication?.config?.easygrid)
+            try {
+                addDefaultValues(gridConfig, grailsApplication?.config?.easygrid)
+            } catch (any) {
+                log.error("Failed to initialize grid: ${gridName}, defined in controller ${controller}.", any)
+                throw new GrailsConfigurationException("Failed to initialize grid: ${gridName}, defined in controller ${controller}.", any)
+            }
         }
     }
 
@@ -300,10 +306,17 @@ todo   validation
                 }
 */
 
+                if (filters == null){
+                    filters = []
+                }
 
-                if (params.selectionComp) {
+                if (params.selectionComp && gridConfig.autocomplete.constraintsFilterClosure) {
                     //add a new criteria
                     filters.add new Filter(gridConfig.autocomplete.constraintsFilterClosure)
+                }
+
+                if (gridConfig.globalFilterClosure){
+                    filters.add new Filter(gridConfig.globalFilterClosure)
                 }
 
                 def rows = dataSourceService.list(listParams, filters)

@@ -1,4 +1,4 @@
-def jqgridVer = "4.4.1"
+def jqgridVer = "4.4.4"
 def dataTablesVer = "1.9.4"
 
 modules = {
@@ -16,6 +16,9 @@ modules = {
                 nominify: true, disposition: 'head'
         //todo multilanguage
         resource id: 'js-locale-jqgrid-dev', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js/i18n", file: "grid.locale-en.js"],
+                nominify: true, disposition: 'head'
+
+        resource id: 'js-jqgrid-utils', url: [plugin: 'easygrid', dir: "js/jqgridutils", file: "utils.js"],
                 nominify: true, disposition: 'head'
     }
 
@@ -36,12 +39,17 @@ modules = {
         //todo multilanguage
         resource id: 'js-locale-jqgrid', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/src/i18n", file: "grid.locale-en.js"],
                 nominify: true, disposition: 'head'
+        resource id: 'js-jqgrid-utils-dev', url: [plugin: 'easygrid', dir: "js/jqgridutils", file: "utils.js"],
+                nominify: true, disposition: 'head'
     }
 
     'easygrid-datatables-dev' {
         dependsOn 'jquery-ui'
 
         resource id: 'js-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/js", file: "jquery.dataTables.js"],
+                nominify: true, disposition: 'head'
+
+        resource id: 'js-fixedColumns', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/extras/FixedColumns/media/js", file: "FixedColumns.js"],
                 nominify: true, disposition: 'head'
     }
 

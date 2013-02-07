@@ -42,7 +42,7 @@ easygrid {
             //property that aggregates the widths defined per column
             excel['column.widths'] = { gridConfig ->
                 def widths = []
-                GridUtils.eachColumn(gridConfig, true) { column ->
+                org.grails.plugin.easygrid.GridUtils.eachColumn(gridConfig, true) { column ->
                     widths.add(column?.export?.width ?: 0.2)
                 }
                 widths
@@ -192,7 +192,7 @@ easygrid {
 
         //  jquery datatables implementation
         dataTables {
-            gridImplService = DataTablesGridService
+            gridImplService = org.grails.plugin.easygrid.grids.DataTablesGridService
             gridRenderer = '/templates/easygrid/dataTablesGridRenderer'
             inlineEdit = false
             formats = [

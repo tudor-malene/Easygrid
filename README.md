@@ -253,7 +253,7 @@ Default values:
 
 The format to apply to a value is chosen  this way:
 
-1. _formatClosure_ - provided at the column level
+1. _formatter_ - provided at the column level
 2. _formatName_    - a format defined in the _formats_ section of the Config file
 3. the type is matched to one of the types from the _formats_ section of each datasource
 4. the value as it is
@@ -337,6 +337,12 @@ Testing:
 FAQ:
 ------------------
 
+### I want to implement my first grid. What are the steps?    ###
+A: First you need to annotate the controller with @Easygrid, and define the static grids property where you can define the grid.
+In the gsp (if it belongs to that controller), all you have to do is:
+  1) add <r:require modules="easygrid-jqgrid-dev,export"/> ( or whatever impelementation you're using )
+  2) <grid:grid name="your_grid_name"/>
+
 ### Why is the default configuration so large?    ###
 A: It is so large because the plugin is highly configurable, and designed to minimize code duplication.
 
@@ -350,7 +356,7 @@ A: Check out [Filter](https://github.com/tudor-malene/Easygrid/blob/master/src/g
 A: Because on this implementation you also get the current row so that you can apply the filter on it, as opposed to the _gorm_ implementation where the filter closure is a criteria.
 
 ### Isn't it bad practice to put view stuff in the controller?  ###
-A: You don't have to put view stuff in the controller. You are encouraged to define column types and group view stuff in the config, and just reference that.
+A: You don't have to put view stuff in the controller. You are encouraged to define column types and as many default view properties as possible in the config. Also , you can override any grid property in the grid tag in the gsp.
 
 ### I need to pass other view attributes to the ajax grid.  ###
 A: No problem, everything is extensible, just put it in the builder, and you can access it in the template. If it is a implementation attribute, you are encouraged to put it in the implementation section.

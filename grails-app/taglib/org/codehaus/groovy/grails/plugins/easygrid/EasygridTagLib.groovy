@@ -48,7 +48,8 @@ class EasygridTagLib {
             attrs.id = attrs.name
         }
 
-        def gridConfig = getGridConfig(attrs)
+        //ignore the attributes of the export tag
+        def gridConfig = getGridConfig(attrs, ['formats','params'])
         attrs.action = "${gridConfig.id}Export"
         out << export.formats(attrs)
     }
@@ -95,7 +96,7 @@ class EasygridTagLib {
         GridConfig gridConfig = attrs.gridConfig
 
 //        gridConfig.columns.findAll {col -> (params.selectionComp) ? col.showInSelection : true}.eachWithIndex { col, idx ->
-        GridUtils.eachColumn(gridConfig) {col, idx ->
+        GridUtils.eachColumn(gridConfig) { col, idx ->
             out << body(col: col, idx: idx, last: (idx == gridConfig.columns.size() - 1))
         }
     }
@@ -105,13 +106,13 @@ class EasygridTagLib {
      * @param attrs
      * @return
      */
-    private GridConfig getGridConfig(attrs) {
+    private GridConfig getGridConfig(attrs, ignoreProps = []) {
         def instance = attrs.controllerInstance ?: grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, attrs.controller ?: controllerName).newInstance()
         assert instance
         def gridConfig = instance.gridsConfig."${attrs.name}".deepClone()
 
         //overwrite grid properties
-        attrs.findAll {!(it.key in ['name', 'id',]) }.each {k, v ->
+        attrs.findAll { !(it.key in (['name', 'id', 'controller'] +ignoreProps)) }.each { k, v ->
             GridUtils.setNestedPropertyValue(k, gridConfig, v)
         }
         gridConfig

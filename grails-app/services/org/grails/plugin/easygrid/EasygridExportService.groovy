@@ -32,7 +32,9 @@ class EasygridExportService {
 
         if (format && format != "html") {
 
-            response.contentType = grailsApplication.config.grails.mime.types[format]
+            def contentTypes = grailsApplication.config.grails.mime.types[format]
+            assert contentTypes : "No content type declared for format: ${format}"
+            response.contentType = String.isAssignableFrom(contentTypes.getClass()) ? contentTypes : contentTypes[0]
             response.setHeader("Content-disposition", "attachment; filename=${gridConfig.export.export_title}.${extension}")
 
             // restore the previous search
@@ -41,12 +43,14 @@ class EasygridExportService {
 
             //apply the previous filters , retrieve the raw data & transform the data to an export friendly format
             def filters = easygridService.implService.filters()
-            def data = easygridService.dataSourceService.list([:], filters).collect { element ->
+            def data = easygridService.dataSourceService.list([:], filters)
+            def exportData = new ArrayList(data.size())
+            data.each { element ->
                 def resultRow = [:]
                 GridUtils.eachColumn(gridConfig, true) { column, row ->
                     resultRow[column.name] = easygridService.valueOfColumn(column, element, row + 1)
                 }
-                resultRow
+                exportData.add resultRow
             }
 
             // compose other parameters needed by the export parameter
@@ -70,7 +74,7 @@ class EasygridExportService {
             log.debug("export parameters: $parameters")
 
             // invoke the export plugin
-            exportService.export(format, response.outputStream, data, fields, labels, [:], parameters)
+            exportService.export(format, response.outputStream, exportData, fields, labels, [:], parameters)
         }
     }
 }
