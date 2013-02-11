@@ -138,6 +138,17 @@ easygrid {
             rowNum = 20
         }
 
+        dataTables {
+        }
+
+        visualization {
+            page = "'enable'"
+            allowHtml = true
+            alternatingRowStyle = true
+//            showRowNumber = false
+            pageSize = 10
+        }
+
         // default security provider
         // spring security implementation
         // interprets the 'roles' property
@@ -268,6 +279,9 @@ easygrid {
 
         //default values for the columns
         defaults {
+            enableFilter = true
+            showInSelection = true
+            sortable = true
             jqgrid {
                 editable = true
             }
@@ -280,7 +294,8 @@ easygrid {
                 valueType = com.google.visualization.datasource.datatable.value.ValueType.TEXT
             }
             dataTables {
-                width = "'100%'"
+                sWidth = "'100%'"
+                sClass = "''"
             }
             export {
                 width = 25
