@@ -46,7 +46,7 @@
     </g:if>
     });
 
-    <g:if test="${gridConfig.jqgrid.addNavGrid}">
+    <g:if test="${gridConfig.addNavGrid}">
         jQuery('#${attrs.id}_table').jqGrid('navGrid','#${attrs.id}Pager',
         {
             add: false,
@@ -65,7 +65,7 @@
         </g:if>
     </g:if>
 
-    <g:if test="${gridConfig.jqgrid.enableFilter}">
+    <g:if test="${gridConfig.enableFilter}">
         jQuery('#${attrs.id}_table').jqGrid('filterToolbar',
         {
             autosearch: true,

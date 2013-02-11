@@ -1,11 +1,15 @@
 <script type="text/javascript">jQuery(function () {
 
-    %{--todo - move some hardcodings to the config --}%
     var oTable = $('#${attrs.id}_datatable').dataTable({
-        bFilter:true,
-        "bStateSave":false,
-        'sPaginationType':'full_numbers',
-        "fnInitComplete":function () {
+
+        <g:each in="${gridConfig.dataTables}" var="property">
+        "${property.key}":${property.value},
+        </g:each>
+
+        bFilter: true,
+        "bStateSave": false,
+        'sPaginationType': 'full_numbers',
+        "fnInitComplete": function () {
             //hack - removes the filter div
             $('#${attrs.id}_datatable_filter').remove();
             var oSettings = $('#${attrs.id}_datatable').dataTable().fnSettings();
@@ -16,15 +20,32 @@
                     $("tfoot input")[i].className = "";
                 }
             }
-        },
-        "bSort":true,
-        "bProcessing":true,
-        "bServerSide":true,
-        "sAjaxSource":"${g.createLink(action: "${gridConfig.id}Rows")}",
-        "aoColumns":[
-            <g:each in="${gridConfig.columns}" var="col" status="idx">
-            { "sName":"${col.name}", "bSortable":true }  <g:if test="${idx < gridConfig.columns.size() - 1}">,
+            <g:if test="${gridConfig.fixedColumns == 'true'}">
+            new FixedColumns(oTable, {
+                "iLeftColumns": ${gridConfig.noFixedColumns}
+//                "iLeftWidth": 350
+            });
             </g:if>
+
+        },
+        "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+        },
+        "bSort": true,
+        "bProcessing": true,
+        "bServerSide": true,
+        "sAjaxSource": "${g.createLink(action: "${gridConfig.id}Rows")}",
+        "aoColumns": [
+            <g:each in="${gridConfig.columns}" var="col" status="idx">
+            {   "sName": "${col.name}",
+                "bSearchable": ${col.enableFilter},
+                "bSortable": ${col.sortable},
+                <g:each in="${col.dataTables}" var="property">
+                "${property.key}":${property.value},
+                </g:each>
+                "bVisible": true
+                %{--"sWidth": "${col.dataTables.sWidth}",--}%
+                %{--"sClass": "${col.dataTables.sClass}"--}%
+            }  <g:if test="${idx < gridConfig.columns.size() - 1}">,</g:if>
             </g:each>
         ]
 
@@ -66,7 +87,7 @@
     <thead>
     <tr>
         <g:each in="${gridConfig.columns}" var="col">
-            <th %{--width="${col.datatable.width}"--}%>${g.message(code: col.label, default: col.label)}</th>
+            <th>${g.message(code: col.label, default: col.label)}</th>
         </g:each>
     </tr>
     </thead>
@@ -78,8 +99,8 @@
     <tfoot>
     <tr>
         <g:each in="${gridConfig.columns}" var="col">
-            <td>%{--width="${col.datatable.width}">--}%
-                <g:if test="${col.enableFilter}">
+            <td>
+                <g:if test="${(gridConfig.fixedColumns != 'true') &&gridConfig.enableFilter && col.enableFilter}">
                     <input type="text" name="search_${col.name}" class="search_init" size="10"/>
                 </g:if>
                 <g:else>

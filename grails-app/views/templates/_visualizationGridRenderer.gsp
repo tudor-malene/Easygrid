@@ -17,12 +17,16 @@
 
         </g:if>
         <g:else>
-        options = {};
-        query.abort();
-        var tableQueryWrapper = new TableQueryWrapper(query, container, options);
-        tableQueryWrapper.sendAndDraw();
+        options = {
+                <g:each in="${gridConfig.visualization}" var="property" status="idx">
+                <g:if test="${idx>0}">,</g:if> "${property.key}":${property.value}
+        </g:each>
+    };
+    query.abort();
+    var tableQueryWrapper = new TableQueryWrapper(query, container, options);
+    tableQueryWrapper.sendAndDraw();
 
-        </g:else>
+    </g:else>
 
 
     }
@@ -47,7 +51,7 @@
      */
 
 
-    function rewriteDatasource(form) {
+    function rewriteDatasource${attrs.id}(form) {
         var ser = jQuery(form).serialize();
         console.log(ser);
         dataSourceUrl = baseDataSourceUrl + "?" + ser;
@@ -58,13 +62,13 @@
 </script>
 
 
+%{--create a very basic search form--}%
 <div id="${attrs.id}_FilterDiv">
-    %{--<g:formRemote name="${attrs.id}_FilterForm"  onSuccess="_reloadGrid(data,textStatus)" url='[action:"${gridConfig.id}Rows"]'>--}%
-    <form name="${attrs.id}_FilterForm" onsubmit="return rewriteDatasource(this)" action="${gridConfig.id}Rows">
+    <form name="${attrs.id}_FilterForm" onsubmit="return rewriteDatasource${attrs.id}(this)" action="${gridConfig.id}Rows">
         <fieldset class="form">
             <g:hiddenField name="_filter" value="true"/>
             <g:findAll in="${gridConfig.columns}"   expr="${it.enableFilter}">
-                <div>
+                <div class="fieldcontain  ">
                     <label for="${it.name}">
                         <g:message code="${it.label}" default="${it.label}"/>
                     </label>
