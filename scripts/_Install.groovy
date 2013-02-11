@@ -22,6 +22,11 @@ easygrid {
 
         gridImpl = 'jqgrid' // the default grid implementation
 
+        //used by jqgrid
+        enableFilter = true
+        addNavGrid = true
+
+
         //default export settings for various formats
         export {
             exportService = org.grails.plugin.easygrid.EasygridExportService
@@ -52,7 +57,7 @@ easygrid {
             pdf['header.enabled'] = true
             pdf['column.widths'] = { gridConfig ->
                 def widths = []
-                GridUtils.eachColumn(gridConfig, true) { column ->
+                org.grails.plugin.easygrid.GridUtils.eachColumn(gridConfig, true) { column ->
                     widths.add(column?.export?.width ?: 0.2)
                 }
                 widths
@@ -128,7 +133,7 @@ easygrid {
             }
         }
 
-        // renamed for consistency - todo  -rename everywhere
+        // renamed for consistency
         gorm {
             // mandatory attribute: domainClass or initialCriteria
             dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
@@ -213,14 +218,11 @@ easygrid {
 
     }
 
-
     // section to define per column configurations
     columns {
 
         //default values for the columns
         defaults {
-            enableFilter = true
-            showInSelection = true
             jqgrid {
                 editable = true
             }
@@ -245,7 +247,6 @@ easygrid {
         types {
             id {
                 property = 'id'
-                enableFilter = false
 
                 jqgrid {
                     width = 40
