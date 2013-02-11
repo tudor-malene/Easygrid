@@ -417,6 +417,15 @@ A: You can raise a ticket or drop me an email : tudor.malene at gmail.com, or us
 Version History
 ------------------------
 
+### 1.3.0
+    - upgraded jqgrid version to 4.4.4
+    - added master-slave feature for jqgrid grids
+    - support for fixed columns for datatables
+    - added 'globalFilterClosure' - a filter closure that can be used independently of any column
+    - upgraded rendering templates
+    - improved performance
+    - fixed bugs
+
 ### 1.2.0
     - refactored exporting so that to take full advantage over the export plugin
 
@@ -441,6 +450,13 @@ Version History
 
 #### 0.9.9
     - first version
+
+Upgrading to 1.3.0
+-----------------
+ - merge the rendering templates to benefit from the latest features
+ - some new default configs in [Config.groovy](https://github.com/tudor-malene/Easygrid/blob/master/grails-app/conf/Config.groovy)
+ - the autocomplete 'constraintsFilterClosure' has only the 'params' parameter instead of filter
+
 
 Upgrading to 1.2.0
 -----------------
