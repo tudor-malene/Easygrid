@@ -43,6 +43,12 @@ class EasygridExportService {
 
             //apply the previous filters , retrieve the raw data & transform the data to an export friendly format
             def filters = easygridService.implService.filters()
+            if(filters == null){
+                filters = []
+            }
+            if (gridConfig.globalFilterClosure){
+                filters.add new Filter(gridConfig.globalFilterClosure)
+            }
             def data = easygridService.dataSourceService.list([:], filters)
             def exportData = new ArrayList(data.size())
             data.each { element ->

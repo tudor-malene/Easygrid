@@ -1,3 +1,4 @@
+//inspired by: https://developers.google.com/chart/interactive/docs/examples?hl=ja
 /**
  * A wrapper for a query and a table visualization.
  * The object only requests 1 page + 1 row at a time, by default, in order
@@ -52,7 +53,7 @@ var TableQueryWrapper = function(query, container, options) {
 
     options['sort'] = 'event';
     options['page'] = 'event';
-    options['showRowNumber'] = true;
+//    options['showRowNumber'] = true;
     var buttonConfig = 'pagingButtonsConfiguration';
     options[buttonConfig] = options[buttonConfig] || 'both';
     options['pageSize'] = (options['pageSize'] > 0) ? options['pageSize'] : 10;
@@ -94,7 +95,7 @@ TableQueryWrapper.prototype.handleResponse = function(response) {
                 finalOptions[key]=serverProps[key];
             }
         }
-
+        console.log(finalOptions);
         this.table.draw(this.currentDataTable, finalOptions);
     }
 };
@@ -150,7 +151,7 @@ TableQueryWrapper.prototype.setPageQueryClause = function(pageIndex) {
     // Get the pageSize + 1 so that we can know when the last page is reached.
     this.pageQueryClause = 'limit ' + (pageSize + 1) + ' offset ' + newStartRow;
     // Note: row numbers are 1-based yet dataTable rows are 0-based.
-    this.tableOptions['firstRowNumber'] = newStartRow + 1;
+//    this.tableOptions['firstRowNumber'] = newStartRow + 1;
     return true;
 };
 

@@ -207,7 +207,8 @@ class EasygridService {
             }
 
             // add default filterClosure
-            if (column.enableFilter && column.filterClosure == null && column.filterFieldType) {
+            if (column.enableFilter && column.filterClosure == null && column.filterFieldType ) {
+                assert !column.property.contains('.') : "Currently default properties are supported only for simple properties. Please add the filter closure for ${column.name}"
                 def filterClosure = defaultValues?.dataSourceImplementations?."${gridConfig.dataSourceType}"?.filters?."${column.filterFieldType}"
                 assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
                 column.filterClosure = filterClosure

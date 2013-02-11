@@ -32,5 +32,7 @@ class ColumnConfig {
     String filterFieldType  // one of the predefined filters defined for each datasource
     Closure filterClosure    // a closure called when filtering on a column from the UI ( either specified directly or through the filterFieldType
 
+    Boolean sortable // flag to enable sortable
+
     Boolean showInSelection // if selection is enabled for the grid - this flag decides if this column will be shown in the dialog
 }

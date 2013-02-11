@@ -32,7 +32,7 @@ grails.project.dependency.resolution = {
 
         compile(':export:1.5')
 
-        runtime(':jquery:1.8.3')
+        runtime(':jquery:1.8.0')
         runtime(':jquery-ui:1.8.24')
         runtime(':google-visualization:0.5.6')
 

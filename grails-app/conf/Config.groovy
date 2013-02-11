@@ -1,4 +1,3 @@
-import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
 import org.grails.plugin.easygrid.Filter
 import org.grails.plugin.easygrid.GridUtils
 import org.grails.plugin.easygrid.grids.DataTablesGridService
@@ -68,6 +67,10 @@ easygrid {
 
         gridImpl = 'jqgrid' // the default grid implementation
 
+        //used by jqgrid
+        enableFilter = true
+        addNavGrid = true
+
 
         //default export settings for various formats
         export {
@@ -133,10 +136,6 @@ easygrid {
             height = 250
             // number of rows to display by default
             rowNum = 20
-            //todo
-            enableFilter = true
-            addNavGrid = true
-
         }
 
         // default security provider

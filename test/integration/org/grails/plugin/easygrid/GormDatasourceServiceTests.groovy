@@ -195,7 +195,7 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
         populatePets()
         def petsGridConfig = generateConfigForGrid {
             id 'petsGridConfig'
-            dataSourceType 'domain'
+            dataSourceType 'gorm'
             domainClass PetTest
 //            initialCriteria{
 //            }
@@ -221,13 +221,20 @@ class GormDatasourceServiceTests extends AbstractServiceTest {
                 }
             }
         }
+
         easygridService.addDefaultValues(petsGridConfig, defaultValues)
+        assertEquals 'owner.name', petsGridConfig.columns['owner.name'].property
+        assertEquals 'owner.city', petsGridConfig.columns['owner.city'].property
         def data = easygridService.gridData(petsGridConfig)
         assertEquals 5, data.target.rows.size()
         assertEquals 1, data.target.rows[0].cell[0]
         assertEquals 'Bonkers', data.target.rows[0].cell[1]
         assertEquals 'John', data.target.rows[0].cell[2]
 
+//        params.ownerName='John'
+//        params._search='true'
+//        data = easygridService.gridData(petsGridConfig)
+//        println data
     }
 
     //utility
