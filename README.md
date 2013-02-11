@@ -29,10 +29,10 @@ The issues that Easygrid tackles are:
 * combo-boxes are suitable only when the dataset is small. Easygrid proposes a custom widget based on the same mechanism of defining grids, where for selecting an element you open a grid (with pagination & filtering) in a dialog and select the desired element
 
 
-[Simple Online demo ](http://199.231.186.169:8080/easygrid)
-[Pet Clinic - Easygrid style](http://199.231.186.169:8080/petclinic/overview)
-[Pet Clinic - Source for controller](https://github.com/tudor-malene/grails-petclinic/blob/master/grails-app/controllers/org/grails/samples/OverviewController.groovy)
-[Pet Clinic - Source for view](https://github.com/tudor-malene/grails-petclinic/blob/master/grails-app/views/overview/index.gsp)
+    - [Simple Online demo ](http://199.231.186.169:8080/easygrid)
+    - [Pet Clinic - Easygrid style](http://199.231.186.169:8080/petclinic/overview)
+    - [Pet Clinic - Source for controller](https://github.com/tudor-malene/grails-petclinic/blob/master/grails-app/controllers/org/grails/samples/OverviewController.groovy)
+    - [Pet Clinic - Source for view](https://github.com/tudor-malene/grails-petclinic/blob/master/grails-app/views/overview/index.gsp)
 
 Easygrid solves these problems by proposing a solution based on declarations & conventions.
 
