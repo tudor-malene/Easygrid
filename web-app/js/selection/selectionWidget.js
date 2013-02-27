@@ -23,8 +23,9 @@ $(function () {
             height: 400,
             title: '',
 
-            selButton: null,             // the selection button
+            showSeparateLabel: true, // show a separate label
             labelElement: null,  // the label element
+            selButton: null,             // the selection button
 
 //            internal state
             label: null,
@@ -56,16 +57,17 @@ $(function () {
             var elemId = this.element.attr('id');
             this.options.baseId = elemId;
             var parent = this.element.parent();
-//                var parent = $('<div style="display:inline;"></div>');
-//                this.element.parent().append(parent);
 
             if (this.options.showAutocompleteBox) {
                 // add autocomplete field
+
+                //todo - sa il bag de-a gata
                 this.options.inputElem = $('<input type="text" />');
                 this.options.inputElem.attr('size', this.options.autocompleteSize);
                 this.options.inputElem.attr('id', elemId + '_autocomplete');
                 this.options.inputElem.attr('disabled', this.options.disabled);
                 this.options.inputElem.addClass('selcomp_autocomplete_input');
+
                 this.options.inputElem.change(function () {
                     thisWidget._trigger('changeData');
                 });
@@ -127,15 +129,18 @@ $(function () {
                 thisWidget.showJQGridSelectionPopup();
                 return false;
             });
-            // add label div
-            this.options.labelDiv = $(thisWidget.options.labelElement);
-            this.options.labelDiv.attr('id', elemId + '_label');
-            this.options.labelDiv.addClass('selcomp_label');
-            this.options.labelDiv.dblclick(function (event) {
-                thisWidget.clear();
-                return false;
-            });
-            parent.append(this.options.labelDiv);
+
+            if(this.options.showSeparateLabel){
+                // add label div
+                this.options.labelDiv = $(thisWidget.options.labelElement);
+                this.options.labelDiv.attr('id', elemId + '_label');
+                this.options.labelDiv.addClass('selcomp_label');
+                this.options.labelDiv.dblclick(function (event) {
+                    thisWidget.clear();
+                    return false;
+                });
+                parent.append(this.options.labelDiv);
+            }
         },
 
         _destroy: function () {
@@ -151,11 +156,14 @@ $(function () {
             this.options.label = label;
 
             this.element.val(id);
-            this.options.labelDiv.text(label);
 
-            //hack
-            $('#' + this.options.baseId + '_autocomplete').val('');
-
+            if(this.options.showSeparateLabel){
+                this.options.labelDiv.text(label);
+                //hack
+                $('#' + this.options.baseId + '_autocomplete').val('');
+            }else{
+                $('#' + this.options.baseId + '_autocomplete').val(label);
+            }
             this._trigger('change');
         },
         clear: function () {

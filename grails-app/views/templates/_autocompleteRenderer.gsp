@@ -9,7 +9,9 @@
             gridName: "${attrs.gridName}" ,
             selButton: "<a href='#'>Sel    <a>",
             labelElement: "<div style='display:inline;'/>",
+            showSeparateLabel: ${attrs.showSeparateLabel},
             showAutocompleteBox: ${attrs.showAutocompleteBox},
+            autocompleteSize: ${attrs.autocompleteSize},
             staticConstraints: {
                 <g:each in="${attrs.staticConstraints}" >
                     "${it.key}": "${it.value}",

@@ -4,6 +4,7 @@ import grails.util.ClosureToMapPopulator
 import org.grails.plugin.easygrid.AutocompleteConfig
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.ExportConfig
+import org.grails.plugin.easygrid.FilterFieldConfig
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 import org.grails.plugin.easygrid.ListMapWrapper
@@ -88,6 +89,35 @@ class EasygridBuilder {
                                 def column = new ColumnConfig(property: colName, name: colName)
                                 assert column.name
                                 gridConfig.columns.add(column)
+                            }
+                    break
+
+                case ('filterForm'):   //handle the filter form section
+                    gridConfig.filterForm = new ListMapWrapper<FilterFieldConfig>('name')
+
+                    // handle the filter form section
+                    buildWithDelegate(args[0])
+                            { ffName, ffArgs -> // method missing
+                                def filterField = new FilterFieldConfig()
+                                filterField.name = ffName
+
+                                buildWithDelegate(ffArgs[0])
+                                        { ffProperty, ffValue ->
+                                            switch (ffProperty) {
+                                                default:
+                                                    if (ffProperty in GridUtils.findImplementations(grailsApplication?.config?.easygrid)) {
+                                                        filterField[ffProperty] = new ClosureToMapPopulator().populate(ffValue[0])
+                                                    } else {
+                                                        filterField[ffProperty] = ffValue[0]
+                                                    }
+                                                    break
+                                            }
+                                        }
+
+                                assert filterField.name
+                                gridConfig.filterForm.add(filterField)
+                            }
+                            { ffName ->
                             }
                     break
 

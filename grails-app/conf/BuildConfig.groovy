@@ -37,6 +37,6 @@ grails.project.dependency.resolution = {
         runtime(':google-visualization:0.5.6')
 
         //only for 2.2.0
-//        runtime ":resources:1.2.RC2"
+        runtime ":resources:1.2.RC2"
     }
 }

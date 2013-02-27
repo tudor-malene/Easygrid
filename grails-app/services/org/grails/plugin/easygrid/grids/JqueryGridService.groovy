@@ -29,7 +29,8 @@ class JqueryGridService {
 //            searchParam ? (gridConfig.columns.find {it.jqgrid.name == searchParam}?.jqgrid?.search) : null
             searchParams.inject([]) { list, param ->
 //                def closure = gridConfig.columns.find { col -> col.name == param }?.filterClosure
-                def column = gridConfig.columns.find { col -> col.name == param }
+//                def column = gridConfig.columns.find { col -> col.name == param }
+                def column = gridConfig.columns[param]
                 column?.filterClosure ? (list + new Filter(column)) : list
             }
 

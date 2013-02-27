@@ -132,8 +132,11 @@ class EasygridServiceTests extends AbstractServiceTest {
         gridCfg1.jqgrid.height = 200
         assertEquals 150, gridCfg2.jqgrid.height
         assertEquals gridCfg1.columns.birthDate.jqgrid.width, gridCfg2.columns.birthDate.jqgrid.width
+        assertEquals gridCfg1.columns.birthDate.name, gridCfg2.columns.birthDate.name
 
         assertNotSame gridCfg1.columns, gridCfg2.columns
+        assertNotSame gridCfg1.columns.birthDate, gridCfg2.columns.birthDate
+        assertNotSame gridCfg1.columns.birthDate.jqgrid, gridCfg2.columns.birthDate.jqgrid
         assertNotSame gridCfg1.dynamicProperties, gridCfg2.dynamicProperties
 
         gridCfg1.xx = 0
@@ -393,7 +396,7 @@ class EasygridServiceTests extends AbstractServiceTest {
 
 //        EasygridContextHolder.setLocalGridConfig(customGridConfig)
         easygridService.addDefaultValues(customGridConfig, defaultValues)
-        customGridConfig.formats = [(Calendar): { it.format("MM/dd/yyyy") }]
+        customGridConfig.formats = ["java.util.Calendar": { it.format("MM/dd/yyyy") }]
 
         assertEquals 'Fyodor Dostoyevsky', easygridService.valueOfColumn(customGridConfig.columns[1], [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', age: (Calendar.getInstance().get(Calendar.YEAR) - 1821), birthDate: new GregorianCalendar(1821, 10, 11)], -1)
 

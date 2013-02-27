@@ -15,7 +15,6 @@ class GridConfig {
     String id
 
     // the columns
-//    ColumnsConfig columns = new ColumnsConfig()
     ListMapWrapper<ColumnConfig> columns = new ListMapWrapper<ColumnConfig>('name')
 
     // datasource settings
@@ -47,4 +46,8 @@ class GridConfig {
 
     // global filter
     Closure globalFilterClosure
+
+    // the filter form
+    ListMapWrapper<FilterFieldConfig> filterForm = new ListMapWrapper<FilterFieldConfig>('name')
+
 }

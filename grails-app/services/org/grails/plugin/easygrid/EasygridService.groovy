@@ -207,8 +207,8 @@ class EasygridService {
             }
 
             // add default filterClosure
-            if (column.enableFilter && column.filterClosure == null && column.filterFieldType ) {
-                assert !column.property.contains('.') : "Currently default properties are supported only for simple properties. Please add the filter closure for ${column.name}"
+            if (column.enableFilter && column.filterClosure == null && column.filterFieldType) {
+                assert !column.property.contains('.'): "Currently default properties are supported only for simple properties. Please add the filter closure for ${column.name}"
                 def filterClosure = defaultValues?.dataSourceImplementations?."${gridConfig.dataSourceType}"?.filters?."${column.filterFieldType}"
                 assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
                 column.filterClosure = filterClosure
@@ -307,18 +307,30 @@ todo   validation
                 }
 */
 
-                if (filters == null){
+                if (filters == null) {
                     filters = []
                 }
 
+                // add the selection component constraint filter closure
+                // todo - move to AutocompleteService
                 if (params.selectionComp && gridConfig.autocomplete.constraintsFilterClosure) {
                     //add a new criteria
                     filters.add new Filter(gridConfig.autocomplete.constraintsFilterClosure)
                 }
 
-                if (gridConfig.globalFilterClosure){
+                if (gridConfig.globalFilterClosure) {
                     filters.add new Filter(gridConfig.globalFilterClosure)
                 }
+
+                //add the search form filters
+                def searchParams = params.keySet().intersect(gridConfig.filterForm.collect { it.name })
+                searchParams.each { param ->
+                    def filterForm = gridConfig.filterForm[param]
+                    if (filterForm?.filterClosure) {
+                        filters.add(new Filter(filterForm))
+                    }
+                }
+
 
                 def rows = dataSourceService.list(listParams, filters)
 
@@ -359,7 +371,7 @@ todo   validation
         }
 
         // apply the default value formats
-        def formatClosure = gridConfig.formats.find { clazz, closure -> clazz.isAssignableFrom(val.getClass()) }?.value
+        def formatClosure = gridConfig.formats.find { clazz, closure -> Class.forName(clazz).isAssignableFrom(val.getClass()) }?.value
         formatClosure ? formatClosure.call(val) : val
     }
 

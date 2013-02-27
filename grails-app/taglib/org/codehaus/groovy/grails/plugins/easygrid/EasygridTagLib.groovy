@@ -1,6 +1,8 @@
 package org.codehaus.groovy.grails.plugins.easygrid
 
+import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.commons.ControllerArtefactHandler
+import org.codehaus.groovy.grails.plugins.web.taglib.FormTagLib
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 
@@ -9,6 +11,7 @@ import org.grails.plugin.easygrid.GridUtils
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
+@Slf4j
 class EasygridTagLib {
 
     static namespace = "grid"
@@ -37,7 +40,7 @@ class EasygridTagLib {
     }
 
     /**
-     * a simple excel export button for the grid
+     * renders export buttons for the grid
      *
      * @attr name REQUIRED - the name of the grid
      * @attr id - the javascript id of the grid - if different from the name
@@ -55,6 +58,28 @@ class EasygridTagLib {
     }
 
     /**
+     * renders the filter form
+     *
+     * @attr name REQUIRED - the name of the grid
+     * @attr id - the javascript id of the grid - if different from the name
+     * @attr controller - the controller where the grid is defined ( by default the current controller)
+     */
+    def filterForm = { attrs, body ->
+        if (attrs.id == null) {
+            attrs.id = attrs.name
+        }
+
+        def gridConfig = getGridConfig(attrs)
+        def model = easygridService.htmlGridDefinition(gridConfig)
+        if (model) {
+            model.attrs = attrs
+//            out << render(template: gridConfig.gridRenderer, model: model)
+            out << render(template: '/templates/easygrid/filterFormRenderer', model: model)
+        }
+    }
+
+    /**
+     * todo - nested ca sa fie coerent si sa poti sa ai si griduri fara coloane
      * Generates a selection widget -
      * which is a replacement for drop-down boxes, when the data to select from is larger
      * It features a input ( decorated with jquery-ui autocomplete_)
@@ -75,16 +100,30 @@ class EasygridTagLib {
      * @attr disabled - disables the component
      */
     def selection = { attrs, body ->
+        def gridConfig = getGridConfig([name: attrs.gridName, controller: attrs.controller])
         attrs.disabled = attrs.disabled ? true : false
         attrs.id = attrs.id ?: attrs.name
+
+        //todo -mutate in config
         attrs.title = attrs.title ?: 'default.selectionComponent.title'
         attrs.width = attrs.width ?: 940
         attrs.height = attrs.height ?: 400
         attrs.showAutocompleteBox = (attrs.showAutocompleteBox != null) ? attrs.showAutocompleteBox : true
         attrs.disabled = (attrs.disabled != null) ? attrs.disabled : false
 
+        attrs.showSeparateLabel = (attrs.showSeparateLabel != null) ? attrs.showSeparateLabel: false
+        attrs.autocompleteSize = attrs.autocompleteSize ?: (attrs.showSeparateLabel ? 30:2)
+
+
         def template = grailsApplication.config.easygrid.defaults.autocomplete.template
         out << render(plugin: 'easygrid', template: template, model: [attrs: attrs])
+    }
+
+
+    def autocomplete = { attrs, body ->
+        def buffer = new StringWriter()
+        new FormTagLib().fieldImpl(buffer, attrs)
+
     }
 
     /**
@@ -109,11 +148,15 @@ class EasygridTagLib {
     private GridConfig getGridConfig(attrs, ignoreProps = []) {
         def instance = attrs.controllerInstance ?: grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, attrs.controller ?: controllerName).newInstance()
         assert instance
-        def gridConfig = instance.gridsConfig."${attrs.name}".deepClone()
+        GridConfig gridConfig = instance.gridsConfig."${attrs.name}".deepClone()
 
         //overwrite grid properties
         attrs.findAll { !(it.key in (['name', 'id', 'controller'] +ignoreProps)) }.each { k, v ->
-            GridUtils.setNestedPropertyValue(k, gridConfig, v)
+            try {
+                GridUtils.setNestedPropertyValue(k, gridConfig, v)
+            } catch (any) {
+                log.error("Could not set property '${k}' on grid '${gridConfig.id}'. Ignoring...", any)
+            }
         }
         gridConfig
     }

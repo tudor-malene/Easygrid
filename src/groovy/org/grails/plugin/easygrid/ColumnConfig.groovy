@@ -10,9 +10,9 @@ import org.grails.plugin.easygrid.ast.DynamicConfig
  */
 @DynamicConfig
 @AutoClone
-class ColumnConfig {
+class ColumnConfig extends FilterableConfig{
 
-    String name   // the name of the column - used for accessing the column in th grid or for other configurations ( like property or label)
+//    String name   // the name of the column - used for accessing the column in th grid or for other configurations ( like property or label)
 
     String label   // the label that represents the header of the column
 
@@ -30,7 +30,7 @@ class ColumnConfig {
     // filtering of data settings
     Boolean enableFilter   // flag that specifies if filtering should be enabled on this column
     String filterFieldType  // one of the predefined filters defined for each datasource
-    Closure filterClosure    // a closure called when filtering on a column from the UI ( either specified directly or through the filterFieldType
+//    Closure filterClosure    // a closure called when filtering on a column from the UI ( either specified directly or through the filterFieldType
 
     Boolean sortable // flag to enable sortable
 

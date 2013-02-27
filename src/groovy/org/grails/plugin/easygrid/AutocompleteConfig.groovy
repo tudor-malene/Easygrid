@@ -25,4 +25,6 @@ class AutocompleteConfig {
 
     Integer maxRows  //maximum rows to be shown in the jquery autocomplete widget
 
+    Boolean showSeparateLabel // flag that indicates if the selection widget should be rendered with a seperate label
+
 }

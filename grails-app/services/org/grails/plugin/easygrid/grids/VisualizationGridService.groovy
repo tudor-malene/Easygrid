@@ -42,7 +42,8 @@ class VisualizationGridService {
     def filters() {
         if (params._filter) {
             params.findAll { k, v -> v }.collect { k, v -> k }.intersect(gridConfig.columns.collect { it.name }).inject([]) { list, param ->
-                def column = gridConfig.columns.find { col -> col.name == param }
+//                def column = gridConfig.columns.find { col -> col.name == param }
+                def column = gridConfig.columns[param]
                 column ? (list + new Filter(column)) : list
             }
         }

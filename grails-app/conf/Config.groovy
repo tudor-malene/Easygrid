@@ -71,7 +71,6 @@ easygrid {
         enableFilter = true
         addNavGrid = true
 
-
         //default export settings for various formats
         export {
             exportService = org.grails.plugin.easygrid.EasygridExportService
@@ -82,10 +81,9 @@ easygrid {
             // csv settings
             csv {
                 separator = ','
-                quoteCharacter  = '"'
+                quoteCharacter = '"'
             }
             csv['header.enabled'] = true
-
 
             // excel settings
             excel['header.enabled'] = true
@@ -110,7 +108,6 @@ easygrid {
             pdf['border.color'] = java.awt.Color.BLACK
             pdf['pdf.orientation'] = 'landscape'
 
-
             // rtf settings
             rtf['header.enabled'] = true
             rtf {
@@ -121,7 +118,7 @@ easygrid {
             }
 
             // xml settings
-            xml['xml.root']= { gridConfig ->
+            xml['xml.root'] = { gridConfig ->
                 //defaults to the export title
                 gridConfig.export.export_title
             }
@@ -183,9 +180,9 @@ easygrid {
             dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
             filters {
                 //default search closures for different column types
-                text = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
-                number = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
-                date = { Filter filter -> eq(filter.column.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
+                text = { Filter filter -> ilike(filter.filterable.name, "%${filter.paramValue}%") }
+                number = { Filter filter -> eq(filter.filterable.name, filter.paramValue as int) }
+                date = { Filter filter -> eq(filter.filterable.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
             }
         }
 
@@ -195,9 +192,9 @@ easygrid {
             dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
             filters {
                 //default search closures
-                text = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
-                number = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
-                date = { Filter filter -> eq(filter.column.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
+                text = { Filter filter -> ilike(filter.filterable.name, "%${filter.paramValue}%") }
+                number = { Filter filter -> eq(filter.filterable.name, filter.paramValue as int) }
+                date = { Filter filter -> eq(filter.filterable.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
             }
         }
 
@@ -206,9 +203,9 @@ easygrid {
             dataSourceService = org.grails.plugin.easygrid.datasource.ListDatasourceService
             filters {
                 //default search closures
-                text = { Filter filter, row -> row[filter.column.name].contains filter.paramValue }
-                number = { Filter filter, row -> row[filter.column.name] == filter.paramValue as int }
-                date = { Filter filter, row -> row[filter.column.name] == new SimpleDateFormat(stdDateFormat).parse(filter.paramValue) }
+                text = { Filter filter, row -> row[filter.filterable.name].contains filter.paramValue }
+                number = { Filter filter, row -> row[filter.filterable.name] == filter.paramValue as int }
+                date = { Filter filter, row -> row[filter.filterable.name] == new SimpleDateFormat(stdDateFormat).parse(filter.paramValue) }
             }
         }
 
@@ -228,8 +225,8 @@ easygrid {
             gridImplService = org.grails.plugin.easygrid.grids.ClassicGridService
             inlineEdit = false
             formats = [
-                    (Date): { it.format(stdDateFormat) },
-                    (Boolean): { it ? "Yes" : "No" }
+                    "java.util.Date": { it.format(stdDateFormat) },
+                    "java.lang.Boolean": { it ? "Yes" : "No" }
             ]
         }
 
@@ -245,9 +242,9 @@ easygrid {
             // using the named formatters ( defined below )
             // using the default type formats ( defined here ) - where you specify the type of data & the format closure
             formats = [
-                    (Date): { it.format(stdDateFormat) },
-                    (Calendar): { Calendar cal -> cal.format(stdDateFormat) },
-                    (Boolean): { it ? "Yes" : "No" }
+                    "java.util.Date": { it.format(stdDateFormat) },
+                    "java.util.Calendar": { Calendar cal -> cal.format(stdDateFormat) },
+                    "java.lang.Boolean": { it ? "Yes" : "No" }
             ]
         }
 
@@ -257,8 +254,8 @@ easygrid {
             gridRenderer = '/templates/dataTablesGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date): { it.format(stdDateFormat) },
-                    (Boolean): { it ? "Yes" : "No" }
+                    "java.util.Date": { it.format(stdDateFormat) },
+                    "java.lang.Boolean": { it ? "Yes" : "No" }
             ]
         }
 
@@ -268,7 +265,7 @@ easygrid {
             gridRenderer = '/templates/visualizationGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date): { def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal }, //wtf?
+                    "java.util.Date": { def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal } //wtf?
             ]
         }
 

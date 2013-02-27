@@ -12,7 +12,7 @@
 
         <g:if test="${gridConfig.visualization.loadAllData}">
         // Send the query with a callback function.
-        query.send(handleQueryResponse);
+        query.send(handleQueryResponse${attrs.id});
         //todo - add options
 
         </g:if>
@@ -31,7 +31,7 @@
 
     }
 
-    function handleQueryResponse(response) {
+    function handleQueryResponse${attrs.id}(response) {
 //        console.log(response);
         if (response.isError()) {
             alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());

@@ -1,5 +1,6 @@
 package org.grails.plugin.easygrid
 
+import grails.util.Environment
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import org.springframework.core.NamedThreadLocal
@@ -99,6 +100,9 @@ class EasygridContextHolder {
      * @return
      */
     static classReloaded() {
+        if (Environment.current != Environment.DEVELOPMENT){
+            return
+        }
         writeLock.lock()
         try {
             log.debug 'reload grids'

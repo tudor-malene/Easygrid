@@ -10,7 +10,7 @@ import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 class Filter {
 
     // the column on which the filter was applied
-    ColumnConfig column
+    FilterableConfig filterable
 
     // the name of the request parameter
     String paramName
@@ -27,11 +27,11 @@ class Filter {
 //    def convertedValue - todo : convert type
     boolean global = false
 
-    public Filter(ColumnConfig columnConfig) {
+    public Filter(FilterableConfig filterableConfig) {
         init()
-        this.column = columnConfig
-        this.searchFilter = columnConfig.filterClosure
-        this.paramName = columnConfig.name
+        this.filterable = filterableConfig
+        this.searchFilter = filterableConfig.filterClosure
+        this.paramName = filterableConfig.name
         this.paramValue = this.params[this.paramName]
     }
 
