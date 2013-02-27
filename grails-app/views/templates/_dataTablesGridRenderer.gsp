@@ -1,3 +1,15 @@
+<script type="text/javascript">
+    var ${attrs.id}FilterParams ;
+    // implementation to work with the dynamic search form
+    function filterForm${attrs.id}(form){
+        ${attrs.id}FilterParams  = jQuery(form).serializeArray();
+        var dt = $('#${attrs.id}_datatable').dataTable();
+        dt._fnAjaxUpdate(dt.fnSettings());
+        return false;
+    }
+
+</script>
+
 <script type="text/javascript">jQuery(function () {
 
     var oTable = $('#${attrs.id}_datatable').dataTable({
@@ -9,6 +21,11 @@
         bFilter: true,
         "bStateSave": false,
         'sPaginationType': 'full_numbers',
+        "bSort": true,
+        "bProcessing": true,
+        "bServerSide": true,
+        "sAjaxSource": "${g.createLink(action: "${gridConfig.id}Rows")}",
+
         "fnInitComplete": function () {
             //hack - removes the filter div
             $('#${attrs.id}_datatable_filter').remove();
@@ -30,10 +47,14 @@
         },
         "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         },
-        "bSort": true,
-        "bProcessing": true,
-        "bServerSide": true,
-        "sAjaxSource": "${g.createLink(action: "${gridConfig.id}Rows")}",
+        "fnServerParams": function ( aoData ) {
+            if(${attrs.id}FilterParams){
+                jQuery.each(${attrs.id}FilterParams, function() {
+                    aoData.push(this);
+                });
+            }
+        },
+
         "aoColumns": [
             <g:each in="${gridConfig.columns}" var="col" status="idx">
             {   "sName": "${col.name}",
@@ -101,6 +122,7 @@
         <g:each in="${gridConfig.columns}" var="col">
             <td>
                 <g:if test="${(gridConfig.fixedColumns != 'true') &&gridConfig.enableFilter && col.enableFilter}">
+                %{--todo - add variables--}%
                     <input type="text" name="search_${col.name}" class="search_init" size="10"/>
                 </g:if>
                 <g:else>

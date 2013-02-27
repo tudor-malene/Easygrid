@@ -1,4 +1,16 @@
 <script type="text/javascript">
+    // implementation to work with the dynamic search form
+    function filterForm${attrs.id}(form){
+        var ser = jQuery(form).serialize();
+        console.log(ser);
+        dataSourceUrl = baseDataSourceUrl + "?" + ser;
+        init${attrs.id}();
+        return false;
+    }
+
+</script>
+
+<script type="text/javascript">
     google.load('visualization', '1', {'packages':['table']});
     google.setOnLoadCallback(init${attrs.id});
     var baseDataSourceUrl = '${g.createLink(action: "${gridConfig.id}Rows")}';
@@ -12,7 +24,7 @@
 
         <g:if test="${gridConfig.visualization.loadAllData}">
         // Send the query with a callback function.
-        query.send(handleQueryResponse${attrs.id});
+        query.send(handleQueryResponse);
         //todo - add options
 
         </g:if>
@@ -31,7 +43,7 @@
 
     }
 
-    function handleQueryResponse${attrs.id}(response) {
+    function handleQueryResponse(response) {
 //        console.log(response);
         if (response.isError()) {
             alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
@@ -63,6 +75,7 @@
 
 
 %{--create a very basic search form--}%
+%{--
 <div id="${attrs.id}_FilterDiv">
     <form name="${attrs.id}_FilterForm" onsubmit="return rewriteDatasource${attrs.id}(this)" action="${gridConfig.id}Rows">
         <fieldset class="form">
@@ -80,6 +93,7 @@
     </form>
 
 </div>
+--}%
 
 <div id="${attrs.id}_div"></div>
 
