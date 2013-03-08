@@ -3,6 +3,8 @@ package org.grails.plugin.easygrid
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.junit.Before
+import spock.lang.Shared
+import spock.lang.Stepwise
 
 import static org.junit.Assert.*
 
@@ -11,16 +13,12 @@ import static org.junit.Assert.*
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Mock(TestDomain)
-@TestFor(TestDomainController)
-class FilterFormTests extends AbstractServiceTest {
+class FilterFormSpec extends AbstractBaseTest {
 
-    GridConfig filterFormGridConfig
+    static transactional = true
+    @Shared GridConfig filterFormGridConfig
 
-    @Before
-    void setup() {
-        super.setup()
-
+    def initGrids() {
         filterFormGridConfig = generateConfigForGrid {
             id 'filterFormGridConfig'
             dataSourceType 'gorm'
@@ -46,18 +44,22 @@ class FilterFormTests extends AbstractServiceTest {
     }
 
 
-    void testFilterFormInit() {
+    def "testFilterFormInit"() {
 
-        assertEquals 2, filterFormGridConfig.filterForm.size()
-        assertEquals 'filterForm.testStringProperty', filterFormGridConfig.filterForm['filterForm.testStringProperty'].name
+        expect:
+        2 == filterFormGridConfig.filterForm.size()
+        'filterForm.testStringProperty' == filterFormGridConfig.filterForm['filterForm.testStringProperty'].name
 
     }
 
-    void testFormFilter(){
+    def "testFormFilter"(){
+        given:
         easygridService.addDefaultValues(filterFormGridConfig, defaultValues)
         populateTestDomain()
         params['filterForm.testStringProperty']='1'
+        when:
         def data = easygridService.gridData(filterFormGridConfig)
+        then:
         println "data = $data"
     }
 

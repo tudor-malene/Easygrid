@@ -1,16 +1,18 @@
 package org.grails.plugin.easygrid
 
-import static org.junit.Assert.*
+import spock.lang.Specification
+
 
 /**
  * test class for the EasyGridASTTransformation transformation
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-class EasygridTransformationTest extends GroovyTestCase {
+class EasygridTransformationSpec extends Specification {
 
-    void testEasygridControllerTransformation() {
+    def "test Easygrid Controller Transformation"() {
 
+        given:
         def c = new GroovyClassLoader().parseClass('''
             package com.example
             import org.grails.plugin.easygrid.Easygrid
@@ -40,39 +42,47 @@ class EasygridTransformationTest extends GroovyTestCase {
 
         def instance = c.newInstance()
 
-        assert instance.hasProperty('easygridService')
+        expect:
+        instance.hasProperty('easygridService')
 
-        assert instance.hasProperty('gridsConfig')
+        instance.hasProperty('gridsConfig')
 
-        assert instance.respondsTo('testGridRows')
-        assert instance.respondsTo('visGridRows')
+        instance.respondsTo('testGridRows')
+        instance.respondsTo('visGridRows')
 
-        assert instance.respondsTo('testGridExport')
-        assert instance.respondsTo('visGridExport')
+        instance.respondsTo('testGridExport')
+        instance.respondsTo('visGridExport')
 
-        assert instance.respondsTo('testGridInlineEdit')
-        assert instance.respondsTo('visGridInlineEdit')
+        instance.respondsTo('testGridInlineEdit')
+        instance.respondsTo('visGridInlineEdit')
 
-        assert instance.respondsTo('testGridAutocompleteResult')
-        assert instance.respondsTo('visGridAutocompleteResult')
+        instance.respondsTo('testGridAutocompleteResult')
+        instance.respondsTo('visGridAutocompleteResult')
 
-        assert instance.respondsTo('testGridHtml')
-        assert instance.respondsTo('visGridHtml')
+        instance.respondsTo('testGridHtml')
+        instance.respondsTo('visGridHtml')
     }
 
-    void testGridCOnfig(){
+    def "test GridConfig"(){
+        given:
         GridConfig config = new GridConfig()
-        config.blabla = 1
-        assertEquals 1, config.blabla
 
+        when:
+        config.blabla = 1
+        then:
+        1== config.blabla
+
+        when:
         ColumnConfig cc = new ColumnConfig()
         cc.blabla = 1
-        assertEquals 1, cc.blabla
+        then:
+        1== cc.blabla
     }
 
 
-    void testDynamicConfigAnnotation() {
+    def "test Dynamic Config Annotation"() {
 
+        given:
         def c = new GroovyClassLoader().parseClass('''
             package com.example
             import org.grails.plugin.easygrid.ast.DynamicConfig
@@ -87,13 +97,14 @@ class EasygridTransformationTest extends GroovyTestCase {
 
         def instance = c.newInstance()
 
-        //static
+        when: "static"
         instance.prop1 = '1'
-        assertEquals '1', instance.prop1
+        then:
+        '1' == instance.prop1
 
-        //dynamic
+        when: "dynamic"
         instance.prop2 = '2'
-        assertEquals '2', instance.prop2
-
+        then:
+        '2' == instance.prop2
     }
 }

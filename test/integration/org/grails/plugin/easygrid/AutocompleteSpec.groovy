@@ -2,6 +2,8 @@ package org.grails.plugin.easygrid
 
 import grails.converters.JSON
 import groovy.json.JsonSlurper
+import spock.lang.Shared
+import spock.lang.Stepwise
 
 import static org.junit.Assert.*
 import grails.test.mixin.Mock
@@ -14,20 +16,17 @@ import org.junit.Before
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Mock(TestDomain)
-@TestFor(TestDomainController)
-class AutocompleteTests extends AbstractServiceTest {
+class AutocompleteSpec extends AbstractBaseTest {
+
+    static transactional = true
 
     def autocompleteService
 
-    def autocompleteGridConfig
-    def autocomplete1GridConfig
+    @Shared def autocompleteGridConfig
+    @Shared def autocomplete1GridConfig
 
 
-    @Before
-    void setup() {
-        super.setup()
-
+    def initGrids() {
         autocompleteGridConfig = generateConfigForGrid {
             id 'autocompleteGridConfig'
             dataSourceType 'domain'
@@ -53,46 +52,64 @@ class AutocompleteTests extends AbstractServiceTest {
             }
         }
 
-        populateTestDomain(100)
     }
 
-    void testAutocompleteInit() {
 
-        assertEquals 'testStringProperty', autocompleteGridConfig.autocomplete.labelProp
-        assertNotNull autocompleteGridConfig.autocomplete.textBoxFilterClosure
+    def "testAutocompleteInit"() {
+
+        expect:
+        'testStringProperty' == autocompleteGridConfig.autocomplete.labelProp
+        autocompleteGridConfig.autocomplete.textBoxFilterClosure !=null
+
+        when:
         easygridService.addDefaultValues(autocompleteGridConfig, defaultValues)
-        assertEquals 'id', autocompleteGridConfig.autocomplete.idProp
+
+        then:
+        'id' == autocompleteGridConfig.autocomplete.idProp
 
     }
 
-    void testDefaultValus() {
+    def "testDefaultValues"() {
 
+        when:
         easygridService.addDefaultValues(autocomplete1GridConfig, defaultValues)
 
-        assertEquals 'id', autocomplete1GridConfig.autocomplete.idProp
-        assertEquals 'testStringProperty', autocomplete1GridConfig.autocomplete.labelProp
-        assertNotNull autocomplete1GridConfig.autocomplete.textBoxFilterClosure
+        then:
+        'id' == autocomplete1GridConfig.autocomplete.idProp
+        'testStringProperty' == autocomplete1GridConfig.autocomplete.labelProp
+        autocomplete1GridConfig.autocomplete.textBoxFilterClosure !=null
     }
 
 
-    void testBasicScenario() {
+    def "testBasicScenario"() {
 
+        given:
+        populateTestDomain(100)
         easygridService.addDefaultValues(autocompleteGridConfig, defaultValues)
 
+        when:
         params.term = '1'
         JSON result = autocompleteService.searchedElementsJSON(autocompleteGridConfig)
-        assertEquals 10, result.target.size()
 
+        then:
+        10 == result.target.size()
+
+        when:
         params.term = '100'
         result = autocompleteService.searchedElementsJSON(autocompleteGridConfig)
-        assertEquals 1, result.target.size()
-        assertEquals 100, result.target[0].id
+
+        then:
+        1 == result.target.size()
+        '100' == result.target[0].label
 
 
-        params.id = '10'
+        when:
+        params.id =  TestDomain.findByTestIntProperty(10).id
         result = autocompleteService.label(autocompleteGridConfig)
-        assertEquals 1, result.target.size()
-        assertEquals '10', result.target[0].label
+
+        then:
+        1 == result.target.size()
+        '10'== result.target[0].label
     }
 
 }

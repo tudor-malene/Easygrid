@@ -1,42 +1,39 @@
 package org.grails.plugin.easygrid
 
-import static org.junit.Assert.*
-import grails.test.mixin.Mock
-import grails.test.mixin.TestFor
-
-import org.junit.Before
+import spock.lang.Shared
+import spock.lang.Stepwise
 
 /**
  * test for the classic grid impl
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Mock(TestDomain)
-@TestFor(TestDomainController)
-class ClassicGridServiceTests extends  AbstractServiceTest{
+class ClassicGridServiceSpec extends AbstractBaseTest {
 
+    static transactional = true
+
+    @Shared
     def classicDomainGridConfig
 
-    @Before
-    void setUp(){
-        super.setup()
 
+    def initGrids() {
         classicDomainGridConfig = generateConfigForGrid {
             id 'classicTestDomainGrid'
             dataSourceType 'domain'
             domainClass TestDomain
             gridImpl 'classic'
-//            service ClassicGridService
-//            renderer '/templates/classicGridRenderer'
         }
-
     }
 
-    void testClassicGrid() {
+
+    def "testClassicGrid"() {
+        given:
         populateTestDomain(100)
 
+        when:
         easygridService.addDefaultValues(classicDomainGridConfig, defaultValues)
 
-        assertNotNull easygridService.htmlGridDefinition(classicDomainGridConfig)
+        then:
+        easygridService.htmlGridDefinition(classicDomainGridConfig) != null
     }
 }

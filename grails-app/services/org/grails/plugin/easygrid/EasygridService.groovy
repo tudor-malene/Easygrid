@@ -2,6 +2,7 @@ package org.grails.plugin.easygrid
 
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
+import org.codehaus.groovy.grails.commons.ControllerArtefactHandler
 import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
 
@@ -175,7 +176,7 @@ class EasygridService {
             if (column.type) {
                 def type = defaultValues?.columns?.types?."$column.type"
 
-                if (!type) {
+                if (type == null) {
                     throw new RuntimeException("type ${column.type} not defined for grid ${gridConfig.id}")
                 }
 
@@ -213,6 +214,11 @@ class EasygridService {
                 assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
                 column.filterClosure = filterClosure
             }
+        }
+
+        gridConfig.filterForm.each {FilterFieldConfig filterFieldConfig->
+            //todo - types
+            GridUtils.copyProperties defaultValues?.filterForm?.defaults, filterFieldConfig, 0
         }
 
         //calls the "addDefaultValues" method of the service class for the specific implementation of the grid
@@ -417,6 +423,29 @@ todo   validation
             setLocalGridConfig(gridConfig)
             exportService.export()
         }
+    }
+
+    /**
+     * returns the grid from the specified controller  ( by default the current )
+     * @param attrs
+     * @return
+     */
+    GridConfig getGridConfig(controller, gridName) {
+        grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, controller ).getPropertyValue('gridsConfig')[gridName].deepClone()
+    }
+
+
+    GridConfig overwriteGridProperties(gridConfig, attrs, ignoreProps = []) {
+
+        //overwrite grid properties
+        attrs.findAll { !(it.key in (['name', 'id', 'controller'] + ignoreProps)) }.each { k, v ->
+            try {
+                GridUtils.setNestedPropertyValue(k, gridConfig, v)
+            } catch (any) {
+                log.error("Could not set property '${k}' on grid '${gridConfig.id}'. Ignoring...", any)
+            }
+        }
+        gridConfig
     }
 
 /****    utility methods    ******/

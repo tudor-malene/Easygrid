@@ -353,6 +353,13 @@ easygrid {
         }
     }
 
+    //section to define the filter form configurations
+    filterForm {
+        defaults{
+
+        }
+    }
+
     // here we define different formatters
     // these are closures  which are called before the data is displayed to format the cell data
     // these are specified in the column section using : formatName

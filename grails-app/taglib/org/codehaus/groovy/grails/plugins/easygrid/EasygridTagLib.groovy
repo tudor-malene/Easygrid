@@ -31,12 +31,13 @@ class EasygridTagLib {
             attrs.id = attrs.name
         }
 
-        def gridConfig = getGridConfig(attrs)
-        def model = easygridService.htmlGridDefinition(gridConfig)
-        if (model) {
-            model.attrs = attrs
-            out << render(template: gridConfig.gridRenderer, model: model)
-        }
+            def gridConfig = easygridService.overwriteGridProperties(easygridService.getGridConfig(attrs.controller ?: controllerName, attrs.name), attrs)
+            def model = easygridService.htmlGridDefinition(gridConfig)
+
+            if (model) {
+                model.attrs = attrs
+                out << render(template: gridConfig.gridRenderer, model: model)
+            }
     }
 
     /**
@@ -52,7 +53,7 @@ class EasygridTagLib {
         }
 
         //ignore the attributes of the export tag
-        def gridConfig = getGridConfig(attrs, ['formats','params'])
+        def gridConfig = easygridService.overwriteGridProperties(easygridService.getGridConfig(attrs.controller ?: controllerName, attrs.name), attrs, ['formats', 'params'])
         attrs.action = "${gridConfig.id}Export"
         out << export.formats(attrs)
     }
@@ -69,7 +70,7 @@ class EasygridTagLib {
             attrs.id = attrs.name
         }
 
-        def gridConfig = getGridConfig(attrs)
+        def gridConfig = easygridService.getGridConfig(attrs.controller ?: controllerName, attrs.name)
         def model = easygridService.htmlGridDefinition(gridConfig)
         if (model) {
             model.attrs = attrs
@@ -100,7 +101,7 @@ class EasygridTagLib {
      * @attr disabled - disables the component
      */
     def selection = { attrs, body ->
-        def gridConfig = getGridConfig([name: attrs.gridName, controller: attrs.controller])
+//        def gridConfig = getGridConfig([name: attrs.gridName, controller: attrs.controller])
         attrs.disabled = attrs.disabled ? true : false
         attrs.id = attrs.id ?: attrs.name
 
@@ -111,8 +112,8 @@ class EasygridTagLib {
         attrs.showAutocompleteBox = (attrs.showAutocompleteBox != null) ? attrs.showAutocompleteBox : true
         attrs.disabled = (attrs.disabled != null) ? attrs.disabled : false
 
-        attrs.showSeparateLabel = (attrs.showSeparateLabel != null) ? attrs.showSeparateLabel: false
-        attrs.autocompleteSize = attrs.autocompleteSize ?: (attrs.showSeparateLabel ? 30:2)
+        attrs.showSeparateLabel = (attrs.showSeparateLabel != null) ? attrs.showSeparateLabel : false
+        attrs.autocompleteSize = attrs.autocompleteSize ?: (attrs.showSeparateLabel ? 30 : 2)
 
 
         def template = grailsApplication.config.easygrid.defaults.autocomplete.template
@@ -138,26 +139,5 @@ class EasygridTagLib {
         GridUtils.eachColumn(gridConfig) { col, idx ->
             out << body(col: col, idx: idx, last: (idx == gridConfig.columns.size() - 1))
         }
-    }
-
-    /**
-     * returns the grid from the specified controller  ( by default the current )
-     * @param attrs
-     * @return
-     */
-    private GridConfig getGridConfig(attrs, ignoreProps = []) {
-        def instance = attrs.controllerInstance ?: grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, attrs.controller ?: controllerName).newInstance()
-        assert instance
-        GridConfig gridConfig = instance.gridsConfig."${attrs.name}".deepClone()
-
-        //overwrite grid properties
-        attrs.findAll { !(it.key in (['name', 'id', 'controller'] +ignoreProps)) }.each { k, v ->
-            try {
-                GridUtils.setNestedPropertyValue(k, gridConfig, v)
-            } catch (any) {
-                log.error("Could not set property '${k}' on grid '${gridConfig.id}'. Ignoring...", any)
-            }
-        }
-        gridConfig
     }
 }

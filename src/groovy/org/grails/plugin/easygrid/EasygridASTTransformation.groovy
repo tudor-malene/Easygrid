@@ -55,7 +55,6 @@ class EasygridASTTransformation extends AbstractASTTransformation {
 
                         final static Logger easyGridLogger = LoggerFactory.getLogger(${source.nameWithoutPackage}.class)
 
-                        // added getters and setters  - because autowiring doesn't work without. (why?)
                         def easygridService
                         public EasygridService getEasygridService(){
                             return easygridService

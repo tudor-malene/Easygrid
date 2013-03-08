@@ -1,6 +1,8 @@
 package org.grails.plugin.easygrid
 
 import groovy.json.JsonSlurper
+import spock.lang.Shared
+import spock.lang.Stepwise
 
 import static org.junit.Assert.*
 import grails.test.mixin.Mock
@@ -19,24 +21,19 @@ import com.ibm.icu.util.TimeZone
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Mock(TestDomain)
-@TestFor(TestDomainController)
-class VisualizationGridServiceTests extends AbstractServiceTest {
+class VisualizationGridServiceSpec extends AbstractBaseTest {
 
-    def domainGridConfig
+    static transactional = true
+
     def visualizationGridService
+
+    @Shared
+    def domainGridConfig
+    @Shared
     def customVisGridConfig
 
-    @Before
-    void setUp() {
-        super.setup()
-/*
-        defaultValues.formats = [
-//            (Date): {it.format("MM/dd/yyyy")},
-                (Date): {def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(TimeZone.getTimeZone("GMT")); cal}, //wtf?
-//            (Boolean): { it ? "Yes" : "No" }
-        ]
-*/
+    def initGrids() {
+        //initialize the list grid
 
         //initialize the list grid
         domainGridConfig = generateConfigForGrid {
@@ -111,11 +108,14 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
         }
     }
 
-    void testGlobalFilter() {
 
+    def "testGlobalFilter"() {
+
+        given:
         def N = 100
         populateTestDomain(N)
 
+        when:
         params.tq = 'order by `testIntProperty` desc limit 50 offset 0'
         params.tqx = ''
 
@@ -127,28 +127,27 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
         easygridService.addDefaultValues(domainGridConfig, defaultValues)
 
         def errors = easygridService.verifyGridConstraints(domainGridConfig)
-        assertEquals 0, errors.size()
 
+        then:
+        0 == errors.size()
+
+        when:
         params.min = 1
         params.max = 3
 
         def data = easygridService.gridData(domainGridConfig)
         def response = new JsonSlurper().parseText data['google.visualization.Query.setResponse('.length()..-3]
 
-        assertEquals 3, response.table.rows.size()
+        then:
+        3 == response.table.rows.size()
     }
 
-    void testValueTypes() {
 
-        def cal = (com.ibm.icu.util.Calendar.getInstance())
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"))
-        println new DateTimeValue(cal)
-    }
-
-    void testCustomVisConfig() {
-
+    def "testCustomVisConfig"() {
+        given:
         easygridService.addDefaultValues(customVisGridConfig, defaultValues)
 
+        when:
         params.tq = 'order by `age` desc limit 10 offset 0'
         params.tqx = ''
         //hack
@@ -156,6 +155,8 @@ class VisualizationGridServiceTests extends AbstractServiceTest {
         request.setParameter('tqx', params.tqx)
 
         def result = easygridService.gridData(customVisGridConfig)
+
+        then:
         println result
     }
 }
