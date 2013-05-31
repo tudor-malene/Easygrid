@@ -2,6 +2,7 @@ package org.grails.plugin.easygrid
 
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
+import org.codehaus.groovy.grails.commons.ControllerArtefactHandler
 import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
 
@@ -79,8 +80,10 @@ class EasygridService {
     def initGridsClosure = { controller ->
         log.debug("run init grids for ${controller}")
 
+        def gridsClosure = controller.hasProperty('grids') ? controller.grids : ((Class) controller.getAnnotation(Easygrid).externalGrids()).grids
+
         //call the builder & add the default settings from the config
-        generateConfigForGrids(controller.grids).each { gridName, gridConfig ->
+        generateConfigForGrids(gridsClosure).each { gridName, gridConfig ->
 
             gridConfig.id = gridName
 

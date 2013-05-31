@@ -2,12 +2,12 @@ package org.grails.plugin.easygrid
 
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
+import org.codehaus.groovy.ast.AnnotationNode
 import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
-import org.codehaus.groovy.control.messages.LocatedMessage
-import org.codehaus.groovy.syntax.Token
 import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 
@@ -22,7 +22,7 @@ class EasygridASTTransformation extends AbstractASTTransformation {
 
     void visit(ASTNode[] nodes, SourceUnit source) {
         init(nodes, source)
-        addGridStuff(nodes[1])
+        addGridStuff(nodes[1], nodes[0])
     }
 
     /**
@@ -30,18 +30,30 @@ class EasygridASTTransformation extends AbstractASTTransformation {
      * @param source
      * @return
      */
-    void addGridStuff(ClassNode source) {
+    void addGridStuff(ClassNode source, AnnotationNode annotation) {
         def phase = CompilePhase.SEMANTIC_ANALYSIS
 
         def gridNames = []
 
-        assert source.getField('grids')
-
-        source.getField('grids').initialExpression.code.statements.each {
-            gridNames.add it.expression.method.value
-        }
-
+        FieldNode grids;
         try {
+            // if an externalGrids file configured - take the config from there
+            if (annotation.members?.externalGrids?.type) {
+                grids = annotation.members.externalGrids.type.getField('grids')
+//                grids.name = 'grids'
+                assert grids.hasInitialExpression()
+//                source.addField(grids)
+
+            } else {
+                grids = source.getField('grids')
+            }
+
+            assert grids
+
+            grids.initialExpression.code.statements.each {
+                gridNames.add it.expression.method.value
+            }
+
             //inject services & init method
             List<ASTNode> generalAST = new AstBuilder().buildFromString(phase, false,
                     $/
@@ -55,7 +67,6 @@ class EasygridASTTransformation extends AbstractASTTransformation {
 
                         final static Logger easyGridLogger = LoggerFactory.getLogger(${source.nameWithoutPackage}.class)
 
-                        // added getters and setters  - because autowiring doesn't work without. (why?)
                         def easygridService
                         public EasygridService getEasygridService(){
                             return easygridService
@@ -166,16 +177,7 @@ class EasygridASTTransformation extends AbstractASTTransformation {
                 }
             }
         } catch (any) {
-            String messageText = "error adding grid methods to: ${source.nameWithoutPackage}"
-//            Token token = Token.newString(
-//                    expression.getText(),
-//                    expression.getLineNumber(),
-//                    expression.getColumnNumber())
-            LocatedMessage message = new LocatedMessage(messageText, Token.NULL, sourceUnit)
-
-            sourceUnit
-                    .getErrorCollector()
-                    .addError(message);
+            addError("Error applying EasygridAstTransformation to: ${source.nameWithoutPackage}. Exception: ${any.message}", source)
         }
     }
 }
