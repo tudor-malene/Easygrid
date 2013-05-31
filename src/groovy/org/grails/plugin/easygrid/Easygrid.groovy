@@ -24,4 +24,10 @@ import java.lang.annotation.Target
 @Target(ElementType.TYPE)
 @GroovyASTTransformationClass("org.grails.plugin.easygrid.EasygridASTTransformation")
 @interface Easygrid {
+
+    /**
+     * a class that must have a static grids field containing definitions of grids that will be served by the current controller
+     * @return
+     */
+    Class externalGrids() default Object.class
 }

@@ -80,8 +80,10 @@ class EasygridService {
     def initGridsClosure = { controller ->
         log.debug("run init grids for ${controller}")
 
+        def gridsClosure = controller.hasProperty('grids') ? controller.grids : ((Class) controller.getAnnotation(Easygrid).externalGrids()).grids
+
         //call the builder & add the default settings from the config
-        generateConfigForGrids(controller.grids).each { gridName, gridConfig ->
+        generateConfigForGrids(gridsClosure).each { gridName, gridConfig ->
 
             gridConfig.id = gridName
 
@@ -216,7 +218,7 @@ class EasygridService {
             }
         }
 
-        gridConfig.filterForm.each {FilterFieldConfig filterFieldConfig->
+        gridConfig.filterForm.each { FilterFieldConfig filterFieldConfig ->
             //todo - types
             GridUtils.copyProperties defaultValues?.filterForm?.defaults, filterFieldConfig, 0
         }
@@ -431,7 +433,7 @@ todo   validation
      * @return
      */
     GridConfig getGridConfig(controller, gridName) {
-        grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, controller ).getPropertyValue('gridsConfig')[gridName].deepClone()
+        grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, controller).getPropertyValue('gridsConfig')[gridName].deepClone()
     }
 
 
