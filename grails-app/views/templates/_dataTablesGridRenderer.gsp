@@ -1,4 +1,5 @@
 <script type="text/javascript">
+
     var ${attrs.id}FilterParams ;
     // implementation to work with the dynamic search form
     function filterForm${attrs.id}(form){
@@ -8,9 +9,7 @@
         return false;
     }
 
-</script>
-
-<script type="text/javascript">jQuery(function () {
+jQuery(function () {
 
     var oTable = $('#${attrs.id}_datatable').dataTable({
 
