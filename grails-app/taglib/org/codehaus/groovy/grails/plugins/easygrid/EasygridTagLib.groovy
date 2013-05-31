@@ -31,13 +31,13 @@ class EasygridTagLib {
             attrs.id = attrs.name
         }
 
-            def gridConfig = easygridService.overwriteGridProperties(easygridService.getGridConfig(attrs.controller ?: controllerName, attrs.name), attrs)
-            def model = easygridService.htmlGridDefinition(gridConfig)
+        def gridConfig = easygridService.overwriteGridProperties(easygridService.getGridConfig(attrs.controller ?: controllerName, attrs.name), attrs)
+        def model = easygridService.htmlGridDefinition(gridConfig)
 
-            if (model) {
-                model.attrs = attrs
-                out << render(template: gridConfig.gridRenderer, model: model)
-            }
+        if (model) {
+            model.attrs = attrs
+            out << render(template: gridConfig.gridRenderer, model: model)
+        }
     }
 
     /**
@@ -121,11 +121,6 @@ class EasygridTagLib {
     }
 
 
-    def autocomplete = { attrs, body ->
-        def buffer = new StringWriter()
-        new FormTagLib().fieldImpl(buffer, attrs)
-
-    }
 
     /**
      * iterates the columns of a grid - depending on the context
