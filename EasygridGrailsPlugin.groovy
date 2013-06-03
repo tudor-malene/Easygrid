@@ -23,6 +23,9 @@ class EasygridGrailsPlugin {
 //            'jquery-ui': "1.8.14 > *"
 //    ]
 
+    //the location of external grids config - to enable reloading
+    def watchedResources = "file:./src/groovy/grids/**/*.groovy"
+
     def observe = ["controllers", "services"]
 
     def title = "Easygrid Plugin"
