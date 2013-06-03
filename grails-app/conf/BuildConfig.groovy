@@ -19,6 +19,7 @@ grails.project.dependency.resolution = {
             exclude (group: 'commons-lang', name: 'commons-lang')
         }
         compile('org.mvel:mvel2:2.1.3.Final')
+        test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
     }
 
     plugins {
@@ -36,7 +37,10 @@ grails.project.dependency.resolution = {
         runtime(':jquery-ui:1.8.24')
         runtime(':google-visualization:0.5.6')
 
-        //only for 2.2.0
-//        runtime ":resources:1.2.RC2"
+        test(":spock:0.7") {
+            exclude "spock-grails-support"
+        }
+
+        runtime ":resources:1.2"
     }
 }
