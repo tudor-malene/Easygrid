@@ -80,7 +80,7 @@ class EasygridService {
     def initGridsClosure = { controller ->
         log.debug("run init grids for ${controller}")
 
-        def gridsClosure = (controller.grids != null) ? controller.grids : ((Class) controller.getAnnotation(Easygrid).externalGrids()).grids
+        def gridsClosure = (controller.hasProperty('grids')) ? controller.grids : ((Class) controller.getAnnotation(Easygrid).externalGrids()).grids
 
         //call the builder & add the default settings from the config
         generateConfigForGrids(gridsClosure).each { gridName, gridConfig ->
