@@ -84,7 +84,8 @@ class EasygridASTTransformation extends AbstractASTTransformation {
                         }
 
                         def getGridsConfig(){
-                            easygridService.initGrids(${source.nameWithoutPackage})
+//                            easygridService.initGrids(${source.nameWithoutPackage})
+                            easygridService.initGrids(this)
                         }
 
                         //remove the stored params

@@ -209,7 +209,7 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
 
 
 
-    def " void testComplexQuery"() {
+    def "test Complex Query"() {
         given:
         populatePets()
         def petsGridConfig = generateConfigForGrid {
@@ -217,6 +217,7 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
             dataSourceType 'gorm'
             domainClass PetTest
 //            initialCriteria{
+//                createAlias "owner", "o"
 //            }
             columns {
                 id {
@@ -229,6 +230,8 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
                     }
                 }
                 'owner.name' {
+//                    name 'o.name'
+//                    property 'owner.name'
                     enableFilter true
                     jqgrid {
                     }
@@ -258,6 +261,14 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
 //        params._search='true'
 //        data = easygridService.gridData(petsGridConfig)
 //        println data
+
+        // sort by owner name
+//        when:
+//        params.sidx = 'owner.name'
+//        data = easygridService.gridData(petsGridConfig)
+//        then:
+//        5 == data.target.rows.size()
+//        'severin' == data.target.rows[0].cell[1]
     }
 
     //utility

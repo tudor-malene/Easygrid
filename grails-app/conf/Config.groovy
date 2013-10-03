@@ -225,8 +225,8 @@ easygrid {
             gridImplService = org.grails.plugin.easygrid.grids.ClassicGridService
             inlineEdit = false
             formats = [
-                    "java.util.Date": { it.format(stdDateFormat) },
-                    "java.lang.Boolean": { it ? "Yes" : "No" }
+                    (Date): { it.format(stdDateFormat) },
+                    (Boolean): { it ? "Yes" : "No" }
             ]
         }
 
@@ -242,9 +242,9 @@ easygrid {
             // using the named formatters ( defined below )
             // using the default type formats ( defined here ) - where you specify the type of data & the format closure
             formats = [
-                    "java.util.Date": { it.format(stdDateFormat) },
-                    "java.util.Calendar": { Calendar cal -> cal.format(stdDateFormat) },
-                    "java.lang.Boolean": { it ? "Yes" : "No" }
+                    (Date): { it.format(stdDateFormat) },
+                    (Calendar): { Calendar cal -> cal.format(stdDateFormat) },
+                    (Boolean): { it ? "Yes" : "No" }
             ]
         }
 
@@ -254,8 +254,8 @@ easygrid {
             gridRenderer = '/templates/dataTablesGridRenderer'
             inlineEdit = false
             formats = [
-                    "java.util.Date": { it.format(stdDateFormat) },
-                    "java.lang.Boolean": { it ? "Yes" : "No" }
+                    (Date): { it.format(stdDateFormat) },
+                    (Boolean): { it ? "Yes" : "No" }
             ]
         }
 
@@ -265,7 +265,7 @@ easygrid {
             gridRenderer = '/templates/visualizationGridRenderer'
             inlineEdit = false
             formats = [
-                    "java.util.Date": { def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal } //wtf?
+                    (Date): { def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal } //wtf?
             ]
         }
 

@@ -80,12 +80,18 @@ class EasygridService {
     def initGridsClosure = { controller ->
         log.debug("run init grids for ${controller}")
 
-        def gridsClosure = controller.hasProperty('grids') ? controller.grids : ((Class) controller.getAnnotation(Easygrid).externalGrids()).grids
+        Closure gridsClosure = (controller.grids != null) ? controller.grids : ((Class) controller.getAnnotation(Easygrid).externalGrids()).grids
+
+        gridsClosure = gridsClosure.dehydrate().rehydrate(null, controller, gridsClosure.thisObject)
 
         //call the builder & add the default settings from the config
         generateConfigForGrids(gridsClosure).each { gridName, gridConfig ->
 
             gridConfig.id = gridName
+
+            //set the instance of the controller where it was defined
+            //todo - what happens when it was defined externally
+            gridConfig.controller = controller
 
             //add default & types
             try {
@@ -379,7 +385,7 @@ todo   validation
         }
 
         // apply the default value formats
-        def formatClosure = gridConfig.formats.find { clazz, closure -> Class.forName(clazz).isAssignableFrom(val.getClass()) }?.value
+        def formatClosure = gridConfig.formats.find { clazz, closure -> clazz.isAssignableFrom(val.getClass()) }?.value
         formatClosure ? formatClosure.call(val) : val
     }
 

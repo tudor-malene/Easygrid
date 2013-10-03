@@ -7,24 +7,33 @@ import org.grails.plugin.easygrid.grids.TestGridService
 class TestDomainController {
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
+    def grailsApplication
     static grids = {
-        testGrid  {
+        testGrid {
             dataSourceType 'domain'
             domainClass TestDomain
             gridRenderer '/templates/testGridRenderer'
-            jqgrid{
+            jqgrid {
                 width 300
                 height 150
             }
         }
 
-        visGrid  {
+        testGlobalFilterGrid {
+            dataSourceType 'domain'
+            domainClass TestDomain
+            globalFilterClosure {
+                eq('testIntProperty', grailsApplication.domainClasses.size())
+            }
+        }
+
+        visGrid {
             dataSourceType 'domain'
             domainClass TestDomain
             gridImpl 'visualization'
         }
 
-        test1  {
+        test1 {
             dataSourceType 'domain'
             domainClass TestDomain
             gridRenderer '/templates/testGridRenderer'

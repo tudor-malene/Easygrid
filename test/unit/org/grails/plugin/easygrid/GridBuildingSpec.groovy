@@ -239,7 +239,7 @@ class GridBuildingSpec extends Specification {
         def customGridConfig = gridConfigs.authorGrid
         customGridConfig.id = 'authorGrid'
         easygridService.addDefaultValues(customGridConfig, defaultValues)
-        customGridConfig.formats = ["java.util.Calendar": { it.format("MM/dd/yyyy") }]
+        customGridConfig.formats = [(Calendar): { it.format("MM/dd/yyyy") }]
         def row = [id: 1, name: 'Fyodor Dostoyevsky', nation: 'russian', age: (Calendar.getInstance().get(Calendar.YEAR) - 1821), birthDate: new GregorianCalendar(1821, 10, 11)]
 
         then:

@@ -1,5 +1,6 @@
 package org.grails.plugin.easygrid
 
+import grails.converters.JSON
 import spock.lang.Shared
 
 /**
@@ -144,6 +145,13 @@ class JqgridSpec extends AbstractBaseTest {
         N/params.rows == gridElements.target.total
         params.rows == gridElements.target.rows.size()
 
+
+        when: "test global filter closure"
+        def controller = new TestDomainController()
+        controller.testGlobalFilterGridRows()
+
+        then:
+        '{"rows":[{"id":3,"cell":[3,3,"3"]}],"page":1,"records":1,"total":1}' == response.content.toString()
 
         when: "test a different page"
         params.page = 2
