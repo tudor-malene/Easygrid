@@ -4,6 +4,7 @@ import com.burtbeckwith.grails.plugins.dynamiccontroller.DynamicControllerManage
 import groovy.text.SimpleTemplateEngine
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
+import org.codehaus.groovy.grails.commons.GrailsClassUtils
 import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
 import org.slf4j.LoggerFactory
@@ -40,12 +41,10 @@ class EasygridInitService {
 
             def easyGridLogger = LoggerFactory.getLogger(controller.clazz)
 
-            //todo - pot sa bag gridurile dintr-un director intr-un controller
-            //todo - sa bag si guard aici si sa scap de metodele din easygridservice
             gridsConfig.each { String gridName, GridConfig gridConfig ->
 
                 def closureMap = [
-                        ("${gridName}Html".toString()): {
+                        html: {
                             easyGridLogger.debug("entering ${gridName}Html")
                             def model = easygridService.htmlGridDefinition(gridConfig)
                             if (model) {
@@ -53,39 +52,43 @@ class EasygridInitService {
                                 render(template: gridConfig.gridRenderer, model: model)
                             }
                         },
-                        ("${gridName}Rows".toString()): {
+                        rows: {
                             easyGridLogger.debug("entering ${gridName}Rows")
                             render easygridService.gridData(gridConfig)
                         },
-                        ("${gridName}Export".toString()): {
+                        export: {
                             easyGridLogger.debug("entering ${gridName}Export")
-                            easygridService.export(gridConfig)
+                            easygridDispatchService.callExport(gridConfig)
                         },
                 ]
 
 
                 if (grailsApplication.config?.easygrid?.gridImplementations[gridConfig.gridImpl]?.inlineEdit) {
-                    closureMap["${gridName}InlineEdit".toString()] = {
+                    closureMap.inlineEdit = {
                         easyGridLogger.debug("entering ${gridName}InlineEdit")
-                        def result = easygridService.inlineEdit(gridConfig)
+                        def result = easygridDispatchService.callGridImplInlineEdit(gridConfig)
 //                               render(template: gridsConfig['${gridName}'].editRenderer, model: result?.model)
                         render(template: gridConfig.editRenderer)
                     }
                 }
 
                 if (gridConfig.autocomplete) {
-                    closureMap["${gridName}AutocompleteResult".toString()] = {
+                    closureMap.autocompleteResult = {
                         easyGridLogger.debug("entering ${gridName}AutocompleteResult")
-                        render easygridService.searchedElementsJSON(gridConfig)
+                        render easygridDispatchService.callACSearchedElementsJSON(gridConfig)
 
                     }
-                    closureMap["${gridName}SelectionLabel".toString()] = {
+                    closureMap.selectionLabel = {
                         easyGridLogger.debug("entering ${gridName}SelectionLabel")
-                        render easygridService.label(gridConfig)
+                        render easygridDispatchService.callACLabel(gridConfig)
                     }
                 }
 
-                DynamicControllerManager.registerClosures controller.clazz.name, closureMap, '', grailsApplication
+                DynamicControllerManager.registerClosures(
+                        controller.clazz.name,
+                        closureMap.collectEntries { String mehodName, Closure closure -> ["${gridName}${mehodName.capitalize()}", { easygridService.guard(gridConfig, closure) }] }, // transform the name & guard all access
+                        null,
+                        grailsApplication)
             }
 
             easygridService.setGridRepository(grids)
@@ -103,8 +106,15 @@ class EasygridInitService {
     def Map<String, GridConfig> initControllerGrids(controller) {
 
         log.debug("   Run init grids for ${controller.class}")
+        def gridsClosure = GrailsClassUtils.getStaticFieldValue(controller.class, 'grids')
 
-        Closure gridsClosure = (controller.grids != null) ? controller.grids : ((Class) controller.getAnnotation(Easygrid).externalGrids()).grids
+        if (!gridsClosure) {
+            def externalGrids = controller.class.getAnnotation(Easygrid).externalGrids()
+            assert externalGrids: "You must define a static grids property in your controller or specify an external grids file"
+            gridsClosure = GrailsClassUtils.getStaticFieldValue(externalGrids, 'grids')
+        }
+
+        assert gridsClosure: "You must define a static grids property in your controller or specify an external grids file"
 
         //set the owner of the closures to the controller - so that services injected in the controller, or params, session, etc, can be used
         gridsClosure = gridsClosure.dehydrate().rehydrate(null, controller, gridsClosure.thisObject)
@@ -203,7 +213,7 @@ class EasygridInitService {
             GridUtils.copyProperties defaultValues.defaults.export, gridConfig.export
         }
         if (gridConfig.filterForm) {
-            GridUtils.copyProperties defaultValues.defaults.filterForm, gridConfig.filterForm
+            GridUtils.copyProperties defaultValues.filterForm.defaults, gridConfig.filterForm
         }
         if (gridConfig.autocomplete) {
             GridUtils.copyProperties defaultValues.defaults.autocomplete, gridConfig.autocomplete

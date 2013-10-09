@@ -237,22 +237,43 @@ class EasygridInitServiceSpec extends Specification {
 
     def "Controller grid initialized properly"() {
 
-        given:
-//        TestUtils.overrideGridConfigMethods{property, methodName, Object[] args ->
-//            if (property == 'dataSourceService' && methodName == 'generateDynamicColumns') {
-//                println "property = $property"
-//            }
-//            if (property == 'gridImplService' && methodName == 'dynamicProperties') {
-//                println "property = $property"
-//            }
-//        }
-//        TestUtils.mockGridConfigMethods ()
-        service.easygridDispatchService = [invokeMethod: { String name, Object args -> println "name = $name" }] as GroovyInterceptable
+        given: "mock the dispatch service"
+        service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
+
+        when:
         def grids = service.initControllerGrids(new TestDomainController())
 
-        expect:
+        then:
         4 == grids.size()
 
+    }
+
+    def "External grid initialized properly"() {
+
+        given: "mock the dispatch service"
+        service.easygridDispatchService = [invokeMethod: { String name, Object args ->  }] as GroovyInterceptable
+
+        when:
+        def grids = service.initControllerGrids(new TestController())
+
+        then:
+        1 == grids.size()
+        'testDomainGrid' == grids.testDomainGrid.id
+
+    }
+
+}
+
+@Easygrid(externalGrids = ExternalGrids)
+class TestController{
+}
+
+class ExternalGrids{
+    static grids = {
+        testDomainGrid {
+            dataSourceType 'domain'
+            domainClass TestDomain
+        }
     }
 
 }

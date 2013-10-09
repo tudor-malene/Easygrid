@@ -123,6 +123,11 @@ class EasygridDispatchService {
         getACService(gridConfig).searchedElementsJSON(gridConfig)
     }
 
+    /**
+     * for a given id , returns the label of that element
+     * @param gridConfig
+     * @return
+     */
     def callACLabel(gridConfig) {
         assert getACService(gridConfig).respondsTo('label')
         getACService(gridConfig).label(gridConfig)

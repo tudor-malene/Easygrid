@@ -8,7 +8,6 @@ import static org.grails.plugin.easygrid.EasygridContextHolder.*
 
 /**
  * main service class
- * - dispatches calls to the proper datasource & grid implementation
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
@@ -29,7 +28,6 @@ class EasygridService {
      */
     def htmlGridDefinition(GridConfig gridConfig) {
 
-        guard(gridConfig) {
             //call the   htmlGridDefinition from the implementation
 //            def result = gridConfig.callGridPropertyMethod('gridImplService', 'htmlGridDefinition')
             def result = easygridDispatchService.callGridImplHtmlGridDefinition(gridConfig)
@@ -45,7 +43,6 @@ class EasygridService {
 
             }
             result
-        }
     }
 
     /**
@@ -54,7 +51,6 @@ class EasygridService {
      * @return
      */
     def gridData(GridConfig gridConfig) {
-        guard(gridConfig) {
 
             //save or restore the search params
             GridUtils.restoreSearchParams(gridConfig)
@@ -87,7 +83,6 @@ class EasygridService {
             def nrRecords = easygridDispatchService.callDSCountRows(gridConfig, filters)
 
             easygridDispatchService.callGridImplTransform(gridConfig, rows, nrRecords, listParams)
-        }
     }
 
     /**
@@ -116,45 +111,6 @@ class EasygridService {
         }
 
         filters
-    }
-
-
-    def inlineEdit(gridConfig) {
-        guard(gridConfig) {
-//            gridConfig.callGridPropertyMethod('gridImplService', 'inlineEdit', params)
-            easygridDispatchService.callGridImplInlineEdit(gridConfig)
-        }
-    }
-
-    def export(gridConfig) {
-        guard(gridConfig) {
-//            gridConfig.callGridPropertyMethod('export.exportService', 'export')
-            easygridDispatchService.callExport(gridConfig)
-        }
-    }
-
-    /**
-     * called on each autocomplete call
-     * @param grid
-     * @return
-     */
-    def searchedElementsJSON(GridConfig gridConfig) {
-        guard(gridConfig) {
-//            gridConfig.callGridPropertyMethod('autocomplete.autocompleteService', 'searchedElementsJSON')
-            easygridDispatchService.callACSearchedElementsJSON(gridConfig)
-        }
-    }
-
-    /**
-     * for a given id , returns the label of that element
-     * @param grid
-     * @return
-     */
-    def label(GridConfig gridConfig) {
-        guard(gridConfig) {
-//            gridConfig.callGridPropertyMethod('autocomplete.autocompleteService', 'label')
-            easygridDispatchService.callACLabel(gridConfig)
-        }
     }
 
     /**
