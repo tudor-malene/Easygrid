@@ -13,13 +13,14 @@ import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.Filter
+import org.grails.plugin.easygrid.GridUtils
+import static org.grails.plugin.easygrid.EasygridContextHolder.*
 
 /**
  * service class that implements the google visualization grid
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Mixin(EasygridContextHolder)
 class VisualizationGridService {
 
     static transactional = false
@@ -33,13 +34,13 @@ class VisualizationGridService {
      * @param prop
      * @param column
      */
-    def dynamicProperties(GrailsDomainClassProperty prop, column) {
+    def dynamicProperties(gridConfig, column) {
         column.visualization ?: (column.visualization = [:])
-        column.visualization.valueType = getValueType(prop.type)
+        column.visualization.valueType = getValueType(column.valueType)
     }
 
 
-    def filters() {
+    def filters(gridConfig) {
         if (params._filter) {
             params.findAll { k, v -> v }.collect { k, v -> k }.intersect(gridConfig.columns.collect { it.name }).inject([]) { list, param ->
 //                def column = gridConfig.columns.find { col -> col.name == param }
@@ -49,7 +50,7 @@ class VisualizationGridService {
         }
     }
 
-    def listParams() {
+    def listParams(gridConfig) {
 
         def result = [:]
         Query query = new DataSourceRequest(request).query
@@ -66,12 +67,12 @@ class VisualizationGridService {
         result
     }
 
-    def transform(rows, nrRecords, listParams) {
-        DataTable dataTable = createDataTable(rows)
+    def transform(gridConfig, rows, nrRecords, listParams) {
+        DataTable dataTable = createDataTable(gridConfig, rows)
         DataSourceHelper.generateResponse(dataTable, new DataSourceRequest(request))
     }
 
-    def createDataTable(rows) {
+    def createDataTable(gridConfig, rows) {
         DataTable dataTable = new DataTable()
 
         //add table properties
@@ -94,7 +95,7 @@ class VisualizationGridService {
             TableRow row = new TableRow()
 
             gridConfig.columns.eachWithIndex { ColumnConfig col, idx ->
-                def val = easygridService.valueOfColumn(col, element, idx + 1)
+                def val = GridUtils.valueOfColumn(gridConfig, col, element, idx + 1)
                 //hack - createValue only takes strings
                 val = GString.isAssignableFrom(val.getClass()) ? val.toString() : val
                 TableCell cell = new TableCell(col.visualization.valueType.createValue(val))

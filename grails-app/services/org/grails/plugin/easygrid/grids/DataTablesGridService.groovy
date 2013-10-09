@@ -4,13 +4,13 @@ import grails.converters.JSON
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.Filter
-
+import org.grails.plugin.easygrid.GridUtils
+import static org.grails.plugin.easygrid.EasygridContextHolder.*
 /**
  * implementation for Datatable
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@Mixin(EasygridContextHolder)
 class DataTablesGridService {
 
     static transactional = false
@@ -37,7 +37,7 @@ string	mDataProp_(int)	The value specified by mDataProp for each column. This ca
 string	sEcho	Information for DataTables to use for rendering.
 */
 
-    def filters() {
+    def filters(gridConfig) {
         def filterClosures = []
         gridConfig.columns.findAll {it.enableFilter}.eachWithIndex {col, i ->
             if (params["bSearchable_$i"] && params["sSearch_$i"]) {
@@ -51,7 +51,7 @@ string	sEcho	Information for DataTables to use for rendering.
     }
 
 
-    def listParams() {
+    def listParams(gridConfig) {
         def maxRows = params.iDisplayLength ? (params.iDisplayLength as int) : grailsApplication.config?.easygrid?.defaults?.defaultMaxRows
         assert maxRows
 //        def currentPage = 1 + (params.iDisplayStart ? (params.iDisplayStart as int) : 0) / maxRows
@@ -88,7 +88,7 @@ string	sColumns	Optional - this is a string of column names, comma separated (us
 array	aaData	The data in a 2D array. Note that you can change the name of this parameter with sAjaxDataProp.
 */
 
-    def transform(rows, nrRecords, listParams) {
+    def transform(gridConfig,rows, nrRecords, listParams) {
         [
                 sEcho: params.sEcho as int,
                 iTotalRecords: nrRecords,
@@ -98,7 +98,7 @@ array	aaData	The data in a 2D array. Note that you can change the name of this p
                 aaData: rows.collect { element ->
                     def cell = []
                     gridConfig.columns.eachWithIndex { col, row ->
-                        cell.add easygridService.valueOfColumn(col, element, row + 1)
+                        cell.add GridUtils.valueOfColumn(gridConfig, col, element, row + 1)
                     }
                     cell
                 }

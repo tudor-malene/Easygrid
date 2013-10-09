@@ -1,3 +1,4 @@
+import org.grails.plugin.easygrid.AutocompleteService
 import org.grails.plugin.easygrid.Filter
 import org.grails.plugin.easygrid.GridUtils
 import org.grails.plugin.easygrid.grids.DataTablesGridService
@@ -169,6 +170,7 @@ easygrid {
             idProp = 'id'  // the name of the property of the id of the selected element (optionKey - in the replaced select tag)
             maxRows = 10 // the max no of elements to be displayed by the jquery autocomplete box
             template = '/templates/autocompleteRenderer' //the default autocomplete renderer
+            autocompleteService = org.grails.plugin.easygrid.AutocompleteService
         }
     }
 
@@ -354,9 +356,11 @@ easygrid {
     }
 
     //section to define the filter form configurations
+    //todo - default service & default template
     filterForm {
         defaults{
-
+            filterFormService = org.grails.plugin.easygrid.FilterFormService
+            filterFormTemplate =  '/templates/filterFormRenderer'
         }
     }
 
@@ -378,3 +382,27 @@ easygrid {
 
 grails.views.default.codec = "none" // none, html, base64
 grails.views.gsp.encoding = "UTF-8"
+
+// Uncomment and edit the following lines to start using Grails encoding & escaping improvements
+
+/* remove this line 
+// GSP settings
+grails {
+    views {
+        gsp {
+            encoding = 'UTF-8'
+            htmlcodec = 'xml' // use xml escaping instead of HTML4 escaping
+            codecs {
+                expression = 'html' // escapes values inside null
+                scriptlet = 'none' // escapes output from scriptlets in GSPs
+                taglib = 'none' // escapes output from taglibs
+                staticparts = 'none' // escapes output from static template parts
+            }
+        }
+        // escapes all not-encoded output at final stage of outputting
+        filteringCodecForContentType {
+            //'text/html' = 'html'
+        }
+    }
+}
+remove this line */

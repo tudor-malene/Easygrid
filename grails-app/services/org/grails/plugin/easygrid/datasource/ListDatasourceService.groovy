@@ -4,7 +4,7 @@ import groovy.util.logging.Slf4j
 import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.Filter
 import org.springframework.web.context.request.RequestContextHolder
-
+import static org.grails.plugin.easygrid.EasygridContextHolder.*
 /**
  * Datasource implementation
  * the rows are stored in a context ( by default 'session')
@@ -12,7 +12,6 @@ import org.springframework.web.context.request.RequestContextHolder
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Slf4j
-@Mixin(EasygridContextHolder)
 class ListDatasourceService {
 
     def verifyGridConstraints(gridConfig) {
@@ -36,7 +35,7 @@ class ListDatasourceService {
      * @param filters - the search filters
      * @return
      */
-    def list(Map listParams, filters = null) {
+    def list(gridConfig, Map listParams, filters = null) {
 
         def tempList = filters.inject(list) { list, Filter filter ->
             list.findAll getCriteria(filter)
@@ -69,7 +68,7 @@ class ListDatasourceService {
      * @param filters - when type==domain - it will be a criteria
      * @return
      */
-    def countRows(filters = null) {
+    def countRows(gridConfig, filters = null) {
         filters.inject(list) { list, Filter filter ->
             list.findAll getCriteria(filter)
         }.size()
@@ -130,7 +129,7 @@ class ListDatasourceService {
     }
 
 
-    def getList() {
+    def getList(gridConfig) {
         def ctx
         switch (gridConfig.context) {
             case null:

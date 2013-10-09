@@ -22,6 +22,63 @@ import org.mvel2.PropertyAccessException
 class GridUtils {
 
     /**
+     * return the value for a column from a row
+     * the main link between the datasource & the grid Implementation
+     * @param column - the column from the config
+     * @param element - the data
+     * @param row - the index - used for numberings
+     * @return
+     */
+    static valueOfColumn(gridConfig, ColumnConfig column, element, idx) {
+
+        def method = column.property ? this.&valueOfPropertyColumn : this.&valueOfClosureColumn
+
+        method(gridConfig, column, element, idx)
+    }
+
+
+    static valueOfPropertyColumn(gridConfig, ColumnConfig column, element, idx) {
+        assert column.property
+        def val = GridUtils.getNestedPropertyValue(column.property, element)
+
+        if (val == null) {
+            return null
+        }
+
+        //apply the format
+        if (column.formatter) {
+            return column.formatter(val)
+        }
+
+        // apply the default value formats
+        def formatClosure = gridConfig.formats.find { clazz, closure -> clazz.isAssignableFrom(val.getClass()) }?.value
+        formatClosure ? formatClosure.call(val) : val
+    }
+
+    /**
+     * returns the value from the "value" closure
+     * @param column
+     * @param element
+     * @param idx
+     * @return
+     */
+    static valueOfClosureColumn(gridConfig, ColumnConfig column, element, idx) {
+        assert column.value
+        Closure closure = column.value
+        switch (closure?.parameterTypes?.size()) {
+            case null:
+                return ''
+            case 1:
+                return closure.call(element)
+            case 2:
+                return closure.call(element, EasygridContextHolder.params)
+            case 3:
+                return closure.call(element, EasygridContextHolder.params, idx + 1)
+        }
+    }
+
+
+    /**
      * copy the values from the first map to the second only if they are not defined first
      * works on n levels
      * @param from
@@ -62,12 +119,13 @@ class GridUtils {
      * in the session , to be retrieved on the next return on the page
      *
      * in case the restoreSearch mark is set, will restore the parameters
+     * todo - refactor
      * @param session
      * @param params
      * @param id
      */
-    static void restoreSearchParams() {
-        String searchParamsAttrName = "searchParams_${EasygridContextHolder.gridConfig.id}".toString()
+    static void restoreSearchParams(gridConfig) {
+        String searchParamsAttrName = "searchParams_${gridConfig.id}".toString()
 
         if (EasygridContextHolder.session.getAttribute('restoreLastSearch')) {
             def localParams = EasygridContextHolder.session.getAttribute(searchParamsAttrName) ?: EasygridContextHolder.params
@@ -87,25 +145,6 @@ class GridUtils {
     }
 
     /**
-     * workaround for bug - http://jira.grails.org/browse/GRAILS-8652
-     */
-    static void addMixins() {
-        EasygridService.mixin EasygridContextHolder
-        ClassicGridService.mixin EasygridContextHolder
-        VisualizationGridService.mixin EasygridContextHolder
-        DataTablesGridService.mixin EasygridContextHolder
-        JqueryGridService.mixin EasygridContextHolder
-        EasygridExportService.mixin EasygridContextHolder
-        AutocompleteService.mixin EasygridContextHolder
-
-        GormDatasourceService.mixin EasygridContextHolder
-        ListDatasourceService.mixin EasygridContextHolder
-        CustomDatasourceService.mixin EasygridContextHolder
-
-//        GridUtils.mixin GridConfigHolder
-    }
-
-    /**
      * hack to navigate nested objects
      *
      * @param expression
@@ -113,12 +152,18 @@ class GridUtils {
      * @return
      */
     static getNestedPropertyValue(String expression, object) {
-//        Eval.x(object, "x.${expression}")
         try {
+            // first try to evaluate the expression using the high performance engine -MVEL
             MVEL.eval(expression, object)
-        } catch (PropertyAccessException pae) {
-            log.error("could not access property ${expression} of ${object}")
-            throw new RuntimeException("could not access property ${expression} of ${object}",pae)
+        } catch (any) {
+//            otherwise fallback to the slow implementation of Eval
+            log.warn("Could not evaluate ${expression} with MVEL. Trying 'eval'")
+            try {
+                Eval.x(object, "x.${expression}")
+            } catch (Exception e) {
+                log.error("could not access property ${expression} of ${object}")
+                throw new RuntimeException("could not access property ${expression} of ${object}", e)
+            }
         }
     }
 
@@ -142,8 +187,8 @@ class GridUtils {
      */
     static eachColumn(GridConfig grid, boolean export = false, Closure closure) {
         grid.columns.findAll { col -> (EasygridContextHolder.params.selectionComp) ? col.showInSelection : true }
-        .findAll { col -> !(export && col.export.hidden) }
-        .eachWithIndex { col, idx ->
+                .findAll { col -> !(export && col.export.hidden) }
+                .eachWithIndex { col, idx ->
             switch (closure?.parameterTypes?.size()) {
                 case 1:
                     return closure.call(col)

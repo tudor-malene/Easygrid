@@ -5,6 +5,7 @@ import org.grails.plugin.easygrid.AutocompleteConfig
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.ExportConfig
 import org.grails.plugin.easygrid.FilterFieldConfig
+import org.grails.plugin.easygrid.FilterFormConfig
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 import org.grails.plugin.easygrid.ListMapWrapper
@@ -41,7 +42,7 @@ class EasygridBuilder {
      * @return
      */
     GridConfig evaluateGrid(Closure gridClosure) {
-        def gridConfig = new GridConfig()
+        GridConfig gridConfig = new GridConfig()
 
         def defaultValues = grailsApplication?.config?.easygrid
         //build the grid
@@ -93,32 +94,35 @@ class EasygridBuilder {
                     break
 
                 case ('filterForm'):   //handle the filter form section
-                    gridConfig.filterForm = new ListMapWrapper<FilterFieldConfig>('name')
+                    def filterFormConfigMap = new ClosureToMapPopulator().populate(args[0])
+                    def fieldsClosure = filterFormConfigMap.remove('fields')
+                    gridConfig.filterForm = new FilterFormConfig(filterFormConfigMap)
 
-                    // handle the filter form section
-                    buildWithDelegate(args[0])
-                            { ffName, ffArgs -> // method missing
-                                def filterField = new FilterFieldConfig()
-                                filterField.name = ffName
+                    if (fieldsClosure) {
+                        buildWithDelegate(fieldsClosure)
+                                { ffName, ffArgs -> // method missing
+                                    def filterField = new FilterFieldConfig()
+                                    filterField.name = ffName
 
-                                buildWithDelegate(ffArgs[0])
-                                        { ffProperty, ffValue ->
-                                            switch (ffProperty) {
-                                                default:
-                                                    if (ffProperty in GridUtils.findImplementations(grailsApplication?.config?.easygrid)) {
-                                                        filterField[ffProperty] = new ClosureToMapPopulator().populate(ffValue[0])
-                                                    } else {
-                                                        filterField[ffProperty] = ffValue[0]
-                                                    }
-                                                    break
+                                    buildWithDelegate(ffArgs[0])
+                                            { ffProperty, ffValue ->
+                                                switch (ffProperty) {
+                                                    default:
+                                                        if (ffProperty in GridUtils.findImplementations(grailsApplication?.config?.easygrid)) {
+                                                            filterField[ffProperty] = new ClosureToMapPopulator().populate(ffValue[0])
+                                                        } else {
+                                                            filterField[ffProperty] = ffValue[0]
+                                                        }
+                                                        break
+                                                }
                                             }
-                                        }
 
-                                assert filterField.name
-                                gridConfig.filterForm.add(filterField)
-                            }
-                            { ffName ->
-                            }
+                                    assert filterField.name
+                                    gridConfig.filterForm.fields.add filterField
+                                }
+                                { ffName ->
+                                }
+                    }
                     break
 
                 case ('autocomplete'): //handle the autocomplete section
@@ -131,8 +135,8 @@ class EasygridBuilder {
                             { expProperty, expValue ->
                                 if (expValue[0] instanceof Closure) {
                                     gridConfig.export[expProperty] = new ClosureToMapPopulator().populate(expValue[0])
-                                }else{
-                                    gridConfig.export[expProperty]= expValue[0]
+                                } else {
+                                    gridConfig.export[expProperty] = expValue[0]
                                 }
                             }
                     break

@@ -1,6 +1,6 @@
 import groovy.text.SimpleTemplateEngine
-import org.grails.plugin.easygrid.GridUtils
-import org.grails.plugin.easygrid.EasygridContextHolder
+import org.grails.plugin.easygrid.EasygridInitService
+import org.grails.plugin.easygrid.GridConfig
 
 class EasygridGrailsPlugin {
 
@@ -40,18 +40,13 @@ class EasygridGrailsPlugin {
     def scm = [url: "https://github.com/tudor-malene/Easygrid"]
 
     def doWithDynamicMethods = { ctx ->
-        GridUtils.addMixins()
     }
 
     def onChange = { event ->
-        GridUtils.addMixins()
-        EasygridContextHolder.classReloaded()
+        event.ctx.getBean(EasygridInitService).initializeGrids()
     }
 
     def doWithApplicationContext = { appCtx ->
-        appCtx.grailsApplication.config.easygrid.defaults.labelFormatTemplate =
-            new SimpleTemplateEngine().createTemplate(
-                    appCtx.grailsApplication.config.easygrid.defaults.labelFormat.toString().replace('#', '$')
-            )
+        appCtx.getBean(EasygridInitService).initializeGrids()
     }
 }

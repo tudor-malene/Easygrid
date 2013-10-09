@@ -2,6 +2,8 @@ package org.grails.plugin.easygrid
 
 import groovy.transform.AutoClone
 import org.grails.plugin.easygrid.ast.DynamicConfig
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
 /**
  * Defines the configuration for a grid
@@ -27,7 +29,7 @@ class GridConfig {
     String gridRenderer      // the UI template renderer
 
     // export settings
-    ExportConfig export = new ExportConfig()
+    ExportConfig export
 
     //security settings
     def roles                   // list of roles, or map of tipe [oper:Role] in case you need to fine grain
@@ -38,16 +40,24 @@ class GridConfig {
     String editRenderer     // todo?
     Closure beforeSave      // closure used to transform the incoming parameters in an object ready to be persisted
 
+    Closure saveRowClosure      // closure used for saving a row
+    Closure updateRowClosure
+    Closure delRowClosure
+
     // formatters - map of type of data & the format closure
     Map<Class, Closure> formats
 
     // autocomplete settings
-    AutocompleteConfig autocomplete = new AutocompleteConfig()
+    AutocompleteConfig autocomplete
 
     // global filter
     Closure globalFilterClosure
 
     // the filter form
-    ListMapWrapper<FilterFieldConfig> filterForm = new ListMapWrapper<FilterFieldConfig>('name')
+    FilterFormConfig filterForm
 
+    @Override
+    public String toString() {
+        return "GridConfig{${id}}"
+    }
 }

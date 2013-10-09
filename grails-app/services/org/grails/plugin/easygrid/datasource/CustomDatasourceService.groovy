@@ -2,7 +2,7 @@ package org.grails.plugin.easygrid.datasource
 
 import groovy.util.logging.Slf4j
 import org.grails.plugin.easygrid.EasygridContextHolder
-
+import static org.grails.plugin.easygrid.EasygridContextHolder.*
 /**
  * datasource service for a customizable grid
  * dispatches the call to dataProvider and dataCount Closures defined in the grid
@@ -10,7 +10,6 @@ import org.grails.plugin.easygrid.EasygridContextHolder
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Slf4j
-@Mixin(EasygridContextHolder)
 class CustomDatasourceService {
 
     def verifyGridConstraints(gridConfig) {
@@ -38,7 +37,7 @@ class CustomDatasourceService {
      * @param filters - the search filters
      * @return
      */
-    def list(Map listParams, filters = null) {
+    def list(gridConfig, Map listParams, filters = null) {
 
         def closure = gridConfig.dataProvider
         switch (closure.parameterTypes?.size()) {
@@ -57,7 +56,7 @@ class CustomDatasourceService {
      * @param filters - when type==domain - it will be a criteria
      * @return
      */
-    def countRows(filters = null) {
+    def countRows(gridConfig, filters = null) {
 
         //call some custom closure wich returns the rows
 //        return gridConfig.dataCount.call(session, gridConfig, filters, params)

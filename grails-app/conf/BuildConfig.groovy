@@ -36,9 +36,11 @@ grails.project.dependency.resolution = {
         runtime(':jquery:1.8.0')
         runtime(':jquery-ui:1.8.24')
         runtime(':google-visualization:0.5.6')
+//        runtime ":angularjs-resources:1.0.8"
 
         //only for 2.2.0
         runtime ":resources:1.2"
+        compile ":dynamic-controller:0.4"
 
         test(":spock:0.7") {
             exclude "spock-grails-support"

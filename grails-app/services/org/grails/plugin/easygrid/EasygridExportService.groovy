@@ -2,6 +2,7 @@ package org.grails.plugin.easygrid
 
 import groovy.util.logging.Slf4j
 import org.springframework.web.servlet.support.RequestContextUtils
+import static org.grails.plugin.easygrid.EasygridContextHolder.*
 
 /**
  * Standard export service
@@ -9,23 +10,22 @@ import org.springframework.web.servlet.support.RequestContextUtils
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Slf4j
-@Mixin(EasygridContextHolder)
 class EasygridExportService {
 
     static transactional = false
 
-    def easygridService
     def grailsApplication
 
     def exportService
+    def easygridDispatchService
 
-    def addDefaultValues(Map defaultValues) {
+    def addDefaultValues(gridConfig, Map defaultValues) {
         if (gridConfig.export.export_title == null) {
             gridConfig.export.export_title = gridConfig.id
         }
     }
 
-    def export() {
+    def export(GridConfig gridConfig) {
         //export parameters
         def extension = params.extension
         def format = params.format
@@ -33,28 +33,31 @@ class EasygridExportService {
         if (format && format != "html") {
 
             def contentTypes = grailsApplication.config.grails.mime.types[format]
-            assert contentTypes : "No content type declared for format: ${format}"
+            assert contentTypes: "No content type declared for format: ${format}"
             response.contentType = String.isAssignableFrom(contentTypes.getClass()) ? contentTypes : contentTypes[0]
             response.setHeader("Content-disposition", "attachment; filename=${gridConfig.export.export_title}.${extension}")
 
             // restore the previous search
             GridUtils.markRestorePreviousSearch()
-            GridUtils.restoreSearchParams()
+            GridUtils.restoreSearchParams(gridConfig)
 
             //apply the previous filters , retrieve the raw data & transform the data to an export friendly format
-            def filters = easygridService.implService.filters()
-            if(filters == null){
+//            def filters = gridConfig.callGridPropertyMethod('gridImplService', 'filters')
+            def filters = easygridDispatchService.callGridImplFilters(gridConfig)
+            if (filters == null) {
                 filters = []
             }
-            if (gridConfig.globalFilterClosure){
+            if (gridConfig.globalFilterClosure) {
                 filters.add new Filter(gridConfig.globalFilterClosure)
             }
-            def data = easygridService.dataSourceService.list([:], filters)
+//            def data = easygridService.dataSourceService.list([:], filters)
+//            def data = gridConfig.callGridPropertyMethod('dataSourceService', 'list',[:], filters)
+            def data = easygridDispatchService.callDSList(gridConfig, [:], filters)
             def exportData = new ArrayList(data.size())
             data.each { element ->
                 def resultRow = [:]
                 GridUtils.eachColumn(gridConfig, true) { column, row ->
-                    resultRow[column.name] = easygridService.valueOfColumn(column, element, row + 1)
+                    resultRow[column.name] = GridUtils.valueOfColumn(gridConfig, column, element, row + 1)
                 }
                 exportData.add resultRow
             }

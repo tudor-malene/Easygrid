@@ -1,5 +1,6 @@
 def jqgridVer = "4.4.4"
 def dataTablesVer = "1.9.4"
+def ngGridVer = "2.0.7"
 
 modules = {
     'easygrid-jqgrid-theme' {
@@ -28,6 +29,15 @@ modules = {
         resource id: 'js-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/js", file: "jquery.dataTables.min.js"],
                 nominify: true, disposition: 'head'
     }
+
+/*
+   'easygrid-ng-grid' {
+        dependsOn 'jquery', 'angular'
+
+        resource id: 'js-ng-grid', url: [plugin: 'easygrid', dir: "ng-grid-${ngGridVer}/", file: "ng-grid-${ngGridVer}.min.js"],
+                nominify: true, disposition: 'head'
+    }
+*/
 
 
     'easygrid-jqgrid-dev' {

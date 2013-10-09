@@ -12,6 +12,9 @@ import org.grails.plugin.easygrid.Filter
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.transaction.annotation.Transactional
+
+import static org.grails.plugin.easygrid.EasygridContextHolder.*
 
 /**
  * Datasource implementation for a GORM Domain class
@@ -19,18 +22,17 @@ import org.springframework.dao.DataIntegrityViolationException
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Slf4j
-@Mixin(EasygridContextHolder)
+@Transactional
 class GormDatasourceService {
 
     def grailsApplication
-    def easygridService
 
     /**
      * if no columns specified in the builder - then generate the columns from the properties of the domain class
      * - useful during prototyping
      * @param gridConfig
      */
-    def generateDynamicColumns() {
+    def generateDynamicColumns(gridConfig) {
 
         // only generate if there are no columns defined
         if (!gridConfig.columns && gridConfig.domainClass) {
@@ -76,9 +78,7 @@ class GormDatasourceService {
             def idProperty = domainClass.properties.find { it.name == 'id' }
             if (idProperty) {
                 def idCol = new ColumnConfig(property: 'id', type: 'id', name: 'id')
-                if (easygridService.implService?.respondsTo('dynamicProperties')) {
-                    easygridService.implService.dynamicProperties(idProperty, idCol)
-                }
+                idCol.valueType = idProperty.type
                 gridConfig.columns.add(idCol)
             }
 
@@ -86,18 +86,16 @@ class GormDatasourceService {
                 if (prop.isAssociation()) {
                     return
                 }
-                def column = new ColumnConfig(property: prop.name, name: prop.name)
-                //todo -add other info from the property
-                if (easygridService.implService?.respondsTo('dynamicProperties')) {
-                    easygridService.implService.dynamicProperties(prop, column)
-                }
+                def column = new ColumnConfig(property: prop.name, name: prop.name,)
+                column.valueType = prop.type
+//                //todo -add other info from the property
                 gridConfig.columns.add column
             }
         }
     }
 
 
-    def addDefaultValues(Map defaultValues) {
+    def addDefaultValues(gridConfig, Map defaultValues) {
 
         gridConfig.columns.each { ColumnConfig column ->
             // add default filterClosure
@@ -153,20 +151,18 @@ class GormDatasourceService {
      * @param filters - array of criterias
      * @return
      */
-    def list(Map listParams = [:], filters = null) {
-
-        listParams.with {
-            createWhereQuery(filters).list(max: maxRows, offset: rowOffset, sort: sort, order: order)
-        }
+    def list(gridConfig, Map listParams = [:], filters = null) {
+        createWhereQuery(gridConfig, filters).list(max: listParams.maxRows, offset: listParams.rowOffset, sort: listParams.sort, order: listParams.order)
     }
 
     /**
      * returns an element by id
      * @param id
      */
-    def getById(id) {
+    def getById(gridConfig, id) {
+        //todo - idProp
         if (id != null) {
-            createWhereQuery([new Filter({ filter -> eq('id', id as long) })]).find()
+            createWhereQuery(gridConfig, [new Filter({ filter -> eq('id', id as long) })]).find()
         }
     }
 
@@ -175,8 +171,8 @@ class GormDatasourceService {
      * @param filters - it will be a criteria
      * @return
      */
-    def countRows(filters = null) {
-        createWhereQuery(filters).count()
+    def countRows(gridConfig, filters = null) {
+        createWhereQuery(gridConfig, filters).count()
     }
 
     /**
@@ -184,12 +180,12 @@ class GormDatasourceService {
      * @param filters - map of filter closures
      * @return
      */
-    DetachedCriteria createWhereQuery(filters) {
+    DetachedCriteria createWhereQuery(gridConfig, filters) {
         def initial = new DetachedCriteria(gridConfig.domainClass)
-        filters.inject(gridConfig.initialCriteria ? initial.build(gridConfig.initialCriteria) : initial ) { DetachedCriteria criteria, Filter filter ->
+        filters.inject(gridConfig.initialCriteria ? initial.build(gridConfig.initialCriteria) : initial) { DetachedCriteria criteria, Filter filter ->
             def filterCriteria = getCriteria(filter);
             if (filterCriteria instanceof Closure) {
-                criteria.and( filterCriteria)
+                criteria.and(filterCriteria)
             } else {
                 //todo                   filterCriteria
                 filterCriteria.criteria.criteria.each { Query.Criterion criterion -> criteria.add(criterion) }
@@ -203,7 +199,7 @@ class GormDatasourceService {
         assert filter.searchFilter.parameterTypes.size() == 1
 
         //if a global filter , then pass the params
-        filter.searchFilter.curry(filter.global?params:filter)
+        filter.searchFilter.curry(filter.global ? params : filter)
     }
 
     // inlineEdit implementations  - only works if domainClass is defined
@@ -214,7 +210,7 @@ class GormDatasourceService {
      * @param params
      * @param session
      */
-    def updateRow = {
+    def updateRow(gridConfig) {
 
         def instance = gridConfig.domainClass.get(params.id)
         if (!instance) {
@@ -230,8 +226,10 @@ class GormDatasourceService {
 
         //default returns params
         instance.properties = gridConfig.beforeSave params
+        println "instance = $instance"
 
         if (!instance.save(flush: true)) {
+            println instance.errors
             return instance.errors
         }
     }
@@ -242,7 +240,7 @@ class GormDatasourceService {
      * @param params
      * @param session
      */
-    def saveRow = {
+    def saveRow(gridConfig) {
         def instance = gridConfig.domainClass.newInstance()
         instance.properties = gridConfig.beforeSave(params)
         if (!instance.save(flush: true)) {
@@ -256,7 +254,7 @@ class GormDatasourceService {
      * @param params
      * @param session
      */
-    def delRow = {
+    def delRow(gridConfig) {
         def instance = gridConfig.domainClass.get(params.id)
 
         if (!instance) {

@@ -22,7 +22,7 @@ class EasygridASTTransformation extends AbstractASTTransformation {
 
     void visit(ASTNode[] nodes, SourceUnit source) {
         init(nodes, source)
-        addGridStuff(nodes[1], nodes[0])
+//        addGridStuff(nodes[1], nodes[0])
     }
 
     /**

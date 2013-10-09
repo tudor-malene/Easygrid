@@ -2,7 +2,8 @@ package org.grails.plugin.easygrid.grids
 
 import groovy.util.logging.Slf4j
 import org.grails.plugin.easygrid.EasygridContextHolder
-
+import org.grails.plugin.easygrid.GridUtils
+import static org.grails.plugin.easygrid.EasygridContextHolder.*
 /**
  * implements the classic grails grid
  * ( just for demo )
@@ -10,7 +11,6 @@ import org.grails.plugin.easygrid.EasygridContextHolder
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Slf4j
-@Mixin(EasygridContextHolder)
 class ClassicGridService {
 
     static transactional = false
@@ -35,12 +35,12 @@ class ClassicGridService {
         [rowOffset: params.offset, maxRows: maxRows, sort: sort, order: order]
     }
 
-    def transform(rows, nrRecords, listParams){
+    def transform(gridConfig, rows, nrRecords, listParams){
         def results = []
         rows.each { element ->
             def row = [:]
             gridConfig.columns.eachWithIndex {  col, idx ->
-                row[col] = easygridService.valueOfColumn(col, element,  idx + 1)
+                row[col] = GridUtils.valueOfColumn(gridConfig, col, element,  idx + 1)
             }
             results << row
         }
@@ -77,7 +77,7 @@ class ClassicGridService {
         rows.each { element ->
             def row = [:]
             gridConfig.columns.eachWithIndex { Map col, idx ->
-                row[col] = easygridService.valueOfColumn(col, element, params, idx + 1)
+                row[col] = GridUtils.valueOfColumn(col, element, params, idx + 1)
             }
             results << row
         }

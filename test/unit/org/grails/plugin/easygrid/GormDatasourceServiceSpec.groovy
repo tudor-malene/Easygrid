@@ -1,87 +1,91 @@
 package org.grails.plugin.easygrid
 
 import grails.gorm.DetachedCriteria
-import spock.lang.Shared
+import grails.test.mixin.Mock
+import grails.test.mixin.TestFor
+import org.grails.plugin.easygrid.datasource.GormDatasourceService
+import spock.lang.Specification
+import static org.grails.plugin.easygrid.TestUtils.*
 
-import static org.junit.Assert.*
+import static org.junit.Assert.assertEquals
 
 /**
  * test the Gorm impl
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-class GormDatasourceServiceSpec extends AbstractBaseTest {
+@TestFor(GormDatasourceService)
+@Mock([TestDomain, PetTest, OwnerTest])
+class GormDatasourceServiceSpec extends Specification {
 
-    static transactional = true
-
-    @Shared GridConfig domainGridConfig
-    @Shared GridConfig criteriaGridConfig
-
-    def gormDatasourceService
+    GridConfig domainGridConfig
+    GridConfig criteriaGridConfig
 
     static int N = 100
 
-    def initGrids() {
-        domainGridConfig = generateConfigForGrid {
-            id 'testDomainGrid'
-            labelPrefix ''
-            dataSourceType 'domain'
-            domainClass TestDomain
-            columns {
-                id {
-                    type 'id'
-                }
-                testStringProperty {
-                    enableFilter true
+    def setup() {
+        domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication, service) {
+            'testDomainGrid' {
+                labelPrefix ''
+                dataSourceType 'domain'
+                domainClass TestDomain
+                columns {
+                    id {
+                        type 'id'
+                    }
+                    testStringProperty {
+                        enableFilter true
 //                    filterFieldType 'text'
-                    jqgrid {
+                        jqgrid {
+                        }
                     }
-                }
-                testIntProperty {
-                    enableFilter true
-                    jqgrid {
+                    testIntProperty {
+                        enableFilter true
+                        jqgrid {
+                        }
                     }
                 }
             }
-        }
+        }.testDomainGrid
 
-        criteriaGridConfig = generateConfigForGrid {
-            id 'testDomainGrid'
-            labelPrefix ''
-            dataSourceType 'domain'
-            domainClass TestDomain
-            initialCriteria {
-                between("testIntProperty", 21, 40)
-            }
-            columns {
-                id {
-                    type 'id'
+        criteriaGridConfig = TestUtils.generateConfigForGrid(grailsApplication, service) {
+            'testDomainGrid' {
+                labelPrefix ''
+                dataSourceType 'domain'
+                domainClass TestDomain
+                initialCriteria {
+                    between("testIntProperty", 21, 40)
                 }
-                testStringProperty {
-                    filterClosure { filter ->
-                        ilike('testStringProperty', "%${filter.paramValue}%")
+                columns {
+                    id {
+                        type 'id'
+                    }
+                    testStringProperty {
+                        filterClosure { filter ->
+                            ilike('testStringProperty', "%${filter.paramValue}%")
+                        }
+                    }
+                    testIntProperty {
+                        filterClosure { filter ->
+                            eq('testIntProperty', filter.paramValue as int)
+                        }
                     }
                 }
-                testIntProperty {
-                    filterClosure { filter ->
-                        eq('testIntProperty', filter.paramValue as int)
-                    }
-                }
             }
-        }
+        }.testDomainGrid
     }
 
 
     def "testCriteriaDataSource"() {
         given:
         populateTestDomain(N)
-        easygridService.addDefaultValues(criteriaGridConfig, defaultValues)
+        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
 
         expect:
-        20 == gormDatasourceService.countRows()
+        20 == service.countRows(criteriaGridConfig)
 
         when:
-        def domainRows = gormDatasourceService.list()
+        def domainRows = service.list(criteriaGridConfig)
 
         then:
         20 == domainRows.size()
@@ -89,15 +93,15 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
         //test max rows & page
 //        max: maxRows, offset: rowOffset, sort: sort, order: order)
         when:
-        domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 10])
+        domainRows = service.list(criteriaGridConfig, [maxRows: 10, rowOffset: 10])
         then:
         10 == domainRows.size()
         31 == domainRows[0].testIntProperty
 
         //test criteria search
         when:
-        domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 0],
-                [new Filter({ params -> between("testIntProperty", 31, 80) }, '1')]
+        domainRows = service.list(criteriaGridConfig, [maxRows: 10, rowOffset: 0],
+                [new Filter({ between("testIntProperty", 31, 80) }, '1')]
         )
         then:
         10 == domainRows.size()
@@ -107,27 +111,27 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
     def "testDomainDataSource"() {
         given:
         populateTestDomain(N)
-        easygridService.addDefaultValues(domainGridConfig, defaultValues)
+        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
 
         expect:
-        N == gormDatasourceService.countRows()
+        N == service.countRows(domainGridConfig)
 
         when:
-        def domainRows = gormDatasourceService.list()
+        def domainRows = service.list(domainGridConfig)
         then:
         N == domainRows.size()
 
         //test max rows & page
 //        max: maxRows, offset: rowOffset, sort: sort, order: order)
         when:
-        domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 10])
+        domainRows = service.list(domainGridConfig, [maxRows: 10, rowOffset: 10])
         then:
         10 == domainRows.size()
         11 == domainRows[0].testIntProperty
 
         //test criteria search
         when:
-        domainRows = gormDatasourceService.list([maxRows: 10, rowOffset: 10], [new Filter({ filter -> between("testIntProperty", 31, 80) })])
+        domainRows = service.list(domainGridConfig, [maxRows: 10, rowOffset: 10], [new Filter({ filter -> between("testIntProperty", 31, 80) })])
         then:
         10 == domainRows.size()
         41 == domainRows[0].testIntProperty
@@ -136,7 +140,7 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
     def "testGormSearch"() {
         given:
         populateTestDomain(N)
-        easygridService.addDefaultValues(domainGridConfig, defaultValues)
+        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
 
         when:
         params.testStringProperty = 1
@@ -146,10 +150,10 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
 //        domainGridConfig.columns.testIntProperty.filterClosure = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
 
         then:
-        20 == gormDatasourceService.countRows([new Filter(domainGridConfig.columns.testStringProperty)])
+        20 == service.countRows(domainGridConfig, [new Filter(domainGridConfig.columns.testStringProperty)])
 
 
-        [14, 15, 16, 17, 18] == gormDatasourceService.list(
+        [14, 15, 16, 17, 18] == service.list(domainGridConfig,
                 [maxRows: 5, rowOffset: 5, sort: 'testIntProperty'],
                 [new Filter(domainGridConfig.columns.testStringProperty)]
         ).collect { it.testIntProperty }
@@ -159,7 +163,7 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
         params.testIntProperty = 100
         then:
 
-        [100]== gormDatasourceService.list(
+        [100] == service.list(domainGridConfig,
                 [maxRows: 5, sort: 'testIntProperty'],
                 [new Filter(domainGridConfig.columns.testStringProperty), new Filter(domainGridConfig.columns.testIntProperty),]
         ).collect { it.testIntProperty }
@@ -168,42 +172,42 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
     def "test Gorm operations"() {
         given:
         populateTestDomain(N)
-        easygridService.addDefaultValues(domainGridConfig, defaultValues)
+        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
 
         when: "delete"
         params.id = TestDomain.findByTestIntProperty(1).id
-        gormDatasourceService.delRow()
+        service.delRow(domainGridConfig)
         then:
-        N - 1 == gormDatasourceService.countRows()
+        N - 1 == service.countRows(domainGridConfig)
 
-        when:"before update"
+        when: "before update"
         def before = TestDomain.findByTestIntProperty(2)
         then:
         2 == before.testIntProperty
         '2' == before.testStringProperty
 
-        when:"update"
+        when: "update"
         params.id = TestDomain.findByTestIntProperty(2).id
         params.testIntProperty = -2
         params.testStringProperty = 'two'
-        gormDatasourceService.updateRow()
+        service.updateRow(domainGridConfig)
         def instance = TestDomain.get(params.id)
 
         then:
         -2 == instance.testIntProperty
-        'two'== instance.testStringProperty
+        'two' == instance.testStringProperty
 
         expect:
-        N-1 == gormDatasourceService.countRows()
+        N - 1 == service.countRows(domainGridConfig)
 
         when: "add"
         params.testIntProperty = 101
         params.testStringProperty = '101'
-        def errors = gormDatasourceService.saveRow()
+        def errors = service.saveRow(domainGridConfig)
         instance = TestDomain.findByTestIntProperty(101)
 
         then:
-        N == gormDatasourceService.countRows()
+        N == service.countRows(domainGridConfig)
         '101' == instance.testStringProperty
     }
 
@@ -212,50 +216,51 @@ class GormDatasourceServiceSpec extends AbstractBaseTest {
     def "test Complex Query"() {
         given:
         populatePets()
-        def petsGridConfig = generateConfigForGrid {
-            id 'petsGridConfig'
-            dataSourceType 'gorm'
-            domainClass PetTest
+        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
+
+        def petsGridConfig = TestUtils.generateConfigForGrid(grailsApplication) {
+            'petsGridConfig' {
+                dataSourceType 'gorm'
+                domainClass PetTest
 //            initialCriteria{
 //                createAlias "owner", "o"
 //            }
-            columns {
-                id {
-                    type 'id'
-                }
-                name {
-                    enableFilter true
-//                    filterFieldType 'text'
-                    jqgrid {
+                columns {
+                    id {
+                        type 'id'
                     }
-                }
-                'owner.name' {
+                    name {
+                        enableFilter true
+//                    filterFieldType 'text'
+                        jqgrid {
+                        }
+                    }
+                    'owner.name' {
 //                    name 'o.name'
 //                    property 'owner.name'
-                    enableFilter true
-                    jqgrid {
+                        enableFilter true
+                        jqgrid {
+                        }
                     }
-                }
-                'owner.city' {
-                    enableFilter true
-                    jqgrid {
+                    'owner.city' {
+                        enableFilter true
+                        jqgrid {
+                        }
                     }
                 }
             }
-        }
+        }.petsGridConfig
 
-        easygridService.addDefaultValues(petsGridConfig, defaultValues)
 
         expect:
         'owner.name' == petsGridConfig.columns['owner.name'].property
         'owner.city' == petsGridConfig.columns['owner.city'].property
 
         when:
-        def data = easygridService.gridData(petsGridConfig)
+        def data = service.list(petsGridConfig)
         then:
-        5 == data.target.rows.size()
-        'Bonkers' == data.target.rows[0].cell[1]
-        'John' == data.target.rows[0].cell[2]
+        5 == data.size()
+        'Bonkers' == data[0].name
 
 //        params.ownerName='John'
 //        params._search='true'

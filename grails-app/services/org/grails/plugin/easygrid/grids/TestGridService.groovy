@@ -17,24 +17,24 @@ class TestGridService {
      * @param prop
      * @param column
      */
-    def dynamicProperties(GrailsDomainClassProperty prop, column) {
-        dynamicCalls[prop] = column
+    def dynamicProperties(gridConfig, column) {
+        dynamicCalls[gridConfig] = column
     }
 
-    def addDefaultValues(Map defaultValues) {
+    def addDefaultValues(gridConfig, Map defaultValues) {
         println 'addDefaultValues'
     }
 
-    def filters() {
+    def filters(gridConfig) {
         println 'filters'
     }
 
-    def listParams() {
+    def listParams(gridConfig) {
         def result = [:]
         result
     }
 
-    def transform(rows, nrRecords, listParams) {
+    def transform(gridConfig, rows, nrRecords, listParams) {
         rows
     }
 }

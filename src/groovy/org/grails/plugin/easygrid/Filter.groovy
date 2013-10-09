@@ -22,7 +22,7 @@ class Filter {
     String paramValue
 
     // the parameter map
-    GrailsParameterMap params
+    def params
 
 //    def convertedValue - todo : convert type
     boolean global = false

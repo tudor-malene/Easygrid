@@ -2,24 +2,24 @@ package org.grails.plugin.easygrid.grids
 
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
-import org.grails.plugin.easygrid.ColumnConfig
-import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.Filter
+import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 import org.springframework.validation.Errors
 import org.springframework.validation.ObjectError
 
+import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
+
 @Slf4j
-@Mixin(EasygridContextHolder)
 class JqueryGridService {
 
     static transactional = false
 
-    def easygridService
     def grailsApplication
+    def easygridDispatchService
 
 
-    def filters() {
+    def filters(gridConfig) {
 
         if (params._search) {
             // determine if there is a search
@@ -39,7 +39,7 @@ class JqueryGridService {
     }
 
 
-    def listParams() {
+    def listParams(gridConfig) {
         def currentPage = params.page ? (params.page as int) : 1
         def maxRows = params.rows ? (params.rows as int) : grailsApplication.config?.easygrid?.defaults?.defaultMaxRows
         def offset = (currentPage - 1) * maxRows
@@ -50,18 +50,18 @@ class JqueryGridService {
         [rowOffset: offset, maxRows: maxRows, sort: sort, order: order]
     }
 
-    def transform(rows, nrRecords, listParams) {
+    def transform(gridConfig, rows, nrRecords, listParams) {
         // transform the list of elements to a jqGrid format
         def results = rows.collect { element ->
             def cell = []
 /*
             gridConfig.columns.eachWithIndex {  column, row ->
-                cell.add easygridService.valueOfColumn(column, element, row + 1)
+                cell.add GridUtils.valueOfColumn(column, element, row + 1)
             }
 */
 //            gridConfig.columns.findAll {col -> (params.selectionComp) ? col.showInSelection : true}.eachWithIndex { column, row ->
             GridUtils.eachColumn(gridConfig) { column, row ->
-                cell.add easygridService.valueOfColumn(column, element, row + 1)
+                cell.add GridUtils.valueOfColumn(gridConfig, column, element, row + 1)
             }
 
             [id: element.id, cell: cell]
@@ -76,22 +76,23 @@ class JqueryGridService {
      * dispatches the Edit operation
      * @param gridConfig
      */
-    def inlineEdit() {
+    def inlineEdit(GridConfig gridConfig) {
 
         //the closure that will handle the operation
-        def oper
-
-//        assert gridConfig.type == 'domain'
+        def result
 
         switch (params.oper) {
             case 'add':
-                oper = gridConfig.save ?: easygridService.dataSourceService.saveRow
+//                result = gridConfig.saveRowClosure ? gridConfig.saveRowClosure() : gridConfig.callGridPropertyMethod('dataSourceService', 'saveRow')
+                result = gridConfig.saveRowClosure ? gridConfig.saveRowClosure() : easygridDispatchService.callDSSaveRow(gridConfig)
                 break
             case 'edit':
-                oper = gridConfig.update ?: easygridService.dataSourceService.updateRow
+//                result = gridConfig.updateRowClosure ? gridConfig.updateRowClosure() : gridConfig.callGridPropertyMethod('dataSourceService', 'updateRow')
+                result = gridConfig.updateRowClosure ? gridConfig.updateRowClosure() : easygridDispatchService.callDSUpdateRow(gridConfig)
                 break
             case 'del':
-                oper = gridConfig.del ?: easygridService.dataSourceService.delRow
+//                result = gridConfig.delRowClosure ? gridConfig.delRowClosure() : gridConfig.callGridPropertyMethod('dataSourceService', 'delRow')
+                result = gridConfig.delRowClosure ? gridConfig.delRowClosure() : easygridDispatchService.callDSDelRow(gridConfig)
                 break
             default:
                 throw new RuntimeException("unknown oper: ${params.oper}")
@@ -100,7 +101,8 @@ class JqueryGridService {
         // the closure returns null if success and an error message or an instance of errors in case of failure
         //should return an instance of Errors
 //        def result = oper.call()
-        def result = easygridService.guard(gridConfig, params.oper, oper)
+//        def result = easygridService.guard(gridConfig, params.oper, oper)
+//        def result = oper()
 
         if (result != null) {
             if (Errors.isAssignableFrom(result.getClass())) {

@@ -1,12 +1,6 @@
 package org.grails.plugin.easygrid
 
-import org.codehaus.groovy.transform.GroovyASTTransformationClass
-
-import java.lang.annotation.ElementType
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
-import java.lang.annotation.Target
-
+import java.lang.annotation.*
 /**
  * Annotation for Controllers at the class level.
  * The controller must have a static field named "grids" with the definitions of the grids that will be made available by this Controller
@@ -19,15 +13,15 @@ import java.lang.annotation.Target
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@java.lang.annotation.Documented
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@GroovyASTTransformationClass("org.grails.plugin.easygrid.EasygridASTTransformation")
+//@GroovyASTTransformationClass("org.grails.plugin.easygrid.EasygridASTTransformation")
 @interface Easygrid {
 
     /**
      * a class that must have a static grids field containing definitions of grids that will be served by the current controller
      * @return
      */
-    Class externalGrids() default Object.class
+    Class externalGrids( )default Object.class
 }

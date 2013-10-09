@@ -3,6 +3,7 @@ package org.grails.plugin.easygrid
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import groovy.util.logging.Slf4j
+import static org.grails.plugin.easygrid.EasygridContextHolder.*
 
 /**
  * Autocomplete service
@@ -12,18 +13,16 @@ import groovy.util.logging.Slf4j
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
 @Slf4j
-@Mixin(EasygridContextHolder)
 class AutocompleteService {
 
-    def easygridService
+    def easygridDispatchService
 
-    /**
-     * if the grid supports autocomplete
-     * @param grid
-     * @return
-     */
-    def supportsAutocomplete(GridConfig grid) {
-        grid.autocomplete
+    def filters(gridConfig) {
+        // add the selection component constraint filter closure
+        if (params.selectionComp && gridConfig.autocomplete.constraintsFilterClosure) {
+            //add a new criteria
+            [new Filter(gridConfig.autocomplete.constraintsFilterClosure)]
+        }
     }
 
     /**
@@ -32,28 +31,28 @@ class AutocompleteService {
      * @param grid
      * @return
      */
-    def searchedElementsJSON(GridConfig grid) {
-        assert grid.autocomplete.textBoxFilterClosure
+    def searchedElementsJSON(GridConfig gridConfig) {
+        assert gridConfig.autocomplete.textBoxFilterClosure
 
-        easygridService.guard(grid) {
+        // compose an array with the input term filter and an eventual contraint
+        def filters = [new Filter(gridConfig.autocomplete.textBoxFilterClosure, params.term)]
 
-            //store the grid to threadLocal
-            setLocalGridConfig(grid)
-
-            def filters = [new Filter(grid.autocomplete.textBoxFilterClosure, params.term)]
-
-            if (grid.autocomplete.constraintsFilterClosure != null) {
-                filters << new Filter(grid.autocomplete.constraintsFilterClosure)
-            }
-
-            easygridService.dataSourceService.list(
-                    [rowOffset: 0, maxRows: grid.autocomplete.maxRows], filters).collect {
-                [
-                        label: getLabel(it),
-                        id: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.idProp, it)
-                ]
-            } as JSON
+        if (gridConfig.autocomplete.constraintsFilterClosure != null) {
+            filters << new Filter(gridConfig.autocomplete.constraintsFilterClosure)
         }
+
+        //retreive the rows & transform the values to the JSON format
+        //todo - what about order?
+//        gridConfig.callGridPropertyMethod(
+//                'dataSourceService', 'list', [rowOffset: 0, maxRows: gridConfig.autocomplete.maxRows], filters
+//        )
+        easygridDispatchService.callDSList(gridConfig, [rowOffset: 0, maxRows: gridConfig.autocomplete.maxRows], filters)
+                .collect {
+            [
+                    id: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.idProp, it),
+                    label: getLabel(gridConfig, it),
+            ]
+        } as JSON
     }
 
     /**
@@ -61,26 +60,23 @@ class AutocompleteService {
      * @param grid
      * @return
      */
-    def label(GridConfig grid) {
-        assert grid.autocomplete.labelProp || grid.autocomplete.labelValue
-
-        easygridService.guard(grid) {
-
-            //store the grid to threadLocal
-            setLocalGridConfig(grid)
-
-            easygridService.dataSourceService.getById(params.id).collect {
-                [label: getLabel(it)]
-            } as JSON
-        }
+    def label(GridConfig gridConfig) {
+        assert gridConfig.autocomplete.labelProp || gridConfig.autocomplete.labelValue
+        //retreive the selected element and provide the label in a convenient format
+//        gridConfig.callGridPropertyMethod('dataSourceService', 'getById', params.id).
+        easygridDispatchService.callDSGetById(gridConfig, params.id).
+                collect {
+                    [label: getLabel(gridConfig, it)]
+                } as JSON
     }
 
     /**
      * utility method to generate a label from the configuration
-     * @param element
+     * fetches the label property from the config and evaluates it against the element
+     * @param element - the selected element
      * @return
      */
-    def getLabel(element) {
+    private getLabel(gridConfig, element) {
         if (gridConfig.autocomplete.labelProp) {
             GridUtils.getNestedPropertyValue(gridConfig.autocomplete.labelProp, element)
         } else {
