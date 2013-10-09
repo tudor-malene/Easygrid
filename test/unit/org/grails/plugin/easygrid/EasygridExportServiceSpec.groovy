@@ -56,8 +56,7 @@ class EasygridExportServiceSpec extends Specification {
         populateTestDomain(100)
 
         when:
-        params.format = 'excel'
-        service.export(testGrid, TestDomain.list())
+        service.export(testGrid, TestDomain.list(), 'excel', 'xls')
 
         then:
         1 * exportService.export(
@@ -122,8 +121,7 @@ class EasygridExportServiceSpec extends Specification {
         def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
 
         when: "export to csv"
-        params.format = 'csv'
-        service.export(testGrid,TestDomain.list())
+        service.export(testGrid,TestDomain.list(), 'csv', 'csv')
 
         then:
         1 * exportService.export(
