@@ -45,19 +45,8 @@ class EasygridExportServiceSpec extends Specification {
             }
         }.testGrid
 
-//        TestUtils.mockGridConfigMethods { property, methodName, listParams, filters ->
-//            if (property == 'dataSourceService' && methodName == 'list') {
-//                TestDomain.list()
-//            }
-//        }
-
         exportService = Mock(ExportService)
         service.exportService = exportService
-
-        easygridDispatchService = Mock(EasygridDispatchService)
-        service.easygridDispatchService = easygridDispatchService
-
-
     }
 
     def "excel Export"() {
@@ -68,8 +57,7 @@ class EasygridExportServiceSpec extends Specification {
 
         when:
         params.format = 'excel'
-        easygridDispatchService.callDSList(_, _, _) >> TestDomain.list()
-        service.export(testGrid)
+        service.export(testGrid, TestDomain.list())
 
         then:
         1 * exportService.export(
@@ -135,8 +123,7 @@ class EasygridExportServiceSpec extends Specification {
 
         when: "export to csv"
         params.format = 'csv'
-        easygridDispatchService.callDSList(_, _, _) >> TestDomain.list()
-        service.export(testGrid)
+        service.export(testGrid,TestDomain.list())
 
         then:
         1 * exportService.export(

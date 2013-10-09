@@ -17,7 +17,6 @@ class EasygridExportService {
     def grailsApplication
 
     def exportService
-    def easygridDispatchService
 
     def addDefaultValues(gridConfig, Map defaultValues) {
         if (gridConfig.export.export_title == null) {
@@ -25,10 +24,9 @@ class EasygridExportService {
         }
     }
 
-    def export(GridConfig gridConfig) {
-        //export parameters
-        def extension = params.extension
-        def format = params.format
+    def export(GridConfig gridConfig, data, format, extension) {
+        log.debug("export ${data.size()}")
+        //export parameters         - todo - de luat inainte si pasat ca parametri
 
         if (format && format != "html") {
 
@@ -37,23 +35,14 @@ class EasygridExportService {
             response.contentType = String.isAssignableFrom(contentTypes.getClass()) ? contentTypes : contentTypes[0]
             response.setHeader("Content-disposition", "attachment; filename=${gridConfig.export.export_title}.${extension}")
 
-            // restore the previous search
-            GridUtils.markRestorePreviousSearch()
-            GridUtils.restoreSearchParams(gridConfig)
+            // apply an additional filter on the data which is available in the grid
+            if (gridConfig.export.exportFilter) {
+                data = data.findAll exportFilter
+            }
 
-            //apply the previous filters , retrieve the raw data & transform the data to an export friendly format
-//            def filters = gridConfig.callGridPropertyMethod('gridImplService', 'filters')
-            def filters = easygridDispatchService.callGridImplFilters(gridConfig)
-            if (filters == null) {
-                filters = []
-            }
-            if (gridConfig.globalFilterClosure) {
-                filters.add new Filter(gridConfig.globalFilterClosure)
-            }
-//            def data = easygridService.dataSourceService.list([:], filters)
-//            def data = gridConfig.callGridPropertyMethod('dataSourceService', 'list',[:], filters)
-            def data = easygridDispatchService.callDSList(gridConfig, [:], filters)
+            //transform the raw data to the actual values to be exported
             def exportData = new ArrayList(data.size())
+
             data.each { element ->
                 def resultRow = [:]
                 GridUtils.eachColumn(gridConfig, true) { column, row ->

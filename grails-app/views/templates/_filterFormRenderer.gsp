@@ -8,7 +8,7 @@
                         <g:message code="${it.label}" default="${it.label}"/>
                     </label>
 
-                    <g:if test="${it.type == 'between'}">
+                    <g:if test="${it.type == 'interval'}">
                         <div style='display:inline;'>
                             <g:field name="${it.name}.from" type="number"/>
                             <g:field name="${it.name}.to" type="number"/>

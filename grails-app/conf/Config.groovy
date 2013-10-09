@@ -75,6 +75,7 @@ easygrid {
         //default export settings for various formats
         export {
             exportService = org.grails.plugin.easygrid.EasygridExportService
+            maxRows = 10000 // maximum rows to be exported - to avoid out of memory exceptions
 
             //this section provides default values for the different export formats
             // for more options check out the export plugin

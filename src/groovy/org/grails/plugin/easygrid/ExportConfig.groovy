@@ -12,8 +12,9 @@ import org.grails.plugin.easygrid.ast.DynamicConfig
 @AutoClone
 class ExportConfig {
 
-    boolean export          // allow exporting
+    Boolean export          // allow exporting
     String export_title     // the title of the exported file
     Class exportService     // the implementation of the export service
 
+    Integer maxRows             // the maximum number of rows to be exported
 }

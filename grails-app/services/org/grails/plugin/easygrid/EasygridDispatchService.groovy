@@ -145,9 +145,9 @@ class EasygridDispatchService {
         }
     }
 
-    def callExport(gridConfig) {
+    def callExport(gridConfig, data, format, extension) {
         assert getExportService(gridConfig).respondsTo('export')
-        getExportService(gridConfig).export(gridConfig)
+        getExportService(gridConfig).export(gridConfig, data, format, extension)
     }
 
     private getExportService(gridConfig) {

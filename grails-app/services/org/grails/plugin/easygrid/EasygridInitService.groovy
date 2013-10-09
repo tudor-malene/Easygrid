@@ -58,7 +58,7 @@ class EasygridInitService {
                         },
                         export: {
                             easyGridLogger.debug("entering ${gridName}Export")
-                            easygridDispatchService.callExport(gridConfig)
+                            easygridService.export(gridConfig)
                         },
                 ]
 
@@ -86,7 +86,12 @@ class EasygridInitService {
 
                 DynamicControllerManager.registerClosures(
                         controller.clazz.name,
-                        closureMap.collectEntries { String mehodName, Closure closure -> ["${gridName}${mehodName.capitalize()}", { easygridService.guard(gridConfig, closure) }] }, // transform the name & guard all access
+                        closureMap.collectEntries { String mehodName, Closure closure ->
+                            ["${gridName}${mehodName.capitalize()}".toString(), {
+                                closure.delegate = delegate
+                                easygridService.guard(gridConfig, closure)
+                            }]
+                        }, // transform the name & guard all access
                         null,
                         grailsApplication)
             }
@@ -208,10 +213,10 @@ class EasygridInitService {
             }
         }
 
-        if (gridConfig.export) {
-            //todo - configure if export should be enabled by default?
-            GridUtils.copyProperties defaultValues.defaults.export, gridConfig.export
-        }
+//        if (gridConfig.export) {
+        //todo - configure if export should be enabled by default?
+        GridUtils.copyProperties defaultValues.defaults.export, gridConfig.export
+//        }
         if (gridConfig.filterForm) {
             GridUtils.copyProperties defaultValues.filterForm.defaults, gridConfig.filterForm
         }

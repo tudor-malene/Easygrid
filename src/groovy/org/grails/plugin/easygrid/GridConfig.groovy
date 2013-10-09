@@ -29,14 +29,14 @@ class GridConfig {
     String gridRenderer      // the UI template renderer
 
     // export settings
-    ExportConfig export
+    ExportConfig export = new ExportConfig()
 
     //security settings
     def roles                   // list of roles, or map of tipe [oper:Role] in case you need to fine grain
     Closure securityProvider    // closure that enforces access control on the grid methods
 
     // inline edit  settings
-    boolean inlineEdit      // allow inline editing
+    Boolean inlineEdit      // allow inline editing
     String editRenderer     // todo?
     Closure beforeSave      // closure used to transform the incoming parameters in an object ready to be persisted
 

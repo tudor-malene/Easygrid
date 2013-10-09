@@ -28,21 +28,21 @@ class EasygridService {
      */
     def htmlGridDefinition(GridConfig gridConfig) {
 
-            //call the   htmlGridDefinition from the implementation
+        //call the   htmlGridDefinition from the implementation
 //            def result = gridConfig.callGridPropertyMethod('gridImplService', 'htmlGridDefinition')
-            def result = easygridDispatchService.callGridImplHtmlGridDefinition(gridConfig)
-            if (!result) {
-                //todo - refactor this
-                //disable inline editing in selection Mode
-                if (params.selectionComp) {
-                    gridConfig.inlineEdit = false
-                }
-
-                //return a map with the gridConfig
-                return [gridConfig: gridConfig]
-
+        def result = easygridDispatchService.callGridImplHtmlGridDefinition(gridConfig)
+        if (!result) {
+            //todo - refactor this
+            //disable inline editing in selection Mode
+            if (params.selectionComp) {
+                gridConfig.inlineEdit = false
             }
-            result
+
+            //return a map with the gridConfig
+            return [gridConfig: gridConfig]
+
+        }
+        result
     }
 
     /**
@@ -52,11 +52,11 @@ class EasygridService {
      */
     def gridData(GridConfig gridConfig) {
 
-            //save or restore the search params
-            GridUtils.restoreSearchParams(gridConfig)
+        //save or restore the search params
+        GridUtils.restoreSearchParams(gridConfig)
 
-            //returns a map of search [colName: Closure]
-            def listParams = easygridDispatchService.callGridImplListParams(gridConfig)
+        //returns a map of search [colName: Closure]
+        def listParams = easygridDispatchService.callGridImplListParams(gridConfig)
 
 /*
 //todo   validation  of input filters
@@ -78,11 +78,11 @@ class EasygridService {
                 }
 */
 
-            def filters = filters(gridConfig)
-            def rows = easygridDispatchService.callDSList(gridConfig, listParams, filters)
-            def nrRecords = easygridDispatchService.callDSCountRows(gridConfig, filters)
+        def filters = filters(gridConfig)
+        def rows = easygridDispatchService.callDSList(gridConfig, listParams, filters)
+        def nrRecords = easygridDispatchService.callDSCountRows(gridConfig, filters)
 
-            easygridDispatchService.callGridImplTransform(gridConfig, rows, nrRecords, listParams)
+        easygridDispatchService.callGridImplTransform(gridConfig, rows, nrRecords, listParams)
     }
 
     /**
@@ -98,19 +98,37 @@ class EasygridService {
         }
 
         //apply the filters input in the actual grid
-        filters.addAll easygridDispatchService.callGridImplFilters(gridConfig)
+        filters.addAll easygridDispatchService.callGridImplFilters(gridConfig)?:[]
 
         // apply the selection component constraint filter ( if it's the case )
         if (gridConfig.autocomplete) {
-            filters.addAll easygridDispatchService.callACFilters(gridConfig)
+            filters.addAll easygridDispatchService.callACFilters(gridConfig)?:[]
         }
 
         //add the search form filters
         if (gridConfig.filterForm) {
-            filters.addAll easygridDispatchService.callFFFilters(gridConfig)
+            filters.addAll easygridDispatchService.callFFFilters(gridConfig)?:[]
         }
 
         filters
+    }
+
+    def export(GridConfig gridConfig) {
+        log.debug("export ${gridConfig}")
+
+        def extension = params.extension
+        def format = params.format
+
+        // restore the previous search params
+        GridUtils.markRestorePreviousSearch()
+        GridUtils.restoreSearchParams(gridConfig)
+
+        //apply the previous filters, fetch all the data & call the export method
+        def listParams = easygridDispatchService.callGridImplListParams(gridConfig)
+        assert gridConfig.export.maxRows: "You must define maxRows"
+        listParams.maxRows = gridConfig.export.maxRows
+        listParams.rowOffset = 0
+        easygridDispatchService.callExport(gridConfig, easygridDispatchService.callDSList(gridConfig, [:], filters(gridConfig)), format, extension)
     }
 
     /**
@@ -167,4 +185,5 @@ class EasygridService {
             action()
         }
     }
+
 }

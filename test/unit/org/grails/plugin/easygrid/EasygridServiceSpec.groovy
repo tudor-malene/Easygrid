@@ -212,22 +212,17 @@ class EasygridServiceSpec extends Specification {
     /// end default values tests-----------------
 
 
-    def "testSecurity"() {
+    def "test Security"() {
 
         when:
         customGridConfig.roles = 'admin1'
         def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
 
-        def model = service.htmlGridDefinition(customGridConfig)
+        def val = service.guard(customGridConfig){1}
 
         then:
-        model == null
+        val == null
 
-        when:
-        def gridElements = service.gridData(customGridConfig)
-
-        then:
-        gridElements == null
     }
 
     @Ignore
