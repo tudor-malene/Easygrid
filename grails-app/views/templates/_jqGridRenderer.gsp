@@ -1,16 +1,15 @@
 <script type="text/javascript">
     // implementation to work with the dynamic search form
-    function filterForm${attrs.id}(form){
+    function filterForm${attrs.id}(form) {
         var ser = jQuery(form).serialize();
         console.log(ser);
-        var grid =jQuery("#${attrs.id}_table");
+        var grid = jQuery("#${attrs.id}_table");
         grid.jqGrid('setGridParam', {postData: ser});
         grid.trigger('reloadGrid');
         return false;
     }
 
 </script>
-
 <jq:jquery>
     jQuery("#${attrs.id}_table").jqGrid(
             {
@@ -23,19 +22,19 @@
         "onSelectRow":function(id){onSelectGridRowReloadGrid('${gridConfig.childGrid}','${gridConfig.childParamName}',id);},
     </g:if>
     <g:if test="${gridConfig.inlineEdit}">
-        editurl: '${g.createLink(controller: attrs.controller,action: "${gridConfig.id}InlineEdit")}',
-        cellurl: '${g.createLink(controller: attrs.controller,action: "${gridConfig.id}InlineEdit")}',
+        editurl: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}InlineEdit")}',
+        cellurl: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}InlineEdit")}',
     </g:if>
     colNames: [
-    <grid:eachColumn gridConfig="${gridConfig}" >
+    <grid:eachColumn gridConfig="${gridConfig}">
         '${g.message(code: col.label, default: col.label)}'<g:if test="${!last}">,</g:if>
     </grid:eachColumn>
     ],
    colModel: [
-    <grid:eachColumn gridConfig="${gridConfig}" >
+    <grid:eachColumn gridConfig="${gridConfig}">
         {name:'${col.name}',
         "search":${col.enableFilter},
-        <g:each in="${col.jqgrid}" >
+        <g:each in="${col.jqgrid}">
             "${it.key}":${it.value},
         </g:each>
         },
@@ -43,6 +42,14 @@
     ],
    rowNum:${gridConfig.defaultMaxRows},
    viewrecords: true,
+    "loadError": function (xhr, status, err) {
+        try {
+            jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div class="ui-state-error">' + xhr.responseText + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
+        } catch (e) {
+            alert(xhr.responseText);
+        }
+     },
+
    pager: '#${attrs.id}Pager',
     <g:if test="${gridConfig.inlineEdit}">
         onSelectRow: function(id){
@@ -50,8 +57,12 @@
             jQuery("#${attrs.id}_table").jqGrid('editRow', id //, true
                 , {
                     keys:true,
-                    aftersavefunc:function (rowid, response) {
-                    //todo
+                    errorfunc:function (rowid, xhr) {
+                            try {
+                                jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div class="ui-state-error">' + xhr.responseText + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
+                            } catch (e) {
+                                alert(xhr.responseText);
+                            }
                     }
                 }
             );
@@ -103,5 +114,7 @@
 </jq:jquery>
 
 <table id="${attrs.id}_table"></table>
+
 <div id="${attrs.id}Pager"></div>
+
 

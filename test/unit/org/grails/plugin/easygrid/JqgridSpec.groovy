@@ -29,7 +29,7 @@ class JqGridSpec extends Specification {
         params.oper = 'edit'
 
         then:
-        service.inlineEdit(domainGridConfig)[0] == 'default.not.found.message'
+        service.inlineEdit(domainGridConfig) == 'default.not.found.message'
     }
 
     /**

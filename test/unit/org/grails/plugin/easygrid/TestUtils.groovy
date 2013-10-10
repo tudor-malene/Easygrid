@@ -53,7 +53,8 @@ class TestUtils {
         EasygridContextHolder.metaClass.static.getRequest = {-> request }
         EasygridContextHolder.metaClass.static.getSession = {-> session }
         EasygridContextHolder.metaClass.static.getParams = {-> params }
-        EasygridContextHolder.metaClass.static.messageLabel = { code -> code }
+        EasygridContextHolder.metaClass.static.messageLabel = { String code -> code }
+        EasygridContextHolder.metaClass.static.messageLabel = { Map map -> map.error }
         [params, request, response, session]
     }
 

@@ -26,7 +26,6 @@ class EasygridExportService {
 
     def export(GridConfig gridConfig, data, format, extension) {
         log.debug("export ${data.size()}")
-        //export parameters         - todo - de luat inainte si pasat ca parametri
 
         if (format && format != "html") {
 

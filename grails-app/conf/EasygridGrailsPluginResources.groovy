@@ -1,6 +1,6 @@
-def jqgridVer = "4.4.4"
+def jqgridVer = "4.5.4"
 def dataTablesVer = "1.9.4"
-def ngGridVer = "2.0.7"
+//def ngGridVer = "2.0.7"
 
 modules = {
     'easygrid-jqgrid-theme' {

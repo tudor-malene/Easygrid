@@ -8,6 +8,7 @@ import org.codehaus.groovy.grails.commons.GrailsClassUtils
 import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 
 /**
  * handles the initialization of the grid
@@ -67,8 +68,12 @@ class EasygridInitService {
                     closureMap.inlineEdit = {
                         easyGridLogger.debug("entering ${gridName}InlineEdit")
                         def result = easygridDispatchService.callGridImplInlineEdit(gridConfig)
-//                               render(template: gridsConfig['${gridName}'].editRenderer, model: result?.model)
-                        render(template: gridConfig.editRenderer)
+                        def response = [status: HttpStatus.OK]
+                        if (result) {
+                            response.status = HttpStatus.INTERNAL_SERVER_ERROR
+                            response.text = result
+                        }
+                        render response
                     }
                 }
 

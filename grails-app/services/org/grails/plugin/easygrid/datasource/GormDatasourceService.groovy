@@ -205,11 +205,11 @@ class GormDatasourceService {
     // inlineEdit implementations  - only works if domainClass is defined
 
     /**
-     * default closure called on updating a grid element
+     * method called on updating a grid element
      * @param gridConfig
-     * @param params
-     * @param session
+     * return - should return null or an empty string on succes, or a short error message
      */
+    @Transactional
     def updateRow(gridConfig) {
 
         def instance = gridConfig.domainClass.get(params.id)
@@ -226,20 +226,19 @@ class GormDatasourceService {
 
         //default returns params
         instance.properties = gridConfig.beforeSave params
-        println "instance = $instance"
+        log.debug "instance = $instance"
 
         if (!instance.save(flush: true)) {
-            println instance.errors
             return instance.errors
         }
     }
 
     /**
-     * default closure  called on saving a new grid element
+     * on saving a new grid element
      * @param gridConfig
-     * @param params
-     * @param session
+     * return - should return null or an empty string on succes, or a short error message
      */
+    @Transactional
     def saveRow(gridConfig) {
         def instance = gridConfig.domainClass.newInstance()
         instance.properties = gridConfig.beforeSave(params)
@@ -249,11 +248,11 @@ class GormDatasourceService {
     }
 
     /**
-     * default closure called on deleting a grid element
+     * called on deleting a grid element
      * @param gridConfig
-     * @param params
-     * @param session
+     * return - should return null or an empty string on succes, or a short error message
      */
+    @Transactional
     def delRow(gridConfig) {
         def instance = gridConfig.domainClass.get(params.id)
 

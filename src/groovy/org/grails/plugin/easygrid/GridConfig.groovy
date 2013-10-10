@@ -37,9 +37,9 @@ class GridConfig {
 
     // inline edit  settings
     Boolean inlineEdit      // allow inline editing
-    String editRenderer     // todo?
     Closure beforeSave      // closure used to transform the incoming parameters in an object ready to be persisted
 
+    //closures called on inline editing - should return null on success or the errors
     Closure saveRowClosure      // closure used for saving a row
     Closure updateRowClosure
     Closure delRowClosure
