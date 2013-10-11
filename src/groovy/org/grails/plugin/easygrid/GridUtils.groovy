@@ -22,6 +22,22 @@ import org.mvel2.PropertyAccessException
 class GridUtils {
 
     /**
+     * return the export value
+     * @param gridConfig
+     * @param column
+     * @param element
+     * @param idx
+     */
+    static valueOfExportColumn(gridConfig, ColumnConfig column, element, idx) {
+        // if there is a value closure defined in the export section, evaluate that , otherwise the normal
+        if (column.export?.value) {
+            valueOfClosureColumn(gridConfig, column, column.export.value, element, idx)
+        }else{
+            valueOfColumn(gridConfig, column, element, idx)
+        }
+    }
+
+    /**
      * return the value for a column from a row
      * the main link between the datasource & the grid Implementation
      * @param column - the column from the config
@@ -31,9 +47,12 @@ class GridUtils {
      */
     static valueOfColumn(gridConfig, ColumnConfig column, element, idx) {
 
-        def method = column.property ? this.&valueOfPropertyColumn : this.&valueOfClosureColumn
-
-        method(gridConfig, column, element, idx)
+        if (column.property) {
+            valueOfPropertyColumn(gridConfig, column, element, idx)
+        } else {
+            assert column.value
+            valueOfClosureColumn(gridConfig, column, column.value, element, idx)
+        }
     }
 
 
@@ -62,9 +81,7 @@ class GridUtils {
      * @param idx
      * @return
      */
-    static valueOfClosureColumn(gridConfig, ColumnConfig column, element, idx) {
-        assert column.value
-        Closure closure = column.value
+    static valueOfClosureColumn(gridConfig, ColumnConfig column, Closure closure, element, idx) {
         switch (closure?.parameterTypes?.size()) {
             case null:
                 return ''
@@ -76,7 +93,6 @@ class GridUtils {
                 return closure.call(element, EasygridContextHolder.params, idx + 1)
         }
     }
-
 
     /**
      * copy the values from the first map to the second only if they are not defined first

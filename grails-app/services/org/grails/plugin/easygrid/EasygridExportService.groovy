@@ -45,7 +45,7 @@ class EasygridExportService {
             data.each { element ->
                 def resultRow = [:]
                 GridUtils.eachColumn(gridConfig, true) { column, row ->
-                    resultRow[column.name] = GridUtils.valueOfColumn(gridConfig, column, element, row + 1)
+                    resultRow[column.name] = GridUtils.valueOfExportColumn(gridConfig, column, element, row + 1)
                 }
                 exportData.add resultRow
             }
