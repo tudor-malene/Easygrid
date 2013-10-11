@@ -140,9 +140,9 @@ easygrid {
             dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
             filters {
                 //default search closures
-                text = { filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
-                number = { filter -> eq(filter.column.name, filter.paramValue as int) }
-                date = { filter -> eq(filter.column.name, new java.text.SimpleDateFormat(stdDateFormat).parse(filter.paramValue) ) }
+                text = { filter -> ilike(filter.filterable.name, "%${filter.paramValue}%") }
+                number = { filter -> eq(filter.filterable.name, filter.paramValue as int) }
+                date = { filter -> eq(filter.filterable.name, new java.text.SimpleDateFormat(stdDateFormat).parse(filter.paramValue) ) }
             }
         }
 
@@ -151,9 +151,9 @@ easygrid {
             dataSourceService = org.grails.plugin.easygrid.datasource.ListDatasourceService
             filters {
                 //default search closures
-                text = { filter, row -> row[filter.column.name].contains filter.paramValue }
-                number = { filter, row -> row[filter.column.name] == filter.paramValue as int }
-                date = { filter, row -> row[filter.column.name] == new java.text.SimpleDateFormat(stdDateFormat).parse(filter.paramValue)  }
+                text = { filter, row -> row[filter.filterable.name].contains filter.paramValue }
+                number = { filter, row -> row[filter.filterable.name] == filter.paramValue as int }
+                date = { filter, row -> row[filter.filterable.name] == new java.text.SimpleDateFormat(stdDateFormat).parse(filter.paramValue)  }
             }
         }
 
