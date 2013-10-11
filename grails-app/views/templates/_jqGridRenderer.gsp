@@ -1,4 +1,6 @@
-<script type="text/javascript">
+<g:if test="${gridConfig.filterForm}">
+
+    <script type="text/javascript">
     // implementation to work with the dynamic search form
     function filterForm${attrs.id}(form) {
         var ser = jQuery(form).serialize();
@@ -8,8 +10,9 @@
         grid.trigger('reloadGrid');
         return false;
     }
-
 </script>
+</g:if>
+
 <jq:jquery>
     jQuery("#${attrs.id}_table").jqGrid(
             {

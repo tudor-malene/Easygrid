@@ -1,6 +1,8 @@
 <script type="text/javascript">
 
     var ${attrs.id}FilterParams ;
+
+<g:if test="${gridConfig.filterForm}">
     // implementation to work with the dynamic search form
     function filterForm${attrs.id}(form){
         ${attrs.id}FilterParams  = jQuery(form).serializeArray();
@@ -8,6 +10,7 @@
         dt._fnAjaxUpdate(dt.fnSettings());
         return false;
     }
+    </g:if>
 
 jQuery(function () {
 
