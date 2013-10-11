@@ -1,10 +1,8 @@
-import groovy.text.SimpleTemplateEngine
 import org.grails.plugin.easygrid.EasygridInitService
-import org.grails.plugin.easygrid.GridConfig
 
 class EasygridGrailsPlugin {
 
-    def version = "1.3.0"
+    def version = "1.4.0"
 
     def grailsVersion = "2.0 > *"
 
@@ -29,7 +27,9 @@ class EasygridGrailsPlugin {
     def author = "Tudor Malene"
     def authorEmail = "tudor.malene@gmail.com"
     def description = '''
-        This plugin provides a convenient and agile way of defining Data Grids.
+        Provides a declarative way of defining Data Grids.
+        It works currently with jqGrid, google visualization and jquery dataTables.
+        Out of the box it provides sorting, filtering, exporting and inline edit just by declaring a grid in a controller and adding a tag to your gsp.
         It also provides a powerful selection widget ( a direct replacement for drop-boxes )
         '''
 

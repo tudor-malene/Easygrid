@@ -30,6 +30,7 @@ easygrid {
         //default export settings for various formats
         export {
             exportService = org.grails.plugin.easygrid.EasygridExportService
+            maxRows = 10000 // maximum rows to be exported - to avoid out of memory exceptions
 
             //this section provides default values for the different export formats
             // for more options check out the export plugin
@@ -127,23 +128,12 @@ easygrid {
             idProp = 'id'  // the name of the property of the id of the selected element (optionKey - in the replaced select tag)
             maxRows = 10 // the max no of elements to be displayed by the jquery autocomplete box
             template = '/templates/autocompleteRenderer' //the default autocomplete renderer
+            autocompleteService = org.grails.plugin.easygrid.AutocompleteService
         }
     }
 
     // each grid has a "type" - which must be one of the datasources defined here
     dataSourceImplementations {
-        //deprecated
-        domain {
-            // mandatory attribute: domainClass or initialCriteria
-            dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
-            filters {
-                //default search closures for different column types
-                text = { filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
-                number = { filter -> eq(filter.column.name, filter.paramValue as int) }
-                date = { filter -> eq(filter.column.name, new java.text.SimpleDateFormat(stdDateFormat).parse(filter.paramValue) ) }
-            }
-        }
-
         // renamed for consistency
         gorm {
             // mandatory attribute: domainClass or initialCriteria
@@ -311,6 +301,15 @@ easygrid {
         }
     }
 
+    //section to define the filter form configurations
+    filterForm {
+        defaults{
+            filterFormService = org.grails.plugin.easygrid.FilterFormService
+            filterFormTemplate =  '/templates/filterFormRenderer'
+        }
+    }
+
+
     // here we define different formatters
     // these are closures  which are called before the data is displayed to format the cell data
     // these are specified in the column section using : formatName
@@ -332,7 +331,7 @@ easygrid {
 }
 
 // copy the templates
-copyTemplates([ 'jqGridRenderer', 'jqGridEditResponse','classicGridRenderer', 'dataTablesGridRenderer', 'visualizationGridRenderer', 'filterFormRenderer' ])
+copyTemplates([ 'jqGridRenderer','classicGridRenderer', 'dataTablesGridRenderer', 'visualizationGridRenderer', 'filterFormRenderer' ])
 
 
 def copyTemplates(templates) {

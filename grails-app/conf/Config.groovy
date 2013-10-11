@@ -177,19 +177,6 @@ easygrid {
 
     // each grid has a "type" - which must be one of the datasources defined here
     dataSourceImplementations {
-        //deprecated
-        domain {
-            // mandatory attribute: domainClass or initialCriteria
-            dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
-            filters {
-                //default search closures for different column types
-                text = { Filter filter -> ilike(filter.filterable.name, "%${filter.paramValue}%") }
-                number = { Filter filter -> eq(filter.filterable.name, filter.paramValue as int) }
-                date = { Filter filter -> eq(filter.filterable.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
-            }
-        }
-
-        // renamed for consistency
         gorm {
             // mandatory attribute: domainClass or initialCriteria
             dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
@@ -238,7 +225,6 @@ easygrid {
             gridRenderer = '/templates/jqGridRenderer'          //  a gsp template that will be rendered
             gridImplService = org.grails.plugin.easygrid.grids.JqueryGridService  // the service class for this implementation
             inlineEdit = true    // specifies that this implementation allows inline Editing
-            editRenderer = '/templates/jqGridEditResponse'
 
             // there are 3 options to format the data
             // using the value closure in the column

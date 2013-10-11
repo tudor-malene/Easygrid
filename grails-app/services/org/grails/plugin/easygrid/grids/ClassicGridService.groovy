@@ -22,12 +22,12 @@ class ClassicGridService {
         [gridConfig: gridConfig, rows: easygridService.gridData(gridConfig)]
     }
 
-    def filters() {
+    def filters(gridConfig) {
         null
         //todo
     }
 
-    def listParams() {
+    def listParams(gridConfig) {
         def maxRows = params.max ? (params.max as int) : grailsApplication.config?.easygrid?.defaults?.defaultMaxRows
 //        def currentPage = 1 + (params.offset ? (params.offset as int) : 0) / maxRows
         def sort = params.sort
