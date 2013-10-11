@@ -27,7 +27,7 @@ class GormDatasourceServiceSpec extends Specification {
         domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication, service) {
             'testDomainGrid' {
                 labelPrefix ''
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 domainClass TestDomain
                 columns {
                     id {
@@ -51,7 +51,7 @@ class GormDatasourceServiceSpec extends Specification {
         criteriaGridConfig = TestUtils.generateConfigForGrid(grailsApplication, service) {
             'testDomainGrid' {
                 labelPrefix ''
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 domainClass TestDomain
                 initialCriteria {
                     between("testIntProperty", 21, 40)

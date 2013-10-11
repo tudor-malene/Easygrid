@@ -22,7 +22,7 @@ class ClassicGridServiceSpec extends Specification {
         given:
         def classicDomainGridConfig = TestUtils.generateConfigForGrid(grailsApplication) {
             'classicTestDomainGrid' {
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 domainClass TestDomain
                 gridImpl 'classic'
                 columns {

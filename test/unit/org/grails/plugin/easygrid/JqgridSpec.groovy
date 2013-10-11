@@ -12,13 +12,13 @@ import spock.lang.Specification
  */
 @TestFor(JqueryGridService)
 @Mock(TestDomain)
-class JqGridSpec extends Specification {
+class JqgridSpec extends Specification {
 
     def "Edit row"() {
         when:
         def domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication, {
             testDomainGrid {
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 domainClass TestDomain
                 updateRowClosure {
                     'default.not.found.message'

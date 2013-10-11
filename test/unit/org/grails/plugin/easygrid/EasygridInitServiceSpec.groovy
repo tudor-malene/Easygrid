@@ -222,14 +222,14 @@ class EasygridInitServiceSpec extends Specification {
         given:
         def domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication){
             testDomainGrid {
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 domainClass TestDomain
             }
         }.testDomainGrid
 
         expect:
         'testDomainGrid' == domainGridConfig.id
-        'domain' == domainGridConfig.dataSourceType
+        'gorm' == domainGridConfig.dataSourceType
         TestDomain == domainGridConfig.domainClass
         0 == domainGridConfig.columns.size()
     }
@@ -271,7 +271,7 @@ class TestController{
 class ExternalGrids{
     static grids = {
         testDomainGrid {
-            dataSourceType 'domain'
+            dataSourceType 'gorm'
             domainClass TestDomain
         }
     }

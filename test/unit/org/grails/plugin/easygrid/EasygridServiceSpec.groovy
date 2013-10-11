@@ -26,7 +26,7 @@ class EasygridServiceSpec extends Specification {
     def setup() {
         domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication) {
             'testDomainGrid' {
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 domainClass TestDomain
             }
         }.testDomainGrid
@@ -112,7 +112,7 @@ class EasygridServiceSpec extends Specification {
         when: "use the default label prefix"
         def simpleGridConfig = TestUtils.generateConfigForGrid(grailsApplication) {
             'simpleGrid' {
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 domainClass TestDomain
                 columns {
                     testStringProperty
@@ -135,7 +135,7 @@ class EasygridServiceSpec extends Specification {
         when: "use a custom label prefix"
         simpleGridConfig = TestUtils.generateConfigForGrid(grailsApplication) {
             'simpleGrid' {
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 domainClass TestDomain
                 labelPrefix 'testDomainPrefix'
                 columns {

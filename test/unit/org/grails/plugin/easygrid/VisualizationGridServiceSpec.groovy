@@ -32,7 +32,7 @@ class VisualizationGridServiceSpec extends Specification {
         //initialize the list grid
         GridConfig domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication) {
             'testDomainGrid' {
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 gridImpl 'visualization'
                 domainClass TestDomain
                 globalFilterClosure { params ->

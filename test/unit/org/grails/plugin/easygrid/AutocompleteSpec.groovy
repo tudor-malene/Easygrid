@@ -25,7 +25,7 @@ class AutocompleteSpec extends Specification {
         given:
         GridConfig autocompleteGridConfig = generateConfigForGrid(grailsApplication) {
             autocompleteGridConfig {
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 domainClass TestDomain
                 gridImpl 'jqgrid'
                 autocomplete {

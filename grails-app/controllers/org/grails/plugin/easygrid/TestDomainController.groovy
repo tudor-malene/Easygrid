@@ -10,7 +10,7 @@ class TestDomainController {
     def grailsApplication
     static grids = {
         testGrid {
-            dataSourceType 'domain'
+            dataSourceType 'gorm'
             domainClass TestDomain
             gridRenderer '/templates/testGridRenderer'
             jqgrid {
@@ -20,7 +20,7 @@ class TestDomainController {
         }
 
         testGlobalFilterGrid {
-            dataSourceType 'domain'
+            dataSourceType 'gorm'
             domainClass TestDomain
             globalFilterClosure {
                 eq('testIntProperty', grailsApplication.domainClasses.size())
@@ -28,13 +28,13 @@ class TestDomainController {
         }
 
         visGrid {
-            dataSourceType 'domain'
+            dataSourceType 'gorm'
             domainClass TestDomain
             gridImpl 'visualization'
         }
 
         test1 {
-            dataSourceType 'domain'
+            dataSourceType 'gorm'
             domainClass TestDomain
             gridRenderer '/templates/testGridRenderer'
             gridImplService TestGridService

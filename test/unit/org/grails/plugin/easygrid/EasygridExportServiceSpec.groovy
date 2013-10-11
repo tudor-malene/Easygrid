@@ -25,7 +25,7 @@ class EasygridExportServiceSpec extends Specification {
     def setup() {
         testGrid = generateConfigForGrid(grailsApplication) {
             testGrid {
-                dataSourceType 'domain'
+                dataSourceType 'gorm'
                 domainClass TestDomain
                 gridRenderer '/templates/testGridRenderer'
                 export {
