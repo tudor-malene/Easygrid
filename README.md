@@ -2,8 +2,11 @@ Easygrid
 =======================
 
 Provides a declarative way of defining Data Grids.
+
 It works currently with jqGrid, google visualization and jquery dataTables.
+
 Out of the box it provides sorting, filtering, exporting and inline edit just by declaring a grid in a controller and adding a tag to your gsp.
+
 It also provides a powerful selection widget ( a direct replacement for drop-boxes )
 
 
@@ -16,8 +19,8 @@ Installation
     - For google visualization you also need: google-visualization
 
 You will need to add dependencies to:
-        compile('org.mvel:mvel2:2.1.3.Final')
-        compile('com.google.visualization:visualization-datasource:1.1.1') {
+      -  compile('org.mvel:mvel2:2.1.3.Final')
+      -  compile('com.google.visualization:visualization-datasource:1.1.1') {
             exclude (group: 'commons-logging', name: 'commons-logging')
             exclude (group: 'commons-lang', name: 'commons-lang')
         }
@@ -351,9 +354,6 @@ Guide on extending the default functionality:
 
 FAQ:
 ------------------
-### I am using grails 2.3.0 and it's not working   ###
-A: There seems to be a bug in the dynamic controller plugin
-
 ### I want to implement my first grid. What are the steps?    ###
 A: First you need to annotate the controller with @Easygrid, and define the static grids property where you can define the grid.
 In the gsp (if it belongs to that controller), all you have to do is:
@@ -431,7 +431,7 @@ Version History
 ------------------------
 
 ### 1.4.0
-    - improved export ( support for additional filtering closure, and for export values -per column )
+    - improved export ( support for additional filtering closure, and for custom export values -per column )
     - removed the AST transformation that was injecting the grid methods in the controller and used the dynamic-controller plugin for this
      ( this opens up the possibility of defining grids at runtime - in the next versions )
     - added first draft of a dynamic filter form definition ( it may be subject to change in the next versions )
