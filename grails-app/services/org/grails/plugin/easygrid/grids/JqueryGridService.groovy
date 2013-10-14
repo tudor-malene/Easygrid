@@ -54,16 +54,20 @@ class JqueryGridService {
         // transform the list of elements to a jqGrid format
         def results = rows.collect { element ->
             def cell = []
+            def id
             GridUtils.eachColumn(gridConfig) { column, row ->
-                cell.add GridUtils.valueOfColumn(gridConfig, column, element, row + 1)
+                def val = GridUtils.valueOfColumn(gridConfig, column, element, row + 1)
+                cell << val
+                if (column.name == gridConfig.idColName) {
+                    id = val
+                }
             }
 
-            [id: element.id, cell: cell]
+            [id: id, cell: cell]
         }
 
         [rows: results, page: 1 + (listParams.rowOffset / listParams.maxRows as int), records: nrRecords, total: Math.ceil(nrRecords / listParams.maxRows) as int] as JSON
     }
-
 
     ///////////////////////////// INLINE EDIT /////////////////
 
@@ -92,10 +96,10 @@ class JqueryGridService {
 
         //should return an instance of Errors
 
-        if (result ) {
+        if (result) {
             if (Errors.isAssignableFrom(result.getClass())) {
                 //return only the first error
-                return messageLabel( error: result.allErrors.first())
+                return messageLabel(error: result.allErrors.first())
             } else {
                 return messageLabel(result)
             }

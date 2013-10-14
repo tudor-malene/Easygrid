@@ -1,20 +1,28 @@
 Easygrid
 =======================
 
-This plugin provides a convenient and agile way of defining Data Grids.
+Provides a declarative way of defining Data Grids.
+It works currently with jqGrid, google visualization and jquery dataTables.
+Out of the box it provides sorting, filtering, exporting and inline edit just by declaring a grid in a controller and adding a tag to your gsp.
 It also provides a powerful selection widget ( a direct replacement for drop-boxes )
 
-It handles all the middleware for ajax grids so that the developer can focus on the actual business logic.
 
 Installation
 -----------------------------
 
-    grails install-plugin easygrid
+    compile ":easygrid:1.4.0"
 
     - For minimum functionality you need: jquery-ui and export plugins.
     - For google visualization you also need: google-visualization
-    - For the default security implementation you need spring-security.
 
+You will need to add dependencies to:
+        compile('org.mvel:mvel2:2.1.3.Final')
+        compile('com.google.visualization:visualization-datasource:1.1.1') {
+            exclude (group: 'commons-logging', name: 'commons-logging')
+            exclude (group: 'commons-lang', name: 'commons-lang')
+        }
+
+and the dynamic-controller and jquery-ui plugins
 
 Overview
 ----------------------------
@@ -40,13 +48,16 @@ Easygrid solves these problems by proposing a solution based on declarations & c
 ### Features:
 
 - custom builder - for defining the grid
-- easy to mock and test: able to generate a Grid from a domain class without any custom configuration
-- agile: reloads & regenerates the grid when source code is changed
+- easy to mock and test:
+- easy to start able to generate a Grid from a domain class without any custom configuration
+-  reloads & regenerates the grid when source code is changed
 - convenient default values for grid & column properties
 - DRY: predefined column types - ( sets of properties )
 - define the column formatters in one place
 - customizable html/javascript grid templates
-- built-in support for exporting to XLS ( using the exporter plugin )
+- built-in support for exporting to different formats ( using the exporter plugin )
+- easy inline editing - using jqgrid
+- configurable dynamic filtering form -
 
 - Jquery-ui widget and custom tag for a powerful selection widget featuring a jquery autocomplete textbox and a selection dialog built with Easygrid ( with filtering, sorting,etc)
 
@@ -54,9 +65,9 @@ Easygrid solves these problems by proposing a solution based on declarations & c
 Concepts
 --------------------
 
-Basically, the entire grid is defined in the Controller using the provided custom builder.
+The entire grid is defined in the Controller (or in an outside file) using the provided custom builder.
 
-For each grid you can to configure the following aspects:
+For each grid you can configure the following aspects:
 
 - datasource
 - grid implementation
@@ -82,7 +93,7 @@ Usage
 
 All grids will be defined in controllers - which must be annotated with @Easygrid.
 
-In each annotated controller you need to define a static closure called "grids" where you define the grids which will be made available by this controller (an AST transformation adds custom grid methods to the controller for each defined grid ).
+In each annotated controller you need to define a static closure called "grids" where you define the grids which will be made available by this controller (using the dynamic controllers plugin, at startup, custom grid methods will be added to the controller for each defined grid ).
 
 The plugin provides a custom Builder for making the configuration more straight forward.
 
@@ -326,7 +337,7 @@ Testing:
        * ``` def ${gridName}InlineEdit ()```
        * ``` def ${gridName}AutocompleteResult ()```
        * ```def ${gridName}SelectionLabel ()  ```
-- these can be tested in integration tests
+
 
 
 Guide on extending the default functionality:
@@ -340,6 +351,8 @@ Guide on extending the default functionality:
 
 FAQ:
 ------------------
+### I am using grails 2.3.0 and it's not working   ###
+A: There seems to be a bug in the dynamic controller plugin
 
 ### I want to implement my first grid. What are the steps?    ###
 A: First you need to annotate the controller with @Easygrid, and define the static grids property where you can define the grid.
@@ -417,6 +430,21 @@ A: You can raise a ticket or drop me an email : tudor.malene at gmail.com, or us
 Version History
 ------------------------
 
+### 1.4.0
+    - improved export ( support for additional filtering closure, and for export values -per column )
+    - removed the AST transformation that was injecting the grid methods in the controller and used the dynamic-controller plugin for this
+     ( this opens up the possibility of defining grids at runtime - in the next versions )
+    - added first draft of a dynamic filter form definition ( it may be subject to change in the next versions )
+    - added possibilty to define grids in other files
+    - the autocomplete widget can be configured to display the label in the textbox ( instead of in the adjacent div )
+    - changed the delegate of all the closures defined in the grid to the instance of the parent controller - so you can use any injected service or params, request, etc
+    - improved error reporting on inline editing
+    - upgraded jqgrid version to 4.5.4
+    - cleaned up tests
+    - improved performance
+    - fixed bugs
+
+
 ### 1.3.0
     - upgraded jqgrid version to 4.4.4
     - added master-slave feature for jqgrid grids
@@ -450,6 +478,23 @@ Version History
 
 #### 0.9.9
     - first version
+
+
+Upgrading to 1.4.0
+-----------------
+ - merge the rendering templates to benefit from the latest features
+ in Config.groovy :
+ - add a default.export.maxRows value
+ - add default.autocomplete.autocompleteService = org.grails.plugin.easygrid.AutocompleteService
+ - add default.idColName = 'id'
+ - if you want to use the dynamic filtering form , you need to add the config for this
+     filterForm {
+         defaults{
+             filterFormService = org.grails.plugin.easygrid.FilterFormService
+             filterFormTemplate =  '/templates/filterFormRenderer'
+         }
+     }
+
 
 Upgrading to 1.3.0
 -----------------
@@ -491,14 +536,6 @@ Upgrading to 1.0.0
 
 
 
-Next features:
------------------------
-
-- other grid implementations ( like TreeGrid , Yui datatable)
-- users should be able to select the columns they want to see ( & store these settings)
-- selection widget extended to other grids
-- selection widget with multiple selection
-- scaffolding templates
 
 
 

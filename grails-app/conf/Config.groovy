@@ -71,6 +71,7 @@ easygrid {
         //used by jqgrid
         enableFilter = true
         addNavGrid = true
+        idColName = 'id'
 
         //default export settings for various formats
         export {
@@ -343,7 +344,6 @@ easygrid {
     }
 
     //section to define the filter form configurations
-    //todo - default service & default template
     filterForm {
         defaults{
             filterFormService = org.grails.plugin.easygrid.FilterFormService

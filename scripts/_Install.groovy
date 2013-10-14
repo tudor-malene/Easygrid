@@ -26,6 +26,8 @@ easygrid {
         enableFilter = true
         addNavGrid = true
 
+        //the id column
+        idColName = 'id'
 
         //default export settings for various formats
         export {
