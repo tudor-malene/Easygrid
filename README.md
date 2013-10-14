@@ -18,14 +18,15 @@ Installation
     - For minimum functionality you need: jquery-ui and export plugins.
     - For google visualization you also need: google-visualization
 
-You will need to add dependencies to:
-      -  compile('org.mvel:mvel2:2.1.3.Final')
-      -  compile('com.google.visualization:visualization-datasource:1.1.1') {
+    You will need to add dependencies to:
+    -  compile('org.mvel:mvel2:2.1.3.Final')
+    -  compile('com.google.visualization:visualization-datasource:1.1.1') {
             exclude (group: 'commons-logging', name: 'commons-logging')
             exclude (group: 'commons-lang', name: 'commons-lang')
         }
 
-and the dynamic-controller and jquery-ui plugins
+    and the dynamic-controller and jquery-ui plugins
+
 
 Overview
 ----------------------------
