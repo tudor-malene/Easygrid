@@ -185,7 +185,6 @@ easygrid {
             gridRenderer = '/templates/easygrid/jqGridRenderer'          //  a gsp template that will be rendered
             gridImplService = org.grails.plugin.easygrid.grids.JqueryGridService  // the service class for this implementation
             inlineEdit = true    // specifies that this implementation allows inline Editing
-            editRenderer = '/templates/easygrid/jqGridEditResponse'
 
             // there are 3 options to format the data
             // using the value closure in the column
