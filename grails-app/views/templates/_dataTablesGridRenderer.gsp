@@ -26,7 +26,8 @@ jQuery(function () {
         "bSort": true,
         "bProcessing": true,
         "bServerSide": true,
-        "sAjaxSource": "${g.createLink(action: "${gridConfig.id}Rows")}",
+
+        "sAjaxSource": '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}Rows", params: params)}',
 
         "fnInitComplete": function () {
             //hack - removes the filter div

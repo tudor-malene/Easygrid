@@ -27,5 +27,5 @@ class AutocompleteConfig {
 
     Boolean showSeparateLabel // flag that indicates if the selection widget should be rendered with a seperate label
 
-    Class autocompleteService // the service - todo set value
+    Class autocompleteService // the service
 }

@@ -14,6 +14,7 @@ import static org.grails.plugin.easygrid.EasygridContextHolder.*
 @Slf4j
 class EasygridService {
 
+    public static final String GRIDS_REPOSITORY = 'GRIDS_REPOSITORY'
     static transactional = false
 
     def grailsApplication
@@ -98,16 +99,16 @@ class EasygridService {
         }
 
         //apply the filters input in the actual grid
-        filters.addAll easygridDispatchService.callGridImplFilters(gridConfig)?:[]
+        filters.addAll easygridDispatchService.callGridImplFilters(gridConfig) ?: []
 
         // apply the selection component constraint filter ( if it's the case )
         if (gridConfig.autocomplete) {
-            filters.addAll easygridDispatchService.callACFilters(gridConfig)?:[]
+            filters.addAll easygridDispatchService.callACFilters(gridConfig) ?: []
         }
 
         //add the search form filters
         if (gridConfig.filterForm) {
-            filters.addAll easygridDispatchService.callFFFilters(gridConfig)?:[]
+            filters.addAll easygridDispatchService.callFFFilters(gridConfig) ?: []
         }
 
         filters
@@ -141,11 +142,12 @@ class EasygridService {
     }
 
     def getGridRepository() {
-        grailsApplication.mainContext.servletContext.getAttribute('grids')
+        grailsApplication.mainContext.servletContext.getAttribute(GRIDS_REPOSITORY)
     }
 
     def setGridRepository(grids) {
-        grailsApplication.mainContext.servletContext.setAttribute('grids', grids)
+        grailsApplication.mainContext.servletContext.setAttribute(GRIDS_REPOSITORY
+                , grids)
     }
 
 

@@ -10,6 +10,10 @@ import org.grails.plugin.easygrid.builder.EasygridBuilder
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 
+import java.lang.reflect.Field
+import java.lang.reflect.Modifier
+import static org.codehaus.groovy.grails.commons.GrailsClassUtils.*
+
 /**
  * handles the initialization of the grid
  *
@@ -17,6 +21,9 @@ import org.springframework.http.HttpStatus
  */
 @Slf4j
 class EasygridInitService {
+
+    public static final String GRID_SUFFIX = 'Grid'
+    public static final String GRIDS_FIELD = 'grids'
 
     static transactional = false
 
@@ -108,11 +115,7 @@ class EasygridInitService {
 
     }
 
-    /**
-     * constructs the configuration from the builder
-     * @param controller - the annotated class which
-     * @return the initialized grids structure for the controller
-     */
+/*
     def Map<String, GridConfig> initControllerGrids(controller) {
 
         log.debug("   Run init grids for ${controller.class}")
@@ -132,16 +135,58 @@ class EasygridInitService {
         //call the builder & add the default settings from the config
         initializeFromClosure(gridsClosure)
     }
+*/
+
+    /**
+     * constructs the configuration from the builder
+     * @param controller - the controller bean
+     * @return the initialized grids structure for the controller
+     */
+    def Map<String, GridConfig> initControllerGrids(controller) {
+
+        log.debug("   Run init grids for ${controller.class}")
+        def controllerGridsMap = [:]
+
+        // add all the grids defined in the static grids section
+        def staticGridsClosure = getStaticFieldValue(controller.class, GRIDS_FIELD)
+        if (staticGridsClosure) {
+            //set the owner of the closures to the controller - so that services injected in the controller, or params, session, etc, can be used
+            staticGridsClosure = staticGridsClosure.dehydrate().rehydrate(null, controller, staticGridsClosure.thisObject)
+            controllerGridsMap.putAll initializeFromClosure(staticGridsClosure)
+        }
+
+        // add all the grids defined in the external file
+        def externalGridsClosure = getStaticFieldValue(controller.class.getAnnotation(Easygrid).externalGrids(), GRIDS_FIELD)
+        if (externalGridsClosure) {
+            controllerGridsMap.putAll initializeFromClosure(externalGridsClosure)
+        }
+
+        //add all the grids defined in closures ending with 'Grid'
+        controller.class.declaredFields.findAll { Field field -> field.name.endsWith(GRID_SUFFIX) && !Modifier.isStatic(field.modifiers) && (controller[field.name] instanceof Closure) }.each { Field field ->
+            def name = field.name[0..-GRID_SUFFIX.length() - 1]
+            controllerGridsMap[name] = initializeFromClosureMethod(name, controller[field.name])
+        }
+
+        controllerGridsMap
+    }
+
+
+    def initializeFromClosureMethod(name, closureMethod) {
+        GridConfig gridConfig = new EasygridBuilder(grailsApplication).evaluateGrid closureMethod
+        gridConfig.id = name
+        try {
+            addDefaultValues(gridConfig)
+        } catch (any) {
+            log.error("Failed to initialize grid: ${name}", any)
+            throw new GrailsConfigurationException("Failed to initialize grid: ${name}.", any)
+        }
+    }
 
 
     def initializeFromClosure(gridsClosure) {
         generateConfigForGrids(gridsClosure).collectEntries { gridName, gridConfig ->
 
             gridConfig.id = gridName
-
-            //set the instance of the controller where it was defined
-            //todo - what happens when it was defined externally
-//            gridConfig.controller = controller
 
             //add default & types
             try {
@@ -267,10 +312,17 @@ class EasygridInitService {
                 column.property = column.name
             }
 
-            if (!column.label) {
-                def prefix = gridConfig.labelPrefix ?: grails.util.GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
-                assert prefix
-                column.label = gridConfig.labelFormatTemplate.make(labelPrefix: prefix, column: column, gridConfig: gridConfig)
+            if (column.label == null) {
+                def prefix = gridConfig.labelPrefix
+                if (gridConfig.domainClass) {
+                    prefix = prefix ?: grails.util.GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
+                    assert prefix
+                }
+                if (prefix) {
+                    column.label = gridConfig.labelFormatTemplate.make(labelPrefix: prefix, column: column, gridConfig: gridConfig)
+                } else {
+                    column.label = ''
+                }
             }
 
             // add default filterClosure

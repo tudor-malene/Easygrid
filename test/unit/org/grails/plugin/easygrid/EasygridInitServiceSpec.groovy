@@ -172,7 +172,7 @@ class EasygridInitServiceSpec extends Specification {
 
 
         when: "grid without a valid datasource type"
-        TestUtils.generateConfigForGrid(grailsApplication){
+        TestUtils.generateConfigForGrid(grailsApplication) {
             err2GridConfig {
                 dataSourceType 'nonExistent'
             }
@@ -220,7 +220,7 @@ class EasygridInitServiceSpec extends Specification {
     def "testDomainBuilder"() {
 
         given:
-        def domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication){
+        def domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication) {
             testDomainGrid {
                 dataSourceType 'gorm'
                 domainClass TestDomain
@@ -251,7 +251,7 @@ class EasygridInitServiceSpec extends Specification {
     def "External grid initialized properly"() {
 
         given: "mock the dispatch service"
-        service.easygridDispatchService = [invokeMethod: { String name, Object args ->  }] as GroovyInterceptable
+        service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
 
         when:
         def grids = service.initControllerGrids(new TestController())
@@ -262,18 +262,40 @@ class EasygridInitServiceSpec extends Specification {
 
     }
 
+    def "Closure grids initialized properly"() {
+
+        given: "mock the dispatch service"
+        service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
+
+        when:
+        def grids = service.initControllerGrids(new Test1Controller())
+
+        then:
+        1 == grids.size()
+        'test1Domain' == grids.test1Domain.id
+
+    }
+
 }
 
 @Easygrid(externalGrids = ExternalGrids)
-class TestController{
+class TestController {
 }
 
-class ExternalGrids{
+class ExternalGrids {
     static grids = {
         testDomainGrid {
             dataSourceType 'gorm'
             domainClass TestDomain
         }
     }
+}
 
+@Easygrid
+class Test1Controller {
+
+    def test1DomainGrid = {
+        dataSourceType 'gorm'
+        domainClass TestDomain
+    }
 }
