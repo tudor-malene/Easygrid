@@ -431,6 +431,12 @@ A: You can raise a ticket or drop me an email : tudor.malene at gmail.com, or us
 Version History
 ------------------------
 
+### 1.4.1
+    - added possibility to declare grids in normal Controller closures - ending with "Grid".
+    - removed the dynamic-controller dependency  ( to fix a couple of bugs )
+    - removed mvel dependency
+
+
 ### 1.4.0
     - improved export ( support for additional filtering closure, and for custom export values -per column )
     - removed the AST transformation that was injecting the grid methods in the controller and used the dynamic-controller plugin for this

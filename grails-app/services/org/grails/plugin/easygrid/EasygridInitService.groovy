@@ -1,10 +1,8 @@
 package org.grails.plugin.easygrid
 
-import com.burtbeckwith.grails.plugins.dynamiccontroller.DynamicControllerManager
 import groovy.text.SimpleTemplateEngine
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
-import org.codehaus.groovy.grails.commons.GrailsClassUtils
 import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
 import org.slf4j.LoggerFactory
@@ -12,7 +10,8 @@ import org.springframework.http.HttpStatus
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
-import static org.codehaus.groovy.grails.commons.GrailsClassUtils.*
+
+import static org.codehaus.groovy.grails.commons.GrailsClassUtils.getStaticFieldValue
 
 /**
  * handles the initialization of the grid
@@ -96,16 +95,15 @@ class EasygridInitService {
                     }
                 }
 
-                DynamicControllerManager.registerClosures(
-                        controller.clazz.name,
+                registerClosures(controller,
+                        // transform the name & guard all access
                         closureMap.collectEntries { String mehodName, Closure closure ->
                             ["${gridName}${mehodName.capitalize()}".toString(), {
                                 closure.delegate = delegate
                                 easygridService.guard(gridConfig, closure)
                             }]
-                        }, // transform the name & guard all access
-                        null,
-                        grailsApplication)
+                        }
+                )
             }
 
             easygridService.setGridRepository(grids)
@@ -115,27 +113,19 @@ class EasygridInitService {
 
     }
 
-/*
-    def Map<String, GridConfig> initControllerGrids(controller) {
-
-        log.debug("   Run init grids for ${controller.class}")
-        def gridsClosure = GrailsClassUtils.getStaticFieldValue(controller.class, 'grids')
-
-        if (!gridsClosure) {
-            def externalGrids = controller.class.getAnnotation(Easygrid).externalGrids()
-            assert externalGrids: "You must define a static grids property in your controller or specify an external grids file"
-            gridsClosure = GrailsClassUtils.getStaticFieldValue(externalGrids, 'grids')
+    def registerClosures(controller, closureMap) {
+        //register the closures so they can be retreived by : metaProperty = controller.getMetaClass().getMetaProperty(actionName);
+        // in MixedGrailsControllerHelper
+        closureMap.each { action, closure ->
+            controller.registerMapping action
+            controller.clazz.metaClass."get${action.capitalize()}" << { ->
+                Closure newClosure = closure.clone()
+                newClosure.delegate = delegate
+                newClosure
+            }
         }
-
-        assert gridsClosure: "You must define a static grids property in your controller or specify an external grids file"
-
-        //set the owner of the closures to the controller - so that services injected in the controller, or params, session, etc, can be used
-        gridsClosure = gridsClosure.dehydrate().rehydrate(null, controller, gridsClosure.thisObject)
-
-        //call the builder & add the default settings from the config
-        initializeFromClosure(gridsClosure)
     }
-*/
+
 
     /**
      * constructs the configuration from the builder
@@ -170,7 +160,7 @@ class EasygridInitService {
         controllerGridsMap
     }
 
-
+    //called when initialising a grid from a controller closure
     def initializeFromClosureMethod(name, closureMethod) {
         GridConfig gridConfig = new EasygridBuilder(grailsApplication).evaluateGrid closureMethod
         gridConfig.id = name
@@ -253,12 +243,10 @@ class EasygridInitService {
         //try to generate dynamic columns in case they are not defined
         if (!gridConfig.columns) {
             //add the columns from the datasource
-//            gridConfig.callGridPropertyMethod 'dataSourceService', 'generateDynamicColumns'
             easygridDispatchService.callDSGenerateDynamicColumns(gridConfig)
 
             //add specifiec view properties for each column
             gridConfig.columns.each { col ->
-//                gridConfig.callGridPropertyMethod 'gridImplService', 'dynamicProperties', col
                 easygridDispatchService.callGridImplDynamicProperties(gridConfig, col)
             }
         }

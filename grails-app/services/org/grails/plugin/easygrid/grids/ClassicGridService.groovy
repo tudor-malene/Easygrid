@@ -2,6 +2,7 @@ package org.grails.plugin.easygrid.grids
 
 import groovy.util.logging.Slf4j
 import org.grails.plugin.easygrid.EasygridContextHolder
+import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 import static org.grails.plugin.easygrid.EasygridContextHolder.*
 /**
@@ -27,7 +28,8 @@ class ClassicGridService {
         //todo
     }
 
-    def listParams(gridConfig) {
+    def listParams(GridConfig gridConfig) {
+        gridConfig
         def maxRows = params.max ? (params.max as int) : grailsApplication.config?.easygrid?.defaults?.defaultMaxRows
 //        def currentPage = 1 + (params.offset ? (params.offset as int) : 0) / maxRows
         def sort = params.sort

@@ -32,7 +32,7 @@ class GridUtils {
         // if there is a value closure defined in the export section, evaluate that , otherwise the normal
         if (column.export?.value) {
             valueOfClosureColumn(gridConfig, column, column.export.value, element, idx)
-        }else{
+        } else {
             valueOfColumn(gridConfig, column, element, idx)
         }
     }
@@ -170,10 +170,15 @@ class GridUtils {
     static getNestedPropertyValue(String expression, object) {
         try {
             // first try to evaluate the expression using the high performance engine -MVEL
-            MVEL.eval(expression, object)
+//            MVEL.eval(expression, object)
+            def val = object
+            for (String fieldPart in expression.split("\\.")) {
+                val = val?."$fieldPart"
+            }
+            val
         } catch (any) {
 //            otherwise fallback to the slow implementation of Eval
-            log.warn("Could not evaluate ${expression} with MVEL. Trying 'eval'")
+            log.warn("Could not evaluate ${expression} . Trying 'eval'")
             try {
                 Eval.x(object, "x.${expression}")
             } catch (Exception e) {
