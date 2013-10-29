@@ -2,17 +2,6 @@ package org.grails.plugin.easygrid
 
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
-import org.codehaus.groovy.grails.commons.GrailsDomainClass
-import org.grails.plugin.easygrid.datasource.CustomDatasourceService
-import org.grails.plugin.easygrid.datasource.GormDatasourceService
-import org.grails.plugin.easygrid.datasource.ListDatasourceService
-import org.grails.plugin.easygrid.grids.ClassicGridService
-import org.grails.plugin.easygrid.grids.DataTablesGridService
-import org.grails.plugin.easygrid.grids.JqueryGridService
-import org.grails.plugin.easygrid.grids.VisualizationGridService
-import org.mvel2.MVEL
-import org.mvel2.PropertyAccessException
-
 /**
  * utility methods
  *

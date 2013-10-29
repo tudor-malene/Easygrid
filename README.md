@@ -432,7 +432,7 @@ Version History
 ------------------------
 
 ### 1.4.1
-    - added possibility to declare grids in normal Controller closures - ending with "Grid".
+    - added possibility to declare grids in normal Controller closures - ending with "Grid". - see (https://github.com/tudor-malene/Easygrid_example/blob/master/grails-app/controllers/example/AuthorController.groovy)
     - removed the dynamic-controller dependency  ( to fix a couple of bugs )
     - removed mvel dependency
 
