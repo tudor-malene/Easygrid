@@ -141,13 +141,23 @@ class EasygridService {
         gridRepository[controller][gridName]
     }
 
+    def setGridConfig(controller, gridName, GridConfig gridConfig) {
+        synchronized (gridRepository) {
+            if (gridRepository[controller] == null) {
+                gridRepository[controller] = [:]
+            }
+            gridRepository[controller][gridName] = gridConfig
+        }
+        gridConfig
+    }
+
     def getGridRepository() {
         grailsApplication.mainContext.servletContext.getAttribute(GRIDS_REPOSITORY)
     }
 
     def setGridRepository(grids) {
         grailsApplication.mainContext.servletContext.setAttribute(GRIDS_REPOSITORY
-                , grids)
+                , Collections.synchronizedMap(grids))
     }
 
 

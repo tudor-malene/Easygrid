@@ -77,13 +77,11 @@ class EasygridDispatchService {
         getDSService(gridConfig).list(gridConfig, listParams, filters)
     }
 
-    //todo - de vazut unde e apelat
     def callDSGetById(gridConfig, id) {
         assert getDSService(gridConfig).respondsTo('getById')
         getDSService(gridConfig).getById(gridConfig, id)
     }
 
-    //todo - de vazut unde e apelat
     def callDSCountRows(gridConfig, filters = null) {
         assert getDSService(gridConfig).respondsTo('countRows')
         getDSService(gridConfig).countRows(gridConfig, filters)

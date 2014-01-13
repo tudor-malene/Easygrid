@@ -241,7 +241,7 @@ class EasygridInitServiceSpec extends Specification {
         service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
 
         when:
-        def grids = service.initControllerGrids(new TestDomainController())
+        def grids = service.initControllerGrids(new TestDomainController(), TestDomainController)
 
         then:
         4 == grids.size()
@@ -254,7 +254,7 @@ class EasygridInitServiceSpec extends Specification {
         service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
 
         when:
-        def grids = service.initControllerGrids(new TestController())
+        def grids = service.initControllerGrids(new TestController(), TestController)
 
         then:
         1 == grids.size()
@@ -268,7 +268,7 @@ class EasygridInitServiceSpec extends Specification {
         service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
 
         when:
-        def grids = service.initControllerGrids(new Test1Controller())
+        def grids = service.initControllerGrids(new Test1Controller(), Test1Controller)
 
         then:
         1 == grids.size()

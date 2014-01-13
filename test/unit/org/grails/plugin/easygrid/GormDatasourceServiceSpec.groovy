@@ -5,6 +5,8 @@ import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.grails.plugin.easygrid.datasource.GormDatasourceService
 import spock.lang.Specification
+import spock.lang.Unroll
+
 import static org.grails.plugin.easygrid.TestUtils.*
 
 import static org.junit.Assert.assertEquals
@@ -24,7 +26,7 @@ class GormDatasourceServiceSpec extends Specification {
     static int N = 100
 
     def setup() {
-        domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication, service) {
+        domainGridConfig = generateConfigForGrid(grailsApplication, service) {
             'testDomainGrid' {
                 labelPrefix ''
                 dataSourceType 'gorm'
@@ -48,7 +50,7 @@ class GormDatasourceServiceSpec extends Specification {
             }
         }.testDomainGrid
 
-        criteriaGridConfig = TestUtils.generateConfigForGrid(grailsApplication, service) {
+        criteriaGridConfig = generateConfigForGrid(grailsApplication, service) {
             'testDomainGrid' {
                 labelPrefix ''
                 dataSourceType 'gorm'
@@ -79,7 +81,7 @@ class GormDatasourceServiceSpec extends Specification {
     def "testCriteriaDataSource"() {
         given:
         populateTestDomain(N)
-        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
+        def (params, request, response, session) = mockEasyGridContextHolder()
 
         expect:
         20 == service.countRows(criteriaGridConfig)
@@ -111,7 +113,7 @@ class GormDatasourceServiceSpec extends Specification {
     def "testDomainDataSource"() {
         given:
         populateTestDomain(N)
-        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
+        def (params, request, response, session) = mockEasyGridContextHolder()
 
         expect:
         N == service.countRows(domainGridConfig)
@@ -140,7 +142,7 @@ class GormDatasourceServiceSpec extends Specification {
     def "testGormSearch"() {
         given:
         populateTestDomain(N)
-        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
+        def (params, request, response, session) = mockEasyGridContextHolder()
 
         when:
         params.testStringProperty = 1
@@ -172,7 +174,7 @@ class GormDatasourceServiceSpec extends Specification {
     def "test Gorm operations"() {
         given:
         populateTestDomain(N)
-        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
+        def (params, request, response, session) = mockEasyGridContextHolder()
 
         when: "delete"
         params.id = TestDomain.findByTestIntProperty(1).id
@@ -212,13 +214,36 @@ class GormDatasourceServiceSpec extends Specification {
     }
 
 
+    def "test update operation with Integer id"() {
+        given:
+        populatePets()
+        def (params, request, response, session) = mockEasyGridContextHolder()
+        def petsConfig = generateConfigForGrid(grailsApplication, service) {
+            'petsGridConfig' {
+                dataSourceType 'gorm'
+                domainClass PetTest
+            }
+        }.petsGridConfig
+
+
+        when: "update"
+        params.id = "${PetTest.findByName('Bonkers').id}"
+        params.name = "Bonkers the Great"
+        service.updateRow(petsConfig)
+        def instance = PetTest.get(params.id)
+
+        then:
+        "Bonkers the Great" == instance.name
+
+    }
+
 
     def "test Complex Query"() {
         given:
         populatePets()
-        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
+        def (params, request, response, session) = mockEasyGridContextHolder()
 
-        def petsGridConfig = TestUtils.generateConfigForGrid(grailsApplication) {
+        def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
             'petsGridConfig' {
                 dataSourceType 'gorm'
                 domainClass PetTest
@@ -234,6 +259,9 @@ class GormDatasourceServiceSpec extends Specification {
 //                    filterFieldType 'text'
                         jqgrid {
                         }
+                    }
+                    someTransientProp {
+
                     }
                     'owner.name' {
 //                    name 'o.name'
@@ -275,6 +303,91 @@ class GormDatasourceServiceSpec extends Specification {
 //        5 == data.target.rows.size()
 //        'severin' == data.target.rows[0].cell[1]
     }
+
+
+    def "test add default values with for transient property"() {
+        //todo
+    }
+
+
+    @Unroll
+    def "test conditional clause"(paramVal, count) {
+        given:
+        populatePets()
+        EasygridContextHolder.storeParams([:])
+
+        when:
+
+        def query = service.createWhereQuery([domainClass: PetTest], [
+                new Filter(
+                        { Filter filter ->
+                            if (filter.paramValue.size() > 2) {
+                                eq('name', filter.paramValue)
+                            } else {
+                                owner {
+                                    eq('city', filter.paramValue)
+                                }
+                            }
+                        }, paramVal)])
+
+        then:
+        count == query.count()
+
+        where:
+        paramVal  | count
+        'NJ'      | 2
+        'Bonkers' | 1
+        'LA'      | 1
+    }
+
+    @Unroll
+    def "test conditional clause for owners"(paramVal, name) {
+        given:
+        populatePets()
+        EasygridContextHolder.storeParams([:])
+
+        when:
+
+        def query = service.createWhereQuery([domainClass: OwnerTest], [
+                new Filter(
+                        { Filter filter ->
+                            if (filter.paramValue.size() == 2) {
+                                eq('city', filter.paramValue)
+                            } else {
+                                pets {
+                                    eq('name', filter.paramValue)
+                                }
+                            }
+                        }, paramVal)])
+        def owners = query.list()
+
+        then:
+        owners[0].name == name
+
+        where:
+        paramVal  | name
+        'NJ'      | 'Mary'
+        'Bonkers' | 'John'
+    }
+
+/*
+
+    def "test a complex query"() {
+        given:
+        populatePets()
+
+        when:
+        def criteria = PetTest.createCriteria()
+        def list = criteria.list {
+            join 'owner'
+
+        }
+
+        then:
+        1 <= list.size()
+
+    }
+*/
 
     //utility
     private void populatePets() {

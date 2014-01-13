@@ -1,6 +1,7 @@
 package org.grails.plugin.easygrid
 
 import groovy.transform.AutoClone
+import groovy.transform.Canonical
 import org.grails.plugin.easygrid.ast.DynamicConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component
  */
 @DynamicConfig
 @AutoClone
+@Canonical
 class GridConfig {
 
     String id

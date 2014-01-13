@@ -1,6 +1,8 @@
 grails.project.work.dir = 'target'
 grails.project.source.level = 1.6
 
+grails.project.dependency.resolver = "maven" // or ivy
+
 grails.project.dependency.resolution = {
 
     inherits 'global'
@@ -15,31 +17,29 @@ grails.project.dependency.resolution = {
 
     dependencies {
         compile('com.google.visualization:visualization-datasource:1.1.1') {
-            exclude (group: 'commons-logging', name: 'commons-logging')
-            exclude (group: 'commons-lang', name: 'commons-lang')
+            exclude(group: 'commons-logging', name: 'commons-logging')
+            exclude(group: 'commons-lang', name: 'commons-lang')
         }
-        test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
     }
 
     plugins {
-        build(':release:2.2.1', ':rest-client-builder:1.0.3') {
+
+        compile ':export:1.5'
+        compile ":jquery-ui:1.10.3"
+        compile ":scaffolding:2.0.1"
+//        compile ":filterpane:2.3.0"
+//        compile ":plugin-config:0.1.8"
+
+        build(":release:3.0.1") {
             export = false
         }
 
-        compile(":hibernate:$grailsVersion") {
+        runtime ":jquery:1.10.2.2"
+        runtime ":resources:1.2.1"
+        runtime ':google-visualization:0.6.2'
+        runtime(':hibernate:3.6.10.6') {
             export = false
         }
 
-        compile(':export:1.5')
-
-        runtime(':jquery:1.8.0')
-        runtime(':jquery-ui:1.8.24')
-        runtime(':google-visualization:0.5.6')
-
-        runtime ":resources:1.2"
-
-        test(":spock:0.7") {
-            exclude "spock-grails-support"
-        }
     }
 }

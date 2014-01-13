@@ -14,7 +14,6 @@ import org.grails.plugin.easygrid.ast.DynamicConfig
 @AutoClone
 class AutocompleteConfig {
 
-    // the
     String idProp     // the name of the property of the id of the selected element (optionKey - in the replaced select tag)
 
     String labelProp   // the equivalent of "optionValue"

@@ -90,7 +90,7 @@ array	aaData	The data in a 2D array. Note that you can change the name of this p
 
     def transform(gridConfig,rows, nrRecords, listParams) {
         [
-                sEcho: params.sEcho as int,
+                sEcho: params.sEcho?:'-1' as int,
                 iTotalRecords: nrRecords,
                 iTotalDisplayRecords: nrRecords,
 //                sColumns: [], - todo -

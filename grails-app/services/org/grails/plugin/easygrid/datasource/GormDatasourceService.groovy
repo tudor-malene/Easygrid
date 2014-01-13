@@ -4,18 +4,17 @@ import grails.gorm.DetachedCriteria
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
+import org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator
 import org.grails.datastore.mapping.query.Query
-import org.grails.datastore.mapping.query.api.Criteria
 import org.grails.plugin.easygrid.ColumnConfig
-import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.Filter
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.transaction.annotation.Transactional
 
-import static org.grails.plugin.easygrid.EasygridContextHolder.*
-
+import static org.codehaus.groovy.grails.commons.GrailsClassUtils.getStaticPropertyValue
+import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
 /**
  * Datasource implementation for a GORM Domain class
  *
@@ -26,9 +25,10 @@ import static org.grails.plugin.easygrid.EasygridContextHolder.*
 class GormDatasourceService {
 
     def grailsApplication
+//    def filterPaneService
 
     /**
-     * if no columns specified in the builder - then generate the columns from the properties of the domain class
+     * if no columns specified in the gridConfig - then generate the columns from the properties of the domain class
      * - useful during prototyping
      * @param gridConfig
      */
@@ -36,53 +36,16 @@ class GormDatasourceService {
 
         // only generate if there are no columns defined
         if (!gridConfig.columns && gridConfig.domainClass) {
-            assert gridConfig.domainClass != null
-            //dynamically generate the columns
+            GrailsDomainClass domainClass = GridUtils.resolveDomainClass grailsApplication, gridConfig.domainClass
 
-            //wtf?? - without .name - doesn't work for reloading domain classes
-            GrailsDomainClass domainClass = grailsApplication.domainClasses.find { it.clazz.name == gridConfig.domainClass.name }
-
-            assert domainClass != null
-
-            /*           <%  excludedProps = Event.allEvents.toList() << 'id' << 'version'
-                        allowedNames = domainClass.persistentProperties*.name << 'dateCreated' << 'lastUpdated'
-                        props = domainClass.properties.findAll { allowedNames.contains(it.name) && !excludedProps.contains(it.name) && it.type != null && !Collection.isAssignableFrom(it.type) }
-                        Collections.sort(props, comparator.constructors[0].newInstance([domainClass] as Object[]))
-                        props.eachWithIndex { p, i ->
-                            if (i < 6) {
-                                if (p.isAssociation()) { %>
-                                    <th><g:message code="${domainClass.propertyName}.${p.name}.label" default="${p.naturalName}" /></th>
-                                <%      } else { %>
-                                    <g:sortableColumn property="${p.name}" title="\${message(code: '${domainClass.propertyName}.${p.name}.label', default: '${p.naturalName}')}" />
-                                    <%  }   }   } %>
-                        </tr>
-                            </thead>
-                        <tbody>
-                        <g:each in="\${${propertyName}List}" status="i" var="${propertyName}">
-                        <tr class="\${(i % 2) == 0 ? 'even' : 'odd'}">
-                        <%  props.eachWithIndex { p, i ->
-                            if (i == 0) { %>
-                                <td><g:link action="show" id="\${${propertyName}.id}">\${fieldValue(bean: ${propertyName}, field: "${p.name}")}</g:link></td>
-                                <%      } else if (i < 6) {
-                                if (p.type == Boolean || p.type == boolean) { %>
-                                    <td><g:formatBoolean boolean="\${${propertyName}.${p.name}}" /></td>
-                                <%          } else if (p.type == Date || p.type == java.sql.Date || p.type == java.sql.Time || p.type == Calendar) { %>
-                                    <td><g:formatDate date="\${${propertyName}.${p.name}}" /></td>
-                                <%          } else { %>
-                                    <td>\${fieldValue(bean: ${propertyName}, field: "${p.name}")}</td>
-                                    <%  }   }   } %>
-                        </tr>
-                            </g:each>
-            */
-//            todo - choose columns to exclude
-            def idProperty = domainClass.properties.find { it.name == 'id' }
+            def idProperty = domainClass.identifier
             if (idProperty) {
-                def idCol = new ColumnConfig(property: 'id', type: 'id', name: 'id')
+                def idCol = new ColumnConfig(property: idProperty.name, type: 'id', name: 'id')
                 idCol.valueType = idProperty.type
                 gridConfig.columns.add(idCol)
             }
 
-            domainClass.properties.findAll { !(it.name in ['id', 'version']) }.sort { a, b -> a.name <=> b.name }.each { GrailsDomainClassProperty prop ->
+            resolvePersistentProperties(domainClass).each { GrailsDomainClassProperty prop ->
                 if (prop.isAssociation()) {
                     return
                 }
@@ -95,7 +58,7 @@ class GormDatasourceService {
     }
 
 
-    def addDefaultValues(gridConfig, Map defaultValues) {
+    def addDefaultValues(GridConfig gridConfig, Map defaultValues) {
 
         gridConfig.columns.each { ColumnConfig column ->
             // add default filterClosure
@@ -106,6 +69,9 @@ class GormDatasourceService {
 //                        assert column.property: "you must specify a filterFieldType for ${column.name}"
                         if (column.property) {
                             Class columnPropertyType = GridUtils.getPropertyType(grailsApplication, gridConfig.domainClass, column.property)
+                            if(!columnPropertyType){
+                               log.warn("Property '${column.property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}" )
+                            }
                             switch (columnPropertyType) {
                                 case String:
                                     column.filterFieldType = 'text'
@@ -136,6 +102,30 @@ class GormDatasourceService {
         }
     }
 
+    /**
+     * "inspired" from Rob Fletcher's fields plugin
+     * @param domainClass
+     * @param ignoreList
+     * @return
+     */
+    private List<GrailsDomainClassProperty> resolvePersistentProperties(GrailsDomainClass domainClass, ignoreList = []) {
+        def properties = domainClass.persistentProperties as List
+
+        def blacklist = ignoreList
+        blacklist << 'dateCreated' << 'lastUpdated'
+        def scaffoldProp = getStaticPropertyValue(domainClass.clazz, 'scaffold')
+        if (scaffoldProp) {
+            blacklist.addAll(scaffoldProp.exclude)
+        }
+        properties.removeAll { it.name in blacklist }
+        properties.removeAll { !it.domainClass.constrainedProperties[it.name]?.display }
+        properties.removeAll { it.derived }
+
+        Collections.sort(properties, new DomainClassPropertyComparator(domainClass))
+        properties
+    }
+
+
     def verifyGridConstraints(gridConfig) {
         def errors = []
         if (!gridConfig.domainClass) {
@@ -159,10 +149,10 @@ class GormDatasourceService {
      * returns an element by id
      * @param id
      */
-    def getById(gridConfig, id) {
-        //todo - idProp
+    def getById(GridConfig gridConfig, id) {
+        String idProp = gridConfig.autocomplete.idProp
         if (id != null) {
-            createWhereQuery(gridConfig, [new Filter({ filter -> eq('id', id as long) })]).find()
+            createWhereQuery(gridConfig, [new Filter({ filter -> eq(idProp, id ) })]).find()
         }
     }
 
@@ -182,7 +172,7 @@ class GormDatasourceService {
      */
     DetachedCriteria createWhereQuery(gridConfig, filters) {
         def initial = new DetachedCriteria(gridConfig.domainClass)
-        filters.inject(gridConfig.initialCriteria ? initial.build(gridConfig.initialCriteria) : initial) { DetachedCriteria criteria, Filter filter ->
+        DetachedCriteria result = filters.inject(gridConfig.initialCriteria ? initial.build(gridConfig.initialCriteria) : initial) { DetachedCriteria criteria, Filter filter ->
             def filterCriteria = getCriteria(filter);
             if (filterCriteria instanceof Closure) {
                 criteria.and(filterCriteria)
@@ -192,7 +182,16 @@ class GormDatasourceService {
                 criteria
             }
         }
+
+        // add the filterpane stuff -if supported
+/*
+        if (filterPaneService) {
+            filterPaneService.addFiltersToCriteria(result, params, gridConfig.domainClass)
+        }
+*/
+        result
     }
+
 
     def getCriteria(Filter filter) {
         assert filter.searchFilter instanceof Closure
@@ -228,7 +227,7 @@ class GormDatasourceService {
         instance.properties = gridConfig.beforeSave params
         log.debug "instance = $instance"
 
-        if (!instance.save(flush: true)) {
+        if (!instance.save()) {
             return instance.errors
         }
     }

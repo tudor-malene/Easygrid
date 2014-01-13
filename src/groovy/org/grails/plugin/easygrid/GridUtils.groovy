@@ -2,6 +2,8 @@ package org.grails.plugin.easygrid
 
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
+import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.codehaus.groovy.grails.commons.GrailsDomainClass
 /**
  * utility methods
  *
@@ -215,8 +217,13 @@ class GridUtils {
      * @param property
      * @return
      */
-    static Class getPropertyType(grailsApplication, Class clazz, String property) {
-        grailsApplication.domainClasses.find { it.clazz.name == clazz.name }.getPersistentProperty(property).type
+    static Class getPropertyType(GrailsApplication grailsApplication, Class clazz, String property) {
+        resolveDomainClass(grailsApplication,clazz)?.getPropertyByName(property)?.type
     }
+
+    static GrailsDomainClass resolveDomainClass(grailsApplication, Class beanClass) {
+        grailsApplication.getDomainClass(beanClass.name)
+    }
+
 
 }

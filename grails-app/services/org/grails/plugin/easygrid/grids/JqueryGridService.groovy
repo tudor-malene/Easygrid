@@ -82,13 +82,13 @@ class JqueryGridService {
         // the closure returns null if success and an error message or an instance of errors in case of failure
         switch (params.oper) {
             case 'add':
-                result = gridConfig.saveRowClosure ? gridConfig.saveRowClosure() : easygridDispatchService.callDSSaveRow(gridConfig)
+                result = gridConfig.saveRowClosure ? gridConfig.saveRowClosure(gridConfig) : easygridDispatchService.callDSSaveRow(gridConfig)
                 break
             case 'edit':
-                result = gridConfig.updateRowClosure ? gridConfig.updateRowClosure() : easygridDispatchService.callDSUpdateRow(gridConfig)
+                result = gridConfig.updateRowClosure ? gridConfig.updateRowClosure(gridConfig) : easygridDispatchService.callDSUpdateRow(gridConfig)
                 break
             case 'del':
-                result = gridConfig.delRowClosure ? gridConfig.delRowClosure() : easygridDispatchService.callDSDelRow(gridConfig)
+                result = gridConfig.delRowClosure ? gridConfig.delRowClosure(gridConfig) : easygridDispatchService.callDSDelRow(gridConfig)
                 break
             default:
                 throw new RuntimeException("unknown oper: ${params.oper}")
@@ -107,4 +107,5 @@ class JqueryGridService {
 
         null
     }
+
 }

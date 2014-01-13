@@ -1,3 +1,4 @@
+<%@page defaultCodec="none" %>
 <script type="text/javascript">
 
     var ${attrs.id}FilterParams ;

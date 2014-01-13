@@ -1,3 +1,4 @@
+<%@page defaultCodec="none" %>
 <g:hiddenField id="${attrs.id}" name="${attrs.name}" value="${attrs.value}"/>
 
 <script type="text/javascript">

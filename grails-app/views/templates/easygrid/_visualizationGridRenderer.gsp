@@ -1,3 +1,4 @@
+<%@page defaultCodec="none" %>
 <g:if test="${gridConfig.filterForm}">
 
     <script type="text/javascript">

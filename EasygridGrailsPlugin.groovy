@@ -1,8 +1,10 @@
+import grails.util.Environment
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.grails.plugin.easygrid.EasygridInitService
 
 class EasygridGrailsPlugin {
 
-    def version = "1.4.1"
+    def version = "1.4.2"
 
     def grailsVersion = "2.0 > *"
 
@@ -14,7 +16,7 @@ class EasygridGrailsPlugin {
             'grails-app/domain/org/grails/plugin/easygrid/OwnerTest.groovy',
             'grails-app/domain/org/grails/plugin/easygrid/PetTest.groovy',
             'grails-app/services/org/grails/plugin/easygrid/grids/TestGridService.groovy',
-            'grails-app/views/templates/_testGridRenderer.gsp',
+            'grails-app/views/templates/easygrid/_testGridRenderer.gsp',
     ]
 
 //    def dependsOn = [
@@ -45,6 +47,10 @@ class EasygridGrailsPlugin {
     def doWithDynamicMethods = { ctx ->
     }
 
+    def doWithSpring = {
+        loadEasygridConfig(application)
+    }
+
     def onChange = { event ->
         event.ctx.getBean(EasygridInitService).initializeGrids()
     }
@@ -52,4 +58,23 @@ class EasygridGrailsPlugin {
     def doWithApplicationContext = { appCtx ->
         appCtx.getBean(EasygridInitService).initializeGrids()
     }
+
+    private ConfigObject loadEasygridConfig(GrailsApplication grailsApplication) {
+        def config = grailsApplication.config
+        GroovyClassLoader classLoader = new GroovyClassLoader(getClass().classLoader)
+
+        // Merging default Easygrid config into main application config
+        config.merge(new ConfigSlurper(Environment.current.name).parse(classLoader.loadClass('DefaultEasygridConfig')))
+
+        // Merging user-defined Easygrid config into main application config if provided
+        try {
+            config.merge(new ConfigSlurper(Environment.current.name).parse(classLoader.loadClass('EasygridConfig')))
+        } catch (any) {
+            println 'Could not process the EasygridConfig file '
+            // ignore, just use the defaults
+        }
+
+        return config
+    }
+
 }

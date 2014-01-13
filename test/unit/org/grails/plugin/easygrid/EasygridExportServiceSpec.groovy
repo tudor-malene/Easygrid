@@ -27,7 +27,7 @@ class EasygridExportServiceSpec extends Specification {
             testGrid {
                 dataSourceType 'gorm'
                 domainClass TestDomain
-                gridRenderer '/templates/testGridRenderer'
+                gridRenderer '/templates/easygrid/testGridRenderer'
                 export {
                     'column.width' 100
                 }

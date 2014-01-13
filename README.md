@@ -5,7 +5,7 @@ Provides a declarative way of defining Data Grids.
 
 It works currently with jqGrid, google visualization and jquery dataTables.
 
-Out of the box it provides sorting, filtering, exporting and inline edit just by declaring a grid in a controller and adding a tag to your gsp.
+Out of the box it provides sorting, filtering, exporting and inline edit just by declaring a grid in a controller and adding a tag to your gsp. 
 
 It also provides a powerful selection widget ( a direct replacement for drop-boxes )
 
@@ -13,19 +13,11 @@ It also provides a powerful selection widget ( a direct replacement for drop-box
 Installation
 -----------------------------
 
-    compile ":easygrid:1.4.0"
+    compile ":easygrid:1.4.2"
 
-    - For minimum functionality you need: jquery-ui and export plugins.
+    - For minimum functionality you need: jquery-ui and the export plugins.
     - For google visualization you also need: google-visualization
 
-    You will need to add dependencies to:
-    -  compile('org.mvel:mvel2:2.1.3.Final')
-    -  compile('com.google.visualization:visualization-datasource:1.1.1') {
-            exclude (group: 'commons-logging', name: 'commons-logging')
-            exclude (group: 'commons-lang', name: 'commons-lang')
-        }
-
-    and the dynamic-controller and jquery-ui plugins
 
 
 Overview
@@ -33,7 +25,7 @@ Overview
 
 The issues that Easygrid tackles are:
 
-* big learning curve for each ajax Grid framework
+* steep learning curve for most ajax Grid framework
 * once integrated into a grails project the business logic for each ajax Grid resides in multiple places ( Controller, gsp ). Usually, in the controller, there's a different method for each aspect ( search, export, security, etc)
 * a lot of concerns are addressed programmatically, instead of declaratively (like search, formats )
 * duplicated code (javascript, gsp, controllers). Each project has to create individual mechanisms to address it.
@@ -52,16 +44,17 @@ Easygrid solves these problems by proposing a solution based on declarations & c
 ### Features:
 
 - custom builder - for defining the grid
-- easy to mock and test:
-- easy to start able to generate a Grid from a domain class without any custom configuration
--  reloads & regenerates the grid when source code is changed
+- very easy to setup:  able to generate a Grid from a domain class without any custom configuration
+- reloads the grid(s) when the source code is changed
 - convenient default values for grid & column properties
 - DRY: predefined column types - ( sets of properties )
 - define the column formatters in one place
 - customizable html/javascript grid templates
 - built-in support for exporting to different formats ( using the exporter plugin )
-- easy inline editing - using jqgrid
+- easy inline editing ( when using jqgrid )
 - configurable dynamic filtering form -
+- possibility to define master-slave grids ( see the petclinic example )
+- easy to mock and test
 
 - Jquery-ui widget and custom tag for a powerful selection widget featuring a jquery autocomplete textbox and a selection dialog built with Easygrid ( with filtering, sorting,etc)
 
@@ -95,16 +88,15 @@ and 4 grid implementations ( _JqGrid_, _GoogleVisualization_, _Datatables_, _sta
 Usage
 -----------------------------
 
-All grids will be defined in controllers - which must be annotated with @Easygrid.
+All grids will be defined in controllers - which must be annotated with @Easygrid. 
 
-In each annotated controller you need to define a static closure called "grids" where you define the grids which will be made available by this controller (using the dynamic controllers plugin, at startup, custom grid methods will be added to the controller for each defined grid ).
+In each annotated controller ( @Easygrid ) you can define a static closure called "grids" where you define the grids which will be made available by this controller. Starting with version 1.4.1, the preferred way of defining grids is by using plain closures ending with the 'Grid' suffix ( similar to flows in Spring WebFlow )
 
-The plugin provides a custom Builder for making the configuration more straight forward.
+The plugin provides a custom Builder for making the configuration very straight forward.
 
 Ex:  ( from the easygrid petclinic )
 
-    static grids = {
-        ownersGrid {
+        def ownersGrid = {         
             dataSourceType 'gorm'
             domainClass Owner
             columns {
@@ -125,29 +117,32 @@ Ex:  ( from the easygrid petclinic )
                 }
             }
         }
-    }
 
 
-In the gsp, you can use this grid via the following tags:
-    <grid:grid name="ownersGrid" jqgrid.width='600' columns.id.jqgrid.formatter='customShowFormat'
+In the gsp, you can use this grid via the following tag:
+
+    <grid:grid name="owners" jqgrid.width='600' columns.id.jqgrid.formatter='customShowFormat'
                jqgrid.caption='"Owners"' addUrl="${g.createLink(controller: 'owner',action: 'add')}"/>
     <grid:exportButton name="ownersGrid"/>
 
 You also have to add the resource modules for the grid implementation:
+
     <r:require modules="easygrid-jqgrid-dev,export"/>
 
 
-From this simple example, you can see how we can define all aspects of the grid .
-( datasource, rendering, security, export properties, filtering )
+From this simple example, you can see how we can define almost all aspects of a grid in a couple of lines.
+( datasource, rendering, export properties, filtering )
 
-The UI properties can be added to the Config file ( as defaults or types), in the Controller, or in the gsp page.
+Custom UI properties can be added to the Config file ( as defaults or types), in the Controller, or in the gsp page.
 
-The simple grid from this example - which can be viewed [here](http://199.231.186.169:8080/petclinic/overview), comes with all features - including basic default filtering.
+The simple grid from this example - which can be viewed [here](http://199.231.186.169:8080/petclinic/overview), comes with all features - including basic default filtering. 
+
+
 
 
 #### Grid Implementations:
 
-*	**jqgrid**
+*    **jqgrid**
         - implements [jqgrid](http://www.trirand.com/blog/)
 
 *	**visualization**
@@ -345,39 +340,40 @@ Testing:
 
 
 Guide on extending the default functionality:
-- on installing the plugin you will have 4 templates ( one for each renderer) in your /templates/easygrid folder and a lot of configurations at the end of Config.groovy
-- You can customize the templates so that the layout matches your needs
-- you can add new properties in the grid or in the column.
-  General guide for properties:
-   - all the properties from jqgrid {} ( or visualization, etc, ) will be dynamically added to the javascript framework ( only use properties available in the library documentation )
-   - you can access any other property from the template, so you can customize the layout for your needs
+------------------------
+
+- on installing the plugin it will copy 4 templates ( one for each renderer) in your /templates/easygrid folder 
+- You are encouraged to customize the templates so that the layout matches your needs
+
+- also, in the configuratin folder there will be a file : EasygridConfig 
+
+- The GridConfig object ( which defines one grid ) is designed so that you can add new properties to the grid or to any column. These properties that you add, can be accessed in the renderer templates to customize the view.
+  The default behavior is that all the properties added in the jqgrid {} section ( or visualization, etc, ) will be automatically added to the created javascript object ( only use properties available in the library documentation )
+  
 
 
 FAQ:
 ------------------
 ### I want to implement my first grid. What are the steps?    ###
-A: First you need to annotate the controller with @Easygrid, and define the static grids property where you can define the grid.
+A: First you need to annotate a controller with @Easygrid, and define the desired grid ( def gridNameGrid = {..}  )
 In the gsp (if it belongs to that controller), all you have to do is:
   1) add <r:require modules="easygrid-jqgrid-dev,export"/> ( or whatever impelementation you're using )
-  2) <grid:grid name="your_grid_name"/>
-
-### Why is the default configuration so large?    ###
-A: It is so large because the plugin is highly configurable, and designed to minimize code duplication.
+  2) <grid:grid name="gridName"/>
 
 ### I need to customize the grid template. What are the properties of the gridConfig variable from the various templates? ###
 A: Check out [GridConfig](https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/GridConfig.groovy)
 
-### What is the deal with the Filter parameter of the filterClosures?  ###
-A: Check out [Filter](https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/Filter.groovy)
+### What is the role of the Filter parameter passed to  the filterClosures?  ###
+A: Check out [Filter](https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/Filter.groovy) . 
 
 ### Why does the filterClosure of the _list_ implementation have 2 parameters? ###
-A: Because on this implementation you also get the current row so that you can apply the filter on it, as opposed to the _gorm_ implementation where the filter closure is a criteria.
+A: Because on this implementation you also get the current row so that you can apply the filter on it, as opposed to the _gorm_ implementation where the filter closure is a gorm criteria.
 
 ### Isn't it bad practice to put view stuff in the controller?  ###
-A: You don't have to put view stuff in the controller. You are encouraged to define column types and as many default view properties as possible in the config. Also , you can override any grid property in the grid tag in the gsp.
+A: You don't have to put view stuff in the controller. You are encouraged to define column types and as many default view properties as possible in the config file. Also , you can override or set any view property in the grid tag in the gsp.
 
 ### I need to pass other view attributes to the ajax grid.  ###
-A: No problem, everything is extensible, just put it in the builder, and you can access it in the template. If it is a implementation attribute, you are encouraged to put it in the implementation section.
+A: No problem, everything is extensible, just put it in the builder, and you can access it in the template. 
 
 ### I don't use spring security, can I remove the default implementation?  ###
 A: Yes you can. If there is no securityProvider defined, then no security restrictions are in place.
@@ -395,11 +391,11 @@ A: Yes.
 A: The labelFormat is transformed into a SimpleTemplateEngine instance and populated at runtime with the gridConfig and the prefix.
 
 ### Are there any security holes I should be aware of?  ###
-A: All public methods are guarded by the security provider you defined either in the config or in the grid.
+A: All public methods are guarded by the security provider you defined either in the config or in the grid. You can also apply your own security filter on top of the generated controller actions.
 
 ### What is the difference between Easygrid and the JqGrid plugin?   ###
-A: The JqGrid plugin is a wrapper over JqGrid. It provides the resources and a nice taglib. But you still have to code yourself all the server side logic.
-  Easygrid goes a step further and allows you to define a grid and it will render it for you.
+A: The JqGrid plugin is a thin wrapper over JqGrid. It provides the resources and a nice taglib. But you still have to code yourself all the server side logic.
+  Easygrid does much more than that.
 
 ### I use the jqgrid plugin. How difficult is it to switch to easygrid?   ###
 A: If you already use jqgrid, then you probably have the grid logic split between the controller and the view.
@@ -412,17 +408,17 @@ A: If you already use jqgrid, then you probably have the grid logic split betwee
 A: You can create a gsp template just for it and set it in the builder.
 
 ### The value formatting is complicated.       ###
-A: It's designed to be flexible, to be able to be used in multiple contexts.
+A: It's designed to be flexible.
 
 ### Can I just replace a select box with a selection widget?    ###
-A:  Yes, but you will need to also specify the controller & gridName
+A:  Yes, it's pretty easy, it's justa matter of replacing  the select tag . Nothing needs to be changed in the controller
 
 ### I want to customize the selection widget.   ###
 A: Just create a new autocomplete renderer template and use the selection jquery ui widget
 
 ### I need more information on how to.. ?   ###
 ### I have a suggestion.  ###
-A: You can raise a ticket or drop me an email : tudor.malene at gmail.com, or use the mailing list
+A: You can raise a github ticket , drop me an email to: tudor.malene at gmail.com, or use the grails mailing list
 
 
 
@@ -430,6 +426,17 @@ A: You can raise a ticket or drop me an email : tudor.malene at gmail.com, or us
 
 Version History
 ------------------------
+
+### 1.4.2
+    Improvements:
+      - Cleaned up the configuration. The defaults are in the DefaultEasygridConfig.groovy class. The custom project settings will be in /grails-app/conf/EasygridConfig
+      - in development mode you can define a grid directly in the gsp ( works just for gorm ).     
+    -  the custom inline edit closures ( updateRowClosure, etc ) will be passed the gridConfig object
+     
+    Bugs:
+     - fixed  ListDatasourceService 
+     - fixed externalGrids startup issue  on older grails versions
+     - the gorm datasource also works with non Long ids
 
 ### 1.4.1
     - added possibility to declare grids in normal Controller closures - ending with "Grid". - see (https://github.com/tudor-malene/Easygrid_example/blob/master/grails-app/controllers/example/AuthorController.groovy)
@@ -486,6 +493,15 @@ Version History
 #### 0.9.9
     - first version
 
+Upgrading to 1.4.2
+-----------------
+ - isolate all the changes you did to the easygrid section of the Config file and move them to /conf/EasygridConfig.groovy
+- after that remove the entire easygrid section from Config
+- if you use the custom inline edit closures ( updateRowClosure, etc ) - the fist parameter of the closure will be the actual gridConfig object 
+
+Upgrading to 1.4.1
+-----------------
+
 
 Upgrading to 1.4.0
 -----------------
@@ -501,6 +517,7 @@ Upgrading to 1.4.0
              filterFormTemplate =  '/templates/filterFormRenderer'
          }
      }
+  - replace filter.column with filter.filterable where the default search closures are defines
 
 
 Upgrading to 1.3.0

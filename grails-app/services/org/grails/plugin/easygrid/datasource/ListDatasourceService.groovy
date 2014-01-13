@@ -5,6 +5,7 @@ import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.Filter
 import org.springframework.web.context.request.RequestContextHolder
 import static org.grails.plugin.easygrid.EasygridContextHolder.*
+
 /**
  * Datasource implementation
  * the rows are stored in a context ( by default 'session')
@@ -37,14 +38,21 @@ class ListDatasourceService {
      */
     def list(gridConfig, Map listParams, filters = null) {
 
-        def tempList = filters.inject(list) { list, Filter filter ->
+        Collection tempList = filters.inject(getList(gridConfig)) { list, Filter filter ->
             list.findAll getCriteria(filter)
         }
 
         if (tempList) {
             def end = (listParams.rowOffset + listParams.maxRows > tempList.size()) ? tempList.size() - 1 : listParams.rowOffset + listParams.maxRows - 1
-            if (end > listParams.rowOffset) {
-                return tempList[listParams.rowOffset..end]
+            if (end >= listParams.rowOffset) {
+                tempList = tempList[listParams.rowOffset..end]
+                if (listParams.sort) {
+                    tempList = tempList.sort { a, b ->
+                        def comp = a[listParams.sort]<=>b[listParams.sort]
+                        (listParams.order == 'asc') ? comp : -comp
+                    }
+                }
+                return tempList
             }
         }
         []
@@ -69,7 +77,7 @@ class ListDatasourceService {
      * @return
      */
     def countRows(gridConfig, filters = null) {
-        filters.inject(list) { list, Filter filter ->
+        filters.inject(getList(gridConfig)) { list, Filter filter ->
             list.findAll getCriteria(filter)
         }.size()
 
@@ -80,9 +88,9 @@ class ListDatasourceService {
     /**
      * default method called on updating a grid element
      */
-    def updateRow = {
+    def updateRow(gridConfig) {
 
-        def instance = list[params.id as int]
+        def instance = getList(gridConfig)[params.id as int]
         if (!instance) {
             return 'default.not.found.message'
         }
@@ -111,21 +119,21 @@ class ListDatasourceService {
     /**
      * default method  called on saving a new grid element
      */
-    def saveRow = {
-        list.add gridConfig.beforeSave params
+    def saveRow(gridConfig) {
+        getList(gridConfig).add gridConfig.beforeSave params
     }
 
     /**
      * default method  called on deleting a grid element
      */
-    def delRow = {
-        def instance = list[params.id as int]
+    def delRow(gridConfig) {
+        def instance = getList(gridConfig)[params.id as int]
 
         if (!instance) {
 //            Errors errors = new
             return 'default.not.found.message'
         }
-        list.remove(params.id as int)
+        getList(gridConfig).remove(params.id as int)
     }
 
 

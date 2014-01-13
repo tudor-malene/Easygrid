@@ -18,14 +18,19 @@ class EasygridTagLibSpec extends Specification {
         given:
         tagLib.easygridService = Mock(EasygridService)
 
-        tagLib.easygridService.getGridConfig(_, _) >> new GridConfig(id: 'testGrid', gridRenderer: '/templates/testGridRenderer')
+        tagLib.easygridService.getGridConfig(_, _) >> new GridConfig(id: 'testGrid', gridRenderer: '/templates/easygrid/testGridRenderer')
         tagLib.easygridService.overwriteGridProperties(_, _, _) >> { args -> args[0] }
-        tagLib.easygridService.overwriteGridProperties(_,_) >> {args -> args[0]}
-        tagLib.easygridService.htmlGridDefinition(_) >> { args -> [gridConfig:args[0] ]}
+        tagLib.easygridService.overwriteGridProperties(_, _) >> { args -> args[0] }
+        tagLib.easygridService.htmlGridDefinition(_) >> { args -> [gridConfig: args[0]] }
 
         expect:
-        applyTemplate('<grid:grid name="testGrid"/> ').trim() == 'testGrid'
+        result == applyTemplate(template).trim()
 //        applyTemplate('<grid:exportButton name="testGrid"/> ')
 
+
+        where:
+        template                          | result
+        '<grid:grid name="testGrid"/> '   | 'testGrid'
+//        '<grid:grid domain=TestDomain/> ' | 'testGrid'
     }
 }

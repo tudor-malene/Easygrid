@@ -1,3 +1,4 @@
+<%@page defaultCodec="none" %>
 %{--
 <div id="${attrs.id}_FilterDiv">
     <form name="${attrs.id}_FilterForm" >

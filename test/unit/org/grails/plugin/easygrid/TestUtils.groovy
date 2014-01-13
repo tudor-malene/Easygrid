@@ -1,5 +1,6 @@
 package org.grails.plugin.easygrid
 
+import grails.util.Environment
 import org.codehaus.groovy.grails.plugins.testing.GrailsMockHttpServletRequest
 import org.codehaus.groovy.grails.plugins.testing.GrailsMockHttpServletResponse
 import org.codehaus.groovy.grails.plugins.testing.GrailsMockHttpSession
@@ -18,6 +19,7 @@ class TestUtils {
      */
     static generateConfigForGrid(grailsApplication, dataSourceService = null, Closure gridConfigClosure) {
 //        mockGridConfigMethods(action)
+        grailsApplication.config.merge(new ConfigSlurper(Environment.current.name).parse(this.classLoader.loadClass('DefaultEasygridConfig')))
         def service = new EasygridInitService()
         service.easygridDispatchService = [
                 invokeMethod: { String name, Object args ->

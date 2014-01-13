@@ -1,10 +1,11 @@
 package org.codehaus.groovy.grails.plugins.easygrid
 
 import groovy.util.logging.Slf4j
-import org.codehaus.groovy.grails.commons.ControllerArtefactHandler
-import org.codehaus.groovy.grails.plugins.web.taglib.FormTagLib
+import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
+
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Taglib
@@ -17,27 +18,60 @@ class EasygridTagLib {
     static namespace = "grid"
 
     def easygridService
+    def easygridInitService
     def grailsApplication
+
+    //used for generating unique grid names
+    static AtomicInteger gridCounter = new AtomicInteger(0)
 
     /**
      * Include the code for the grid
      *
-     * @attr name REQUIRED - the name of the grid
+     * @attr name - the name of the grid
+     * @attr domain - the domain class to scaffold the grid
      * @attr id - the javascript id of the component ( by default the grid name)
      * @attr controller - the controller where the grid is defined ( by default the current controller)
      */
     def grid = { attrs, body ->
-        if (attrs.id == null) {
-            attrs.id = attrs.name
+
+        def gridConfig
+        if (!attrs.name) {
+            //will create an adhoc grid -this is only for quick prototyping
+            if (!attrs.domainClass) throwTagError("Tag [grid] must refer a grid defined in a controller or a must specify a domain class to scaffold a grid")
+
+            def controller = grailsApplication.controllerClasses.find {
+                it.logicalPropertyName == retrieveController(attrs)
+            }
+            if (!controller) {
+                throwTagError("No controller: ${attrs.controller} found")
+            }
+
+            def gridName = "${actionName}${gridCounter.incrementAndGet()}"
+
+            //create a new gorm grid config from a domain
+            gridConfig = easygridInitService.initializeGrid(controller, gridName, attrs.domainClass)
+            log.debug("Grid ${gridName} created for controller ${controller} and domain ${attrs.domainClass}")
+
+        } else {
+            //use a grid defined in a controller
+            if (attrs.id == null) {
+                attrs.id = attrs.name
+            }
+
+            def originalGridConfig = easygridService.getGridConfig(retrieveController(attrs), attrs.name)
+            if (!originalGridConfig) {
+                throwTagError("Could not find grid definition for controller: ${retrieveController(attrs)} and grid name: ${attrs.name}")
+            }
+            gridConfig = easygridService.overwriteGridProperties(originalGridConfig, attrs)
         }
 
-        def gridConfig = easygridService.overwriteGridProperties(easygridService.getGridConfig(attrs.controller ?: controllerName, attrs.name), attrs)
         def model = easygridService.htmlGridDefinition(gridConfig)
 
         if (model) {
             model.attrs = attrs
             out << render(template: gridConfig.gridRenderer, model: model)
         }
+
     }
 
     /**
@@ -48,12 +82,14 @@ class EasygridTagLib {
      * @attr controller - the controller where the grid is defined ( by default the current controller)
      */
     def exportButton = { attrs, body ->
+        if (!attrs.name) throwTagError("Tag [exportButton] is missing required attribute [name]")
+
         if (attrs.id == null) {
             attrs.id = attrs.name
         }
 
         //ignore the attributes of the export tag
-        def gridConfig = easygridService.overwriteGridProperties(easygridService.getGridConfig(attrs.controller ?: controllerName, attrs.name), attrs, ['formats', 'params'])
+        def gridConfig = easygridService.overwriteGridProperties(easygridService.getGridConfig(retrieveController(attrs), attrs.name), attrs, ['formats', 'params'])
         attrs.action = "${gridConfig.id}Export"
         out << export.formats(attrs)
     }
@@ -80,7 +116,40 @@ class EasygridTagLib {
     }
 
     /**
-     * todo - nested ca sa fie coerent si sa poti sa ai si griduri fara coloane
+     * form tag that will submit the content to a grid and trigger a reload
+     * to be used for custom filters
+     */
+    def gridForm = { attrs, body ->
+        if (attrs.id == null) {
+            attrs.id = attrs.name
+        }
+        out << "<form name='${attrs.id}' onsubmit='"
+        if (attrs.function) {
+            out << "${attrs.function};"
+        }
+        out << "return filterForm${attrs.name}(this)"
+        out << "'>"
+        out << body()
+        out << "</form> "
+    }
+
+/*
+    def currentCriteriaAjax = { attrs, body ->
+        def controller = grailsApplication.controllerClasses.find {
+            it.logicalPropertyName == controllerName
+        }
+        def action = 'currentCriteriaAjax'
+        controller.registerMapping action
+        controller.clazz.metaClass."get${action.capitalize()}" << { ->
+            Closure newClosure = {render currentCriteria(attrs)}
+            newClosure.delegate = delegate
+            newClosure
+        }
+    }
+
+*/
+
+    /**
      * Generates a selection widget -
      * which is a replacement for drop-down boxes, when the data to select from is larger
      * It features a input ( decorated with jquery-ui autocomplete_)
@@ -120,8 +189,6 @@ class EasygridTagLib {
         out << render(plugin: 'easygrid', template: template, model: [attrs: attrs])
     }
 
-
-
     /**
      * iterates the columns of a grid - depending on the context
      *
@@ -134,5 +201,31 @@ class EasygridTagLib {
         GridUtils.eachColumn(gridConfig) { col, idx ->
             out << body(col: col, idx: idx, last: (idx == gridConfig.columns.size() - 1))
         }
+    }
+
+    /**
+     *  can be used in javascript to retrieve the column idx using the column name:
+     *  for ex: var age = rowObject[${grid.columnIndex(column:'age')}]
+     */
+    def columnIndex = { attrs, body ->
+        if (!attrs.name) throwTagError("Tag [columnIndex] is missing required attribute [name]")
+
+        //ignore the attributes of the export tag
+        GridConfig gridConfig = easygridService.getGridConfig(retrieveController(attrs), attrs.name)
+
+        int colNo = -1
+        for (int i = 0; i < gridConfig.columns.size(); i++) {
+            ColumnConfig cc = gridConfig.columns[i]
+            if (cc.name == attrs.column) {
+                colNo = i
+                break;
+            }
+        }
+        out << colNo
+    }
+
+
+    private retrieveController(attrs) {
+        attrs.controller ?: controllerName
     }
 }

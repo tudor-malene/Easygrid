@@ -12,7 +12,7 @@ class TestDomainController {
         testGrid {
             dataSourceType 'gorm'
             domainClass TestDomain
-            gridRenderer '/templates/testGridRenderer'
+            gridRenderer '/templates/easygrid/testGridRenderer'
             jqgrid {
                 width 300
                 height 150
@@ -36,7 +36,7 @@ class TestDomainController {
         test1 {
             dataSourceType 'gorm'
             domainClass TestDomain
-            gridRenderer '/templates/testGridRenderer'
+            gridRenderer '/templates/easygrid/testGridRenderer'
             gridImplService TestGridService
         }
 
