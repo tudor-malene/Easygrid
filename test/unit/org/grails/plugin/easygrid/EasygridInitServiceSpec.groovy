@@ -276,6 +276,40 @@ class EasygridInitServiceSpec extends Specification {
 
     }
 
+    def "Lifecycle closures called properly"() {
+        given:
+        GridConfig domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication) {
+            testDomainGrid {
+                dataSourceType 'gorm'
+                domainClass TestDomain
+//                beforeApplyingGridDefaults { GridConfig gridConfig ->
+//                    gridConfig
+//                }
+                beforeApplyingColumnRules { GridConfig gridConfig ->
+                    gridConfig.columns.add(0, new ColumnConfig(name: 'testStringProperty', property: 'testStringProperty'))
+                    gridConfig.columns.actions.type = 'actions'
+                }
+                afterInitialization { GridConfig gridConfig ->
+                    gridConfig.someUselessProperty = '1'
+                }
+                columns {
+                    actions
+                    testIntProperty
+                }
+            }
+        }.testDomainGrid
+
+        expect: "the column was added in the first position"
+        3 == domainGridConfig.columns.size()
+        'testStringProperty' == domainGridConfig.columns[0].name
+
+        and: " the property set in afterInitialization "
+        '1' == domainGridConfig.someUselessProperty
+
+        and: "they type set for the actions column was applied correctly"
+        '"actions"' == domainGridConfig.columns.actions.jqgrid.formatter
+    }
+
 }
 
 @Easygrid(externalGrids = ExternalGrids)

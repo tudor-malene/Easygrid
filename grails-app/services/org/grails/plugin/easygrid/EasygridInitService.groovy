@@ -1,6 +1,7 @@
 package org.grails.plugin.easygrid
 
 import grails.util.Environment
+import grails.util.GrailsNameUtils
 import groovy.text.SimpleTemplateEngine
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
@@ -216,18 +217,21 @@ class EasygridInitService {
     /**
      * adds the default values specified in the config file - to the grid configuration
      * todo - refactor
-     * @param gridConfig
+     * @param originalGridConfig
      * @return a grid with the default values
      */
-    def GridConfig addDefaultValues(GridConfig grid) {
-        log.debug "start adding default values: $grid"
+    def GridConfig addDefaultValues(GridConfig originalGridConfig) {
+        log.debug "start adding default values: $originalGridConfig"
 
         Map defaultValues = grailsApplication?.config?.easygrid
-        GridConfig gridConfig = grid.deepClone()
+        GridConfig gridConfig = originalGridConfig.deepClone()
 
         assert gridConfig.id
 
         log.trace "before defaults: $gridConfig"
+
+
+//        grid.beforeApplyingGridDefaults?.call(grid)
 
         //add the default values for the mandatory properties ( impl, type )
         GridUtils.copyProperties defaultValues.defaults, gridConfig, 1
@@ -287,6 +291,9 @@ class EasygridInitService {
             GridUtils.copyProperties defaultValues.defaults.autocomplete, gridConfig.autocomplete
         }
 
+
+        gridConfig.beforeApplyingColumnRules?.call(gridConfig)
+
         //add the predefined types  to the columns
         gridConfig.columns.each { ColumnConfig column ->
             if (!column[gridConfig.gridImpl]) {
@@ -328,7 +335,7 @@ class EasygridInitService {
             if (column.label == null) {
                 def prefix = gridConfig.labelPrefix
                 if (gridConfig.domainClass) {
-                    prefix = prefix ?: grails.util.GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
+                    prefix = prefix ?: GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
                     assert prefix
                 }
                 if (prefix) {
@@ -361,6 +368,8 @@ class EasygridInitService {
             easygridDispatchService.callExportAddDefaultValues(gridConfig, defaultValues)
         }
 //        easygridDispatchService.callFFAddDefaultValues(gridConfig, defaultValues)
+
+        gridConfig.afterInitialization?.call(gridConfig)
 
         gridConfig
     }

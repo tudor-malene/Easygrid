@@ -58,6 +58,17 @@ class GridConfig {
     // the filter form
     FilterFormConfig filterForm
 
+
+    // lifecycle closures- called during the initialization phase - will receive the gridConfig
+    // useful for applying different rules
+
+    // will be called before applying the default values - must be set in the builder
+//    Closure beforeApplyingGridDefaults
+    // useful for adding new columns, etc
+    Closure beforeApplyingColumnRules
+    Closure afterInitialization
+
+
     @Override
     public String toString() {
         return "GridConfig{${id}}"

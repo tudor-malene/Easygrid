@@ -16,6 +16,7 @@ class ListMapWrapper<T> {
     //map of elements by key
     private Map<String, T> elementMap
 
+    // when adding an element - it will use this property as the key
     String nameProperty
 
     ListMapWrapper(nameProperty) {
@@ -29,8 +30,19 @@ class ListMapWrapper<T> {
         elementMap.put(key, t)
     }
 
+    def add(String key, int idx, T t) {
+        elementList.add(idx, t)
+        elementMap.put(key, t)
+    }
+
     def add(T t) {
         elementList.add(t)
+        assert t[nameProperty]
+        elementMap[t[nameProperty]] = t
+    }
+
+    def add(int idx, T t) {
+        elementList.add(idx, t)
         assert t[nameProperty]
         elementMap[t[nameProperty]] = t
     }

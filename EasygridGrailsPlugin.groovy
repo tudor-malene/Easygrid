@@ -4,7 +4,7 @@ import org.grails.plugin.easygrid.EasygridInitService
 
 class EasygridGrailsPlugin {
 
-    def version = "1.4.2"
+    def version = "1.4.3"
 
     def grailsVersion = "2.0 > *"
 

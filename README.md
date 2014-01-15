@@ -13,7 +13,7 @@ It also provides a powerful selection widget ( a direct replacement for drop-box
 Installation
 -----------------------------
 
-    compile ":easygrid:1.4.2"
+    compile ":easygrid:1.4.3"
 
     - For minimum functionality you need: jquery-ui and the export plugins.
     - For google visualization you also need: google-visualization
@@ -427,16 +427,25 @@ A: You can raise a github ticket , drop me an email to: tudor.malene at gmail.co
 Version History
 ------------------------
 
+### 1.4.3
+    Improvements:
+     - Added grid initialization lifecycle closures
+
+    Bugs:
+     - the 'scaffolding' dependency is not exported any more
+
+
 ### 1.4.2
     Improvements:
-      - Cleaned up the configuration. The defaults are in the DefaultEasygridConfig.groovy class. The custom project settings will be in /grails-app/conf/EasygridConfig
-      - in development mode you can define a grid directly in the gsp ( works just for gorm ).     
-    -  the custom inline edit closures ( updateRowClosure, etc ) will be passed the gridConfig object
+     - Cleaned up the configuration. The defaults are in the DefaultEasygridConfig.groovy class. The custom project settings will be in /grails-app/conf/EasygridConfig
+     - in development mode you can define a grid directly in the gsp ( works just for gorm ).
+     - the custom inline edit closures ( updateRowClosure, etc ) will be passed the gridConfig object
      
     Bugs:
      - fixed  ListDatasourceService 
      - fixed externalGrids startup issue  on older grails versions
      - the gorm datasource also works with non Long ids
+
 
 ### 1.4.1
     - added possibility to declare grids in normal Controller closures - ending with "Grid". - see (https://github.com/tudor-malene/Easygrid_example/blob/master/grails-app/controllers/example/AuthorController.groovy)

@@ -23,10 +23,20 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
+        compile ":jquery-ui:1.10.3"
+        runtime ":jquery:1.10.2.2"
+
+        runtime (":resources:1.2.1"){
+            export = false
+        }
 
         compile ':export:1.5'
-        compile ":jquery-ui:1.10.3"
-        compile ":scaffolding:2.0.1"
+
+        runtime ':google-visualization:0.6.2'
+
+        compile (":scaffolding:2.0.1"){
+            export = false
+        }
 //        compile ":filterpane:2.3.0"
 //        compile ":plugin-config:0.1.8"
 
@@ -34,12 +44,8 @@ grails.project.dependency.resolution = {
             export = false
         }
 
-        runtime ":jquery:1.10.2.2"
-        runtime ":resources:1.2.1"
-        runtime ':google-visualization:0.6.2'
         runtime(':hibernate:3.6.10.6') {
             export = false
         }
-
     }
 }
