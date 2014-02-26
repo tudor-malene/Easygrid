@@ -370,24 +370,57 @@ class GormDatasourceServiceSpec extends Specification {
         'Bonkers' | 'John'
     }
 
-/*
 
     def "test a complex query"() {
         given:
         populatePets()
+        def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
+            'petsGridConfig' {
+                dataSourceType 'gorm'
+                domainClass PetTest
+                initialCriteria {
+                    join 'owner'
+                }
+                columns {
+                    id {
+                        type 'id'
+                    }
+                    name {
+                        enableFilter true
+//                    filterFieldType 'text'
+                        jqgrid {
+                        }
+                    }
+                    someTransientProp {
+
+                    }
+                    'owner.name' {
+//                    name 'o.name'
+//                    property 'owner.name'
+                        enableFilter true
+                        jqgrid {
+                        }
+                    }
+                    'owner.city' {
+                        enableFilter true
+                        jqgrid {
+                        }
+                    }
+                }
+            }
+        }.petsGridConfig
+
+
+        expect:
+        'owner.name' == petsGridConfig.columns['owner.name'].property
+        'owner.city' == petsGridConfig.columns['owner.city'].property
 
         when:
-        def criteria = PetTest.createCriteria()
-        def list = criteria.list {
-            join 'owner'
-
-        }
-
+        def data = service.list(petsGridConfig)
         then:
-        1 <= list.size()
-
+        5 == data.size()
+        'Bonkers' == data[0].name
     }
-*/
 
     //utility
     private void populatePets() {

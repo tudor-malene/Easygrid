@@ -1,10 +1,9 @@
 package org.grails.plugin.easygrid
 
 import groovy.util.logging.Slf4j
-import org.codehaus.groovy.control.ConfigurationException
-import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
-import org.grails.plugin.easygrid.builder.EasygridBuilder
-import static org.grails.plugin.easygrid.EasygridContextHolder.*
+import org.springframework.web.context.request.RequestContextHolder
+
+import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
 
 /**
  * main service class
@@ -120,6 +119,13 @@ class EasygridService {
         def extension = params.extension
         def format = params.format
 
+        if (format == null) {
+            // hack - incompatibility between the export plugin and the grails >=2.3.5
+            //this should fix it temporarily
+            format = RequestContextHolder.currentRequestAttributes().originalParams.format
+        }
+
+        //todo - refactor this
         // restore the previous search params
         GridUtils.markRestorePreviousSearch()
         GridUtils.restoreSearchParams(gridConfig)
@@ -183,11 +189,15 @@ class EasygridService {
      * @param action
      * @return
      */
-    def guard(GridConfig gridConfig, def oper = 'list', Closure action) {
+    def guard(GridConfig gridConfig, Closure action) {
 
         assert gridConfig
 
         def display = true
+
+        //todo - make implementation dependent
+        def oper = params.oper ?: 'list'
+
         //check if there is a securityProvider defined
         if (gridConfig.securityProvider) {
             display = gridConfig.securityProvider(gridConfig, oper)

@@ -2,6 +2,7 @@ package org.grails.plugin.easygrid.grids
 
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
+import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.Filter
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
@@ -30,7 +31,7 @@ class JqueryGridService {
 
             // determine the search closure from the config
             searchParams.inject([]) { list, param ->
-                def column = gridConfig.columns[param]
+                ColumnConfig column = gridConfig.columns[param]
                 column?.filterClosure ? (list + new Filter(column)) : list
             }
 
