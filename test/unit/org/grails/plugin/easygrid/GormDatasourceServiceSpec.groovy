@@ -422,6 +422,24 @@ class GormDatasourceServiceSpec extends Specification {
         'Bonkers' == data[0].name
     }
 
+    def "test order by multiple fields"() {
+        given:
+        (1..10).each {
+            new TestDomain(id: it, testStringProperty: "val", testIntProperty: it).save(failOnError: true)
+        }
+
+        def (params, request, response, session) = mockEasyGridContextHolder()
+
+        expect:
+        10 == service.countRows(domainGridConfig)
+
+        when:
+        def domainRows = service.list(domainGridConfig, [multiSort: [[sort: 'testStringProperty', order: 'asc'], [sort: 'testIntProperty', order: 'desc']]])
+        then:
+        10 == domainRows.size()
+        10 == domainRows[0].testIntProperty
+    }
+
     //utility
     private void populatePets() {
         def john = new OwnerTest(name: 'John', city: 'NY').save()
@@ -442,16 +460,5 @@ class GormDatasourceServiceSpec extends Specification {
         assertEquals 2, OwnerTest.findByName('John').pets.size()
     }
 
-    void testStuff() {
-        populatePets()
-        DetachedCriteria d = OwnerTest.where {}
-        println d.list()
-        Closure f = { eq('name', 'John') }
-        d = d.where f
-        println d.list()
-
-//        OwnerTest.nameQuery.
-
-    }
 
 }

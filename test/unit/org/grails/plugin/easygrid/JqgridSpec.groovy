@@ -177,5 +177,26 @@ class JqgridSpec extends Specification {
 */
     }
 
+    def "test multisort"(){
+        when:
+        def domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication, {
+            testDomainGrid {
+                dataSourceType 'gorm'
+                domainClass TestDomain
+                jqgrid{
+                    multiSort true
+                }
+            }
+        }).testDomainGrid
+
+        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
+        params.sidx = 'testStringProperty asc, testIntProperty'
+        params.sord = 'desc'
+
+        then:
+        [[sort:'testStringProperty', order: 'asc'],[sort:'testIntProperty', order: 'desc']]==service.listParams(domainGridConfig).multiSort
+
+    }
+
 
 }

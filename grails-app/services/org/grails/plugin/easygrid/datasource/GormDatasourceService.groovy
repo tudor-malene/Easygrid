@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional
 
 import static org.codehaus.groovy.grails.commons.GrailsClassUtils.getStaticPropertyValue
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
+
 /**
  * Datasource implementation for a GORM Domain class
  *
@@ -69,8 +70,8 @@ class GormDatasourceService {
 //                        assert column.property: "you must specify a filterFieldType for ${column.name}"
                         if (column.property) {
                             Class columnPropertyType = GridUtils.getPropertyType(grailsApplication, gridConfig.domainClass, column.property)
-                            if(!columnPropertyType){
-                               log.warn("Property '${column.property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}" )
+                            if (!columnPropertyType) {
+                                log.warn("Property '${column.property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}")
                             }
                             switch (columnPropertyType) {
                                 case String:
@@ -142,7 +143,19 @@ class GormDatasourceService {
      * @return
      */
     def list(gridConfig, Map listParams = [:], filters = null) {
-        createWhereQuery(gridConfig, filters).list(max: listParams.maxRows, offset: listParams.rowOffset, sort: listParams.sort, order: listParams.order)
+        def orderBy = []
+        if (listParams.multiSort) {
+            orderBy = listParams.multiSort
+        } else {
+            if (listParams.sort) {
+                def entry = [:]
+                entry.sort = listParams.sort
+                entry.order = listParams.order ?: 'asc'
+                orderBy << entry
+            }
+        }
+
+        addOrderBy(createWhereQuery(gridConfig, filters), orderBy).list(max: listParams.maxRows, offset: listParams.rowOffset)
     }
 
     /**
@@ -152,7 +165,7 @@ class GormDatasourceService {
     def getById(GridConfig gridConfig, id) {
         String idProp = gridConfig.autocomplete.idProp
         if (id != null) {
-            createWhereQuery(gridConfig, [new Filter({ filter -> eq(idProp, id ) })]).find()
+            createWhereQuery(gridConfig, [new Filter({ filter -> eq(idProp, id) })]).find()
         }
     }
 
@@ -183,6 +196,7 @@ class GormDatasourceService {
             }
         }
 
+
         // add the filterpane stuff -if supported
 /*
         if (filterPaneService) {
@@ -199,6 +213,13 @@ class GormDatasourceService {
 
         //if a global filter , then pass the params
         filter.searchFilter.curry(filter.global ? params : filter)
+    }
+
+    DetachedCriteria addOrderBy(DetachedCriteria criteria, List orderBy) {
+        orderBy.each {
+            criteria.order(it.sort, it.order)
+        }
+        criteria
     }
 
     // inlineEdit implementations  - only works if domainClass is defined

@@ -45,10 +45,30 @@ class JqueryGridService {
         def maxRows = params.rows ? (params.rows as int) : grailsApplication.config?.easygrid?.defaults?.defaultMaxRows
         def offset = (currentPage - 1) * maxRows
 
-        def sort = (params.sidx) ? params.sidx : null
-        def order = sort ? params.sord : null
+        def result = [rowOffset: offset, maxRows: maxRows]
 
-        [rowOffset: offset, maxRows: maxRows, sort: sort, order: order]
+        //check for multisort
+        if (gridConfig.jqgrid?.multiSort) {
+//In case when the data is obtained from the server the sidx parameter contain the order clause. It is a comma separated string in format field1 asc, field2 desc …, fieldN. Note that the last field does not not have asc or desc. It should be obtained from sord parameter
+//        When the option is true the behavior is a s follow
+            result.multiSort = params.sidx?.split(',')?.collect { String token ->
+                String[] tokens = token.trim().split(' ')
+                if (tokens.size() == 2) {
+                    return [sort: tokens[0], order: tokens[1]]
+                } else {
+                    return [sort: tokens[0], order: params.sord]
+                }
+            }
+
+        } else {
+            def sort = (params.sidx) ? params.sidx : null
+            def order = sort ? params.sord : null
+            result += [sort: sort, order: order]
+        }
+
+        result
+
+
     }
 
     def transform(gridConfig, rows, nrRecords, listParams) {

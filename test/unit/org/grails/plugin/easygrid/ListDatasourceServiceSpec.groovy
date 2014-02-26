@@ -5,6 +5,8 @@ import org.grails.plugin.easygrid.datasource.ListDatasourceService
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import static org.grails.plugin.easygrid.TestUtils.mockEasyGridContextHolder
+
 /**
  * Created by Tudor on 19.12.2013.
  */
@@ -14,7 +16,7 @@ class ListDatasourceServiceSpec extends Specification {
     @Unroll
     def "test result size"(list, size) {
         given:
-        TestUtils.mockEasyGridContextHolder()[3].people = list
+        mockEasyGridContextHolder()[3].people = list
 
         when:
         def result = service.list([attributeName: 'people'], [maxRows: 10, rowOffset: 0, sort: 'age', order: 'desc'])
@@ -30,7 +32,7 @@ class ListDatasourceServiceSpec extends Specification {
 
     def "test order"() {
         given:
-        TestUtils.mockEasyGridContextHolder()[3].people = [[name: 'john', age: 5], [name: 'mary', age: 10]]
+        mockEasyGridContextHolder()[3].people = [[name: 'john', age: 5], [name: 'mary', age: 10]]
 
         when:
         def result = service.list([attributeName: 'people'], [maxRows: 10, rowOffset: 0, sort: 'age', order: 'desc'])
@@ -48,7 +50,7 @@ class ListDatasourceServiceSpec extends Specification {
 
     def "test pagination"() {
         given:
-        TestUtils.mockEasyGridContextHolder()[3].people = (1..100).collect { [name: "$it", age: it] }
+        mockEasyGridContextHolder()[3].people = (1..100).collect { [name: "$it", age: it] }
 
         when:
         def result = service.list([attributeName: 'people'], [maxRows: 20, rowOffset: 30, sort: 'age', order: 'desc'])
@@ -60,7 +62,7 @@ class ListDatasourceServiceSpec extends Specification {
 
     def "test filtering"() {
         given:
-        TestUtils.mockEasyGridContextHolder()[3].people = (1..100).collect { [name: "$it", age: it] }
+        mockEasyGridContextHolder()[3].people = (1..100).collect { [name: "$it", age: it] }
 
         when:
         def result = service.list([attributeName: 'people'], [maxRows: 20, rowOffset: 0, sort: 'age', order: 'asc'],
@@ -92,6 +94,18 @@ class ListDatasourceServiceSpec extends Specification {
         then:
         count == 10
 
+    }
+
+    def "test order by multiple fields"() {
+        given:
+        mockEasyGridContextHolder()[3].people = (1..10).collect { [name: "John", age: it] }
+
+        when:
+        def result = service.list([attributeName: 'people'], [multiSort: [[sort: 'name', order: 'asc'], [sort: 'age', order: 'desc']]])
+
+        then:
+        10 == result.size()
+        10 == result[0].age
     }
 
 }

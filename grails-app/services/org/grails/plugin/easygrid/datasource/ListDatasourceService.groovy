@@ -43,16 +43,30 @@ class ListDatasourceService {
         }
 
         if (tempList) {
-            def end = (listParams.rowOffset + listParams.maxRows > tempList.size()) ? tempList.size() - 1 : listParams.rowOffset + listParams.maxRows - 1
-            if (end >= listParams.rowOffset) {
-                tempList = tempList[listParams.rowOffset..end]
-                if (listParams.sort) {
-                    tempList = tempList.sort { a, b ->
-                        def comp = a[listParams.sort]<=>b[listParams.sort]
-                        (listParams.order == 'asc') ? comp : -comp
+            def offset = listParams.rowOffset ?: 0
+            def maxRows = listParams.maxRows ?: tempList.size()
+            def end = (offset + maxRows > tempList.size()) ? tempList.size() - 1 : offset + maxRows - 1
+            if (end >= offset) {
+                tempList = tempList[offset..end]
+                def orderBy = []
+                if (listParams.multiSort) {
+                    orderBy = listParams.multiSort
+                } else {
+                    if (listParams.sort) {
+                        def entry = [:]
+                        entry.sort = listParams.sort
+                        entry.order = listParams.order ?: 'asc'
+                        orderBy << entry
                     }
                 }
-                return tempList
+
+                return orderBy.inject(tempList) { acc, val ->
+                    acc.sort { a, b ->
+                        def comp = a[val.sort] <=> b[val.sort]
+                        (val.order == 'asc') ? comp : -comp
+                    }
+                }
+
             }
         }
         []
