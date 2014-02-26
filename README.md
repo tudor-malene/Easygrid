@@ -13,7 +13,7 @@ It also provides a powerful selection widget ( a direct replacement for drop-box
 Installation
 -----------------------------
 
-    compile ":easygrid:1.4.4"
+    compile ":easygrid:1.4.5"
 
     - For minimum functionality you need: jquery-ui and the export plugins.
     - For google visualization you also need: google-visualization
@@ -427,6 +427,10 @@ A: You can raise a github ticket , drop me an email to: tudor.malene at gmail.co
 
 Version History
 ------------------------
+
+### 1.4.5
+    Improvements:
+     - Added default column types for float, double, BigDecimal, long and int
 
 ### 1.4.4
     Improvements:
