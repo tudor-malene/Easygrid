@@ -13,10 +13,11 @@ It also provides a powerful selection widget ( a direct replacement for drop-box
 Installation
 -----------------------------
 
-    compile ":easygrid:1.4.3"
+    compile ":easygrid:1.4.4"
 
     - For minimum functionality you need: jquery-ui and the export plugins.
     - For google visualization you also need: google-visualization
+    - After installation you need to run 'easygrid-setup'
 
 
 
@@ -427,6 +428,14 @@ A: You can raise a github ticket , drop me an email to: tudor.malene at gmail.co
 Version History
 ------------------------
 
+### 1.4.4
+    Improvements:
+     - Added installation script: easygrid-setup. Thanks [sbglasius](https://github.com/sbglasius)
+
+    Bugs:
+     - fixed security bug on inline editing
+     - added hack to fix incompatibility between grails and the export plugin ( the 'format' parameter clashes )
+
 ### 1.4.3
     Improvements:
      - Added grid initialization lifecycle closures
@@ -502,18 +511,16 @@ Version History
 #### 0.9.9
     - first version
 
-Upgrading to 1.4.2
------------------
+
+Upgrade
+
+#### Upgrading to 1.4.2
  - isolate all the changes you did to the easygrid section of the Config file and move them to /conf/EasygridConfig.groovy
 - after that remove the entire easygrid section from Config
 - if you use the custom inline edit closures ( updateRowClosure, etc ) - the fist parameter of the closure will be the actual gridConfig object 
 
-Upgrading to 1.4.1
------------------
 
-
-Upgrading to 1.4.0
------------------
+#### Upgrading to 1.4.0
  - merge the rendering templates to benefit from the latest features
  in Config.groovy :
  - add a default.export.maxRows value
@@ -529,20 +536,17 @@ Upgrading to 1.4.0
   - replace filter.column with filter.filterable where the default search closures are defines
 
 
-Upgrading to 1.3.0
------------------
+#### Upgrading to 1.3.0
  - merge the rendering templates to benefit from the latest features
  - some new default configs in [Config.groovy](https://github.com/tudor-malene/Easygrid/blob/master/grails-app/conf/Config.groovy)
  - the autocomplete 'constraintsFilterClosure' has only the 'params' parameter instead of filter
 
 
-Upgrading to 1.2.0
------------------
+#### Upgrading to 1.2.0
  - in the 'defaults' section of the configuration, you must add a export section, where you need to define the service and default parameters for each export type
 
 
-Upgrading to 1.1.0
------------------
+#### Upgrading to 1.1.0
  - on install, templates are copied to the /templates/easygrid folder ( & the default configuration was updated too )
  - filter closures now have 1 parameter which is a [Filter class](https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/Filter.groovy)
  - the labelFormat has a slightly different format (for compatibility reasons with groovy 2.0 - see the comments )
@@ -551,8 +555,7 @@ Upgrading to 1.1.0
  - a _filters_ section has been added to each datasource implementation , with predefined closures for different column types
 
 
-Upgrading to 1.0.0
------------------
+#### Upgrading to 1.0.0
 
 - change the annotation to @Easygrid
 - change the columns ( the column name/property in the head now instead of label)

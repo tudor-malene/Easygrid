@@ -169,4 +169,5 @@ Desktop.ini
 *.ipr
 *.iml
 todo.txt
+release.txt
 plugin.xml
