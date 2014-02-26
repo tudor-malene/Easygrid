@@ -79,8 +79,22 @@ class GormDatasourceService {
                                     break
                                 case int:
                                 case Integer:
+                                    column.filterFieldType = 'integerF'
+                                    break
+                                case long:
+                                case Long:
+                                    column.filterFieldType = 'longF'
+                                    break
+                                case double:
+                                case Double:
+                                    column.filterFieldType = 'doubleF'
+                                    break
+                                case float:
+                                case Float:
+                                    column.filterFieldType = 'floatF'
+                                    break
                                 case BigDecimal:
-                                    column.filterFieldType = 'number'
+                                    column.filterFieldType = 'bigDecimalF'
                                     break
                                 case Date:
                                     column.filterFieldType = 'date'

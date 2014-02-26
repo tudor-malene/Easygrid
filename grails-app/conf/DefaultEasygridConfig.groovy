@@ -1,5 +1,20 @@
+import com.google.visualization.datasource.datatable.value.ValueType
+import org.grails.plugin.easygrid.AutocompleteService
+import org.grails.plugin.easygrid.EasygridExportService
+import org.grails.plugin.easygrid.FilterFormService
+import org.grails.plugin.easygrid.GridUtils
+import org.grails.plugin.easygrid.datasource.CustomDatasourceService
+import org.grails.plugin.easygrid.datasource.GormDatasourceService
+import org.grails.plugin.easygrid.datasource.ListDatasourceService
+import org.grails.plugin.easygrid.grids.ClassicGridService
+import org.grails.plugin.easygrid.grids.DataTablesGridService
+import org.grails.plugin.easygrid.grids.JqueryGridService
+import org.grails.plugin.easygrid.grids.VisualizationGridService
 
-def stdDateFormat =  'MM/dd/yyyy'
+import java.awt.Color
+import java.text.SimpleDateFormat
+
+def stdDateFormat = 'MM/dd/yyyy'
 easygrid {
 
     //default values added to each defined grid  ( if they are not already set )
@@ -25,7 +40,7 @@ easygrid {
 
         //default export settings for various formats
         export {
-            exportService = org.grails.plugin.easygrid.EasygridExportService
+            exportService = EasygridExportService
             maxRows = 10000 // maximum rows to be exported - to avoid out of memory exceptions
 
             //this section provides default values for the different export formats
@@ -34,17 +49,16 @@ easygrid {
             // csv settings
             csv {
                 separator = ','
-                quoteCharacter  = '"'
+                quoteCharacter = '"'
             }
             csv['header.enabled'] = true
-
 
             // excel settings
             excel['header.enabled'] = true
             //property that aggregates the widths defined per column
             excel['column.widths'] = { gridConfig ->
                 def widths = []
-                org.grails.plugin.easygrid.GridUtils.eachColumn(gridConfig, true) { column ->
+                GridUtils.eachColumn(gridConfig, true) { column ->
                     widths.add(column?.export?.width ?: 0.2)
                 }
                 widths
@@ -54,14 +68,13 @@ easygrid {
             pdf['header.enabled'] = true
             pdf['column.widths'] = { gridConfig ->
                 def widths = []
-                org.grails.plugin.easygrid.GridUtils.eachColumn(gridConfig, true) { column ->
+                GridUtils.eachColumn(gridConfig, true) { column ->
                     widths.add(column?.export?.width ?: 0.2)
                 }
                 widths
             }
-            pdf['border.color'] = java.awt.Color.BLACK
+            pdf['border.color'] = Color.BLACK
             pdf['pdf.orientation'] = 'landscape'
-
 
             // rtf settings
             rtf['header.enabled'] = true
@@ -73,7 +86,7 @@ easygrid {
             }
 
             // xml settings
-            xml['xml.root']= { gridConfig ->
+            xml['xml.root'] = { gridConfig ->
                 //defaults to the export title
                 gridConfig.export.export_title
             }
@@ -125,7 +138,7 @@ easygrid {
             idProp = 'id'  // the name of the property of the id of the selected element (optionKey - in the replaced select tag)
             maxRows = 10 // the max no of elements to be displayed by the jquery autocomplete box
             template = '/templates/easygrid/autocompleteRenderer' //the default autocomplete renderer
-            autocompleteService = org.grails.plugin.easygrid.AutocompleteService
+            autocompleteService = AutocompleteService
         }
     }
 
@@ -134,29 +147,39 @@ easygrid {
         // renamed for consistency
         gorm {
             // mandatory attribute: domainClass or initialCriteria
-            dataSourceService = org.grails.plugin.easygrid.datasource.GormDatasourceService
+            dataSourceService = GormDatasourceService
             filters {
                 //default search closures
                 text = { filter -> ilike(filter.filterable.name, "%${filter.paramValue}%") }
                 number = { filter -> eq(filter.filterable.name, filter.paramValue as int) }
-                date = { filter -> eq(filter.filterable.name, new java.text.SimpleDateFormat(stdDateFormat).parse(filter.paramValue) ) }
+                integerF = { filter -> eq(filter.filterable.name, filter.paramValue as Integer) }
+                longF = { filter -> eq(filter.filterable.name, filter.paramValue as Long) }
+                doubleF = { filter -> eq(filter.filterable.name, filter.paramValue as Double) }
+                floatF = { filter -> eq(filter.filterable.name, filter.paramValue as Float) }
+                bigDecimalF = { filter -> eq(filter.filterable.name, filter.paramValue as BigDecimal) }
+                date = { filter -> eq(filter.filterable.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
             }
         }
 
         list {
             //mandatory attributes: context, attributeName
-            dataSourceService = org.grails.plugin.easygrid.datasource.ListDatasourceService
+            dataSourceService = ListDatasourceService
             filters {
                 //default search closures
                 text = { filter, row -> row[filter.filterable.name].contains filter.paramValue }
                 number = { filter, row -> row[filter.filterable.name] == filter.paramValue as int }
-                date = { filter, row -> row[filter.filterable.name] == new java.text.SimpleDateFormat(stdDateFormat).parse(filter.paramValue)  }
+                integerF = { filter, row -> row[filter.filterable.name] == filter.paramValue as Integer }
+                longF = { filter, row -> row[filter.filterable.name] == filter.paramValue as Long }
+                doubleF = { filter, row -> row[filter.filterable.name] == filter.paramValue as Double }
+                floatF = { filter, row -> row[filter.filterable.name] == filter.paramValue as Float }
+                bigDecimalF = { filter, row -> row[filter.filterable.name] == filter.paramValue as BigDecimal }
+                date = { filter, row -> row[filter.filterable.name] == new SimpleDateFormat(stdDateFormat).parse(filter.paramValue) }
             }
         }
 
         custom {
             // mandatory attributes: 'dataProvider', 'dataCount'
-            dataSourceService = org.grails.plugin.easygrid.datasource.CustomDatasourceService
+            dataSourceService = CustomDatasourceService
         }
     }
 
@@ -167,7 +190,7 @@ easygrid {
         //grails classic implementation - for demo purposes
         classic {
             gridRenderer = '/templates/easygrid/classicGridRenderer'
-            gridImplService = org.grails.plugin.easygrid.grids.ClassicGridService
+            gridImplService = ClassicGridService
             inlineEdit = false
             formats = [
                     (Date): { it.format(stdDateFormat) },
@@ -178,7 +201,7 @@ easygrid {
         //  jqgrid implementation
         jqgrid {
             gridRenderer = '/templates/easygrid/jqGridRenderer'          //  a gsp template that will be rendered
-            gridImplService = org.grails.plugin.easygrid.grids.JqueryGridService  // the service class for this implementation
+            gridImplService = JqueryGridService  // the service class for this implementation
             inlineEdit = true    // specifies that this implementation allows inline Editing
 
             // there are 3 options to format the data
@@ -194,7 +217,7 @@ easygrid {
 
         //  jquery datatables implementation
         dataTables {
-            gridImplService = org.grails.plugin.easygrid.grids.DataTablesGridService
+            gridImplService = DataTablesGridService
             gridRenderer = '/templates/easygrid/dataTablesGridRenderer'
             inlineEdit = false
             formats = [
@@ -205,7 +228,7 @@ easygrid {
 
         // google visualization implementation
         visualization {
-            gridImplService = org.grails.plugin.easygrid.grids.VisualizationGridService
+            gridImplService = VisualizationGridService
             gridRenderer = '/templates/easygrid/visualizationGridRenderer'
             inlineEdit = false
             formats = [
@@ -232,7 +255,7 @@ easygrid {
             visualization {
                 search = false
                 searchType = 'text'
-                valueType = com.google.visualization.datasource.datatable.value.ValueType.TEXT
+                valueType = ValueType.TEXT
             }
             dataTables {
                 sWidth = "'100%'"
@@ -257,7 +280,7 @@ easygrid {
 //                formatter = 'editFormatter'
                 }
                 visualization {
-                    valueType = com.google.visualization.datasource.datatable.value.ValueType.NUMBER
+                    valueType = ValueType.NUMBER
                 }
                 export {
                     width = 10
@@ -291,7 +314,7 @@ easygrid {
                     hidden = true
                 }
                 visualization {
-                    valueType = com.google.visualization.datasource.datatable.value.ValueType.NUMBER
+                    valueType = ValueType.NUMBER
                 }
             }
         }
@@ -299,12 +322,11 @@ easygrid {
 
     //section to define the filter form configurations
     filterForm {
-        defaults{
-            filterFormService = org.grails.plugin.easygrid.FilterFormService
-            filterFormTemplate =  '/templates/filterFormRenderer'
+        defaults {
+            filterFormService = FilterFormService
+            filterFormTemplate = '/templates/filterFormRenderer'
         }
     }
-
 
     // here we define different formatters
     // these are closures  which are called before the data is displayed to format the cell data
@@ -314,7 +336,7 @@ easygrid {
             it.format(stdDateFormat)
         }
         visualizationDateFormatter = {
-            def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(java.util.TimeZone.getTimeZone("GMT")); cal
+            def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(TimeZone.getTimeZone("GMT") as com.ibm.icu.util.TimeZone); cal
         }
         stdBoolFormatter = {
             it ? "Yes" : "No"
