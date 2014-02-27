@@ -44,7 +44,6 @@
         },
     </grid:eachColumn>
     ],
-   rowNum:${gridConfig.defaultMaxRows},
    viewrecords: true,
     "loadError": function (xhr, status, err) {
         try {

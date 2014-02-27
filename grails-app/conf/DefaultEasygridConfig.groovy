@@ -101,6 +101,7 @@ easygrid {
             height = 250
             // number of rows to display by default
             rowNum = 20
+            rowList='[10,20,50]'
         }
 
         dataTables {
