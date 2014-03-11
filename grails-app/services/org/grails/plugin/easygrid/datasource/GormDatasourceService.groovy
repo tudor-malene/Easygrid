@@ -6,6 +6,7 @@ import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator
 import org.grails.datastore.mapping.query.Query
+import org.grails.datastore.mapping.query.api.Criteria
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.Filter
 import org.grails.plugin.easygrid.GridConfig
@@ -197,19 +198,17 @@ class GormDatasourceService {
      * @param filters - map of filter closures
      * @return
      */
-    DetachedCriteria createWhereQuery(gridConfig, filters) {
-        def initial = new DetachedCriteria(gridConfig.domainClass)
-        DetachedCriteria result = filters.inject(gridConfig.initialCriteria ? initial.build(gridConfig.initialCriteria) : initial) { DetachedCriteria criteria, Filter filter ->
-            def filterCriteria = getCriteria(filter);
-            if (filterCriteria instanceof Closure) {
-                criteria.and(filterCriteria)
-            } else {
-                //todo                   filterCriteria
-                filterCriteria.criteria.criteria.each { Query.Criterion criterion -> criteria.add(criterion) }
-                criteria
-            }
+    Criteria createWhereQuery(GridConfig gridConfig, List<Filter> filters) {
+        DetachedCriteria baseCriteria = new DetachedCriteria(gridConfig.domainClass)
+        if (gridConfig.initialCriteria) {
+            baseCriteria = baseCriteria.build(gridConfig.initialCriteria)
         }
 
+        filters.collect { getCriteria(it) }.each { Closure filterCriteria ->
+            filterCriteria.resolveStrategy = Closure.DELEGATE_FIRST
+            filterCriteria.delegate = baseCriteria
+            filterCriteria(baseCriteria)
+        }
 
         // add the filterpane stuff -if supported
 /*
@@ -217,10 +216,10 @@ class GormDatasourceService {
             filterPaneService.addFiltersToCriteria(result, params, gridConfig.domainClass)
         }
 */
-        result
+        return baseCriteria
     }
 
-
+    //todo - move to filter
     def getCriteria(Filter filter) {
         assert filter.searchFilter instanceof Closure
         assert filter.searchFilter.parameterTypes.size() == 1
@@ -229,7 +228,7 @@ class GormDatasourceService {
         filter.searchFilter.curry(filter.global ? params : filter)
     }
 
-    DetachedCriteria addOrderBy(DetachedCriteria criteria, List orderBy) {
+    Criteria addOrderBy(Criteria criteria, List orderBy) {
         orderBy.each {
             criteria.order(it.sort, it.order)
         }

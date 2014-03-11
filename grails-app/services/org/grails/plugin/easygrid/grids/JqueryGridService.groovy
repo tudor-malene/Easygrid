@@ -51,12 +51,14 @@ class JqueryGridService {
         if (gridConfig.jqgrid?.multiSort) {
 //In case when the data is obtained from the server the sidx parameter contain the order clause. It is a comma separated string in format field1 asc, field2 desc …, fieldN. Note that the last field does not not have asc or desc. It should be obtained from sord parameter
 //        When the option is true the behavior is a s follow
-            result.multiSort = params.sidx?.split(',')?.collect { String token ->
-                String[] tokens = token.trim().split(' ')
-                if (tokens.size() == 2) {
-                    return [sort: tokens[0], order: tokens[1]]
-                } else {
-                    return [sort: tokens[0], order: params.sord]
+            if(params.sidx){
+                result.multiSort = params.sidx.split(',')?.collect { String token ->
+                    String[] tokens = token.trim().split(' ')
+                    if (tokens.size() == 2) {
+                        return [sort: tokens[0], order: tokens[1]]
+                    } else {
+                        return [sort: tokens[0], order: params.sord]
+                    }
                 }
             }
 

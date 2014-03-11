@@ -103,7 +103,9 @@ class GormDatasourceServiceSpec extends Specification {
         //test criteria search
         when:
         domainRows = service.list(criteriaGridConfig, [maxRows: 10, rowOffset: 0],
-                [new Filter({ between("testIntProperty", 31, 80) }, '1')]
+                [new Filter(
+                        { between("testIntProperty", 31, 80) }
+                        , '1')]
         )
         then:
         10 == domainRows.size()
@@ -133,7 +135,13 @@ class GormDatasourceServiceSpec extends Specification {
 
         //test criteria search
         when:
-        domainRows = service.list(domainGridConfig, [maxRows: 10, rowOffset: 10], [new Filter({ filter -> between("testIntProperty", 31, 80) })])
+        domainRows = service.list(domainGridConfig, [maxRows: 10, rowOffset: 10],
+                [new Filter(
+                        { filter ->
+                            between("testIntProperty", 31, 80)
+                        }
+                )]
+        )
         then:
         10 == domainRows.size()
         41 == domainRows[0].testIntProperty
@@ -318,7 +326,7 @@ class GormDatasourceServiceSpec extends Specification {
 
         when:
 
-        def query = service.createWhereQuery([domainClass: PetTest], [
+        def query = service.createWhereQuery([domainClass: PetTest] as GridConfig, [
                 new Filter(
                         { Filter filter ->
                             if (filter.paramValue.size() > 2) {
@@ -348,7 +356,7 @@ class GormDatasourceServiceSpec extends Specification {
 
         when:
 
-        def query = service.createWhereQuery([domainClass: OwnerTest], [
+        def query = service.createWhereQuery([domainClass: OwnerTest] as GridConfig, [
                 new Filter(
                         { Filter filter ->
                             if (filter.paramValue.size() == 2) {
@@ -398,6 +406,11 @@ class GormDatasourceServiceSpec extends Specification {
 //                    name 'o.name'
 //                    property 'owner.name'
                         enableFilter true
+                        filterClosure { Filter filter ->
+                            owner {
+                                eq('name', 'John')
+                            }
+                        }
                         jqgrid {
                         }
                     }
@@ -420,6 +433,19 @@ class GormDatasourceServiceSpec extends Specification {
         then:
         5 == data.size()
         'Bonkers' == data[0].name
+
+        when:
+        data = service.list(petsGridConfig, [:], [new Filter(petsGridConfig.columns['owner.name'])])
+        then:
+        2 == data.size()
+        'Bonkers' == data[0].name
+        'tommy' == data[1].name
+
+        when:
+        int cnt = service.countRows(petsGridConfig, [new Filter(petsGridConfig.columns['owner.name'])])
+        then:
+        2 == cnt
+
     }
 
     def "test order by multiple fields"() {
