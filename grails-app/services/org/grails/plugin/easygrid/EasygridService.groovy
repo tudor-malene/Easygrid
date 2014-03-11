@@ -110,6 +110,13 @@ class EasygridService {
             filters.addAll easygridDispatchService.callFFFilters(gridConfig) ?: []
         }
 
+        //  Add multiSearch filter if set
+        //
+        if ( gridConfig.multiSearch && gridConfig.multiSearchClosure instanceof Closure )
+        {
+            filters.add( new Filter( gridConfig.multiSearchClosure, true ))
+        }
+
         filters
     }
 

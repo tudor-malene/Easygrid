@@ -29,6 +29,11 @@ easygrid {
         //called before inline editing : transforms the parameters into the actual object to be stored
         beforeSave = { params -> params }
 
+        //allow multi-clause searching
+        //
+        multiSearch        = false
+        multiSearchClosure = null
+
         gridImpl = 'jqgrid' // the default grid implementation
 
         //used by jqgrid

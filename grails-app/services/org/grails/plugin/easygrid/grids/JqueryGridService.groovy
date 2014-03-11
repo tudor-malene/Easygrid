@@ -21,24 +21,35 @@ class JqueryGridService {
     def grailsApplication
     def easygridDispatchService
 
+    def multiSearchService
 
-    def filters(gridConfig) {
-
-        if (params._search) {
+    def filters( gridConfig )
+    {
+        if ( params._search == 'true' )         // text field not boolean
+        {
+            //  MultiSearch mode on
+            //
+            if ( gridConfig.multiSearch )
+            {
+                //  Translate jqgrid search rules into Closure for EasyGrid
+                //
+                gridConfig.multiSearchClosure = multiSearchService.multiSearchToCriteriaClosure( params.filters )
+            }
 
             // determine if there is a search
             def searchParams = params.keySet().intersect(gridConfig.columns.collect { it.name })
 
             // determine the search closure from the config
-            searchParams.inject([]) { list, param ->
-                ColumnConfig column = gridConfig.columns[param]
-                column?.filterClosure ? (list + new Filter(column)) : list
+            searchParams.inject([])
+            {
+                list, param ->
+                    def column = gridConfig.columns[param]
+                    column?.filterClosure ? (list + new Filter(column)) : list
             }
 
             //todo - implement dynamic search: searchOper
         }
     }
-
 
     def listParams(gridConfig) {
         def currentPage = params.page ? (params.page as int) : 1
