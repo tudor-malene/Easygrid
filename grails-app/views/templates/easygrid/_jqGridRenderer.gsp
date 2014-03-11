@@ -79,8 +79,25 @@
             add: false,
             edit:false,
             del: false,
+        <g:if test="${ ! gridConfig.multiSearch}">
             search: false,
+        </g:if>
             refresh: true
+            },
+            {},
+            {},
+            {},
+            {
+        <g:if test="${gridConfig.multiSearch}">
+            multipleSearch:true,
+            multipleGroup:true,
+            showQuery: true,
+            caption: 'Multi-clause Searching',
+            closeAfterSearch: true,
+            groupOps: [ { op: "AND", text: "and" }, { op: "OR", text: "or" } ],
+            sopt: ['eq','ne','lt','le','gt','ge','bw','bn','ew','en','cn','nc','nu','nn']
+        </g:if>
+
         })
         <g:if test="${gridConfig.addUrl}">
             .jqGrid('navButtonAdd','#${attrs.id}Pager',{caption:"", buttonicon:"ui-icon-plus", onClickButton:function(){
