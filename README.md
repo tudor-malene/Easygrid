@@ -13,7 +13,7 @@ It also provides a powerful selection widget ( a direct replacement for drop-box
 Installation
 -----------------------------
 
-    compile ":easygrid:1.4.5"
+    compile ":easygrid:1.4.6"
 
     - For minimum functionality you need: jquery-ui and the export plugins.
     - For google visualization you also need: google-visualization
@@ -428,9 +428,18 @@ A: You can raise a github ticket , drop me an email to: tudor.malene at gmail.co
 Version History
 ------------------------
 
+### 1.4.6
+    Bugs:
+    - fixed https://github.com/tudor-malene/Easygrid/issues/44
+    - fixed small jqgrid multiple sort
+
+    Improvements:
+     - moved the securityProvider to EasygridConfig
+
 ### 1.4.5
     Improvements:
      - Added default column types for float, double, BigDecimal, long and int
+     - Added support for multiSort ( sorting on multiple columns )
 
 ### 1.4.4
     Improvements:
@@ -517,9 +526,10 @@ Version History
 
 
 Upgrade
+------------------------
 
 #### Upgrading to 1.4.2
- - isolate all the changes you did to the easygrid section of the Config file and move them to /conf/EasygridConfig.groovy
+- isolate all the changes you did to the easygrid section of the Config file and move them to /conf/EasygridConfig.groovy
 - after that remove the entire easygrid section from Config
 - if you use the custom inline edit closures ( updateRowClosure, etc ) - the fist parameter of the closure will be the actual gridConfig object 
 
