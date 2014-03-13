@@ -207,7 +207,7 @@ class GormDatasourceService {
         filters.collect { getCriteria(it) }.each { Closure filterCriteria ->
             filterCriteria.resolveStrategy = Closure.DELEGATE_FIRST
             filterCriteria.delegate = baseCriteria
-            filterCriteria(baseCriteria)
+            filterCriteria()
         }
 
         // add the filterpane stuff -if supported
