@@ -2,15 +2,12 @@ package org.grails.plugin.easygrid.grids
 
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
-import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.Filter
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 import org.springframework.validation.Errors
-import org.springframework.validation.ObjectError
 
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
-import static org.grails.plugin.easygrid.EasygridContextHolder.messageLabel
 import static org.grails.plugin.easygrid.EasygridContextHolder.messageLabel
 
 @Slf4j
@@ -21,34 +18,29 @@ class JqueryGridService {
     def grailsApplication
     def easygridDispatchService
 
-    def multiSearchService
+    def jqGridMultiSearchService
 
-    def filters( gridConfig )
-    {
-        if ( params._search == 'true' )         // text field not boolean
-        {
-            //  MultiSearch mode on
-            //
-            if ( gridConfig.multiSearch )
-            {
-                //  Translate jqgrid search rules into Closure for EasyGrid
-                //
-                gridConfig.multiSearchClosure = multiSearchService.multiSearchToCriteriaClosure( params.filters )
-            }
+    def filters(gridConfig) {
+        def filters = []
+        if (params._search == 'true') {        // text field not boolean
+            //todo - implement dynamic search: searchOper
 
             // determine if there is a search
             def searchParams = params.keySet().intersect(gridConfig.columns.collect { it.name })
 
             // determine the search closure from the config
-            searchParams.inject([])
-            {
-                list, param ->
-                    def column = gridConfig.columns[param]
-                    column?.filterClosure ? (list + new Filter(column)) : list
+            filters = searchParams.inject([]) { list, param ->
+                def column = gridConfig.columns[param]
+                column?.filterClosure ? (list + new Filter(column)) : list
             }
 
-            //todo - implement dynamic search: searchOper
+            //  MultiSearch mode on
+            if (gridConfig.jqgrid.multiSearch && params.filters) {
+                //  Translate jqgrid search rules into Closure for EasyGrid
+                filters << new Filter(jqGridMultiSearchService.multiSearchToCriteriaClosure(params.filters))
+            }
         }
+        filters
     }
 
     def listParams(gridConfig) {
@@ -62,7 +54,7 @@ class JqueryGridService {
         if (gridConfig.jqgrid?.multiSort) {
 //In case when the data is obtained from the server the sidx parameter contain the order clause. It is a comma separated string in format field1 asc, field2 desc …, fieldN. Note that the last field does not not have asc or desc. It should be obtained from sord parameter
 //        When the option is true the behavior is a s follow
-            if(params.sidx){
+            if (params.sidx) {
                 result.multiSort = params.sidx.split(',')?.collect { String token ->
                     String[] tokens = token.trim().split(' ')
                     if (tokens.size() == 2) {

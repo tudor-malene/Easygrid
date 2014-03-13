@@ -29,11 +29,6 @@ easygrid {
         //called before inline editing : transforms the parameters into the actual object to be stored
         beforeSave = { params -> params }
 
-        //allow multi-clause searching
-        //
-        multiSearch        = false
-        multiSearchClosure = null
-
         gridImpl = 'jqgrid' // the default grid implementation
 
         //used by jqgrid
@@ -106,7 +101,10 @@ easygrid {
             height = 250
             // number of rows to display by default
             rowNum = 20
-            rowList='[10,20,50]'
+            rowList = '[10,20,50]'
+
+            //allow multi-clause searching
+            multiSearch = false
         }
 
         dataTables {
@@ -120,10 +118,10 @@ easygrid {
             pageSize = 10
         }
 
-
         //default autocomplete settings
         autocomplete {
-            idProp = 'id'  // the name of the property of the id of the selected element (optionKey - in the replaced select tag)
+            idProp = 'id'
+            // the name of the property of the id of the selected element (optionKey - in the replaced select tag)
             maxRows = 10 // the max no of elements to be displayed by the jquery autocomplete box
             template = '/templates/easygrid/autocompleteRenderer' //the default autocomplete renderer
             autocompleteService = AutocompleteService
@@ -324,7 +322,8 @@ easygrid {
             it.format(stdDateFormat)
         }
         visualizationDateFormatter = {
-            def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(TimeZone.getTimeZone("GMT") as com.ibm.icu.util.TimeZone); cal
+            def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it);
+            cal.setTimeZone(TimeZone.getTimeZone("GMT") as com.ibm.icu.util.TimeZone); cal
         }
         stdBoolFormatter = {
             it ? "Yes" : "No"

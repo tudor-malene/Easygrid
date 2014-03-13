@@ -87,7 +87,7 @@ class JqgridSpec extends Specification {
 
         when:
         params.clear()
-        params._search = true
+        params._search = 'true'
         params.col1 = '3'
         def filters = service.filters(listGridConfig)
 

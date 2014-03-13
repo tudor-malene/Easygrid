@@ -94,27 +94,20 @@ class EasygridService {
 
         // apply the global filter
         if (gridConfig.globalFilterClosure) {
-            filters.add new Filter(gridConfig.globalFilterClosure)
+            filters.add(new Filter(gridConfig.globalFilterClosure))
         }
 
         //apply the filters input in the actual grid
-        filters.addAll easygridDispatchService.callGridImplFilters(gridConfig) ?: []
+        filters.addAll(easygridDispatchService.callGridImplFilters(gridConfig) ?: [])
 
         // apply the selection component constraint filter ( if it's the case )
         if (gridConfig.autocomplete) {
-            filters.addAll easygridDispatchService.callACFilters(gridConfig) ?: []
+            filters.addAll(easygridDispatchService.callACFilters(gridConfig) ?: [])
         }
 
         //add the search form filters
         if (gridConfig.filterForm) {
-            filters.addAll easygridDispatchService.callFFFilters(gridConfig) ?: []
-        }
-
-        //  Add multiSearch filter if set
-        //
-        if ( gridConfig.multiSearch && gridConfig.multiSearchClosure instanceof Closure )
-        {
-            filters.add( new Filter( gridConfig.multiSearchClosure, true ))
+            filters.addAll(easygridDispatchService.callFFFilters(gridConfig) ?: [])
         }
 
         filters

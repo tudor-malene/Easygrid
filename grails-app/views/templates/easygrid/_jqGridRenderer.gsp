@@ -79,7 +79,7 @@
             add: false,
             edit:false,
             del: false,
-        <g:if test="${ ! gridConfig.multiSearch}">
+        <g:if test="${ ! gridConfig.jqgrid.multiSearch}">
             search: false,
         </g:if>
             refresh: true
@@ -88,7 +88,7 @@
             {},
             {},
             {
-        <g:if test="${gridConfig.multiSearch}">
+        <g:if test="${gridConfig.jqgrid.multiSearch}">
             multipleSearch:true,
             multipleGroup:true,
             showQuery: true,
