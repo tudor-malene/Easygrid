@@ -2,6 +2,7 @@ package org.grails.plugin.easygrid
 
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
+import org.grails.plugin.easygrid.grids.JqGridMultiSearchService
 import org.grails.plugin.easygrid.grids.JqueryGridService
 import spock.lang.Specification
 
@@ -13,6 +14,10 @@ import spock.lang.Specification
 @TestFor(JqueryGridService)
 @Mock(TestDomain)
 class JqgridSpec extends Specification {
+
+    def setup() {
+        service.filterService = new FilterService()
+    }
 
     def "Edit row"() {
         when:
@@ -38,6 +43,9 @@ class JqgridSpec extends Specification {
      */
     def "various jqgrid operations"() {
         given:
+        service.jqGridMultiSearchService = new JqGridMultiSearchService()
+        service.jqGridMultiSearchService.filterService = new FilterService()
+
         def listGridConfig = TestUtils.generateConfigForGrid(grailsApplication) {
             listProviderGrid {
                 labelPrefix 'list'
@@ -88,13 +96,18 @@ class JqgridSpec extends Specification {
         when:
         params.clear()
         params._search = 'true'
-        params.col1 = '3'
+        params.filters = '''
+{   "groupOp":"AND",
+     "rules":    [{"field":"col1","op":"eq","data":"xxx"},{"field":"col2","op":"cn","data":"xxx"},{"field":"col3","op":"eq","data":"xxx"}],
+     "groups":   [{   "groupOp":"AND",
+     "rules":    [{"field":"col1","op":"ne","data":"xx"}],
+     "groups":   [{   "groupOp":"OR",
+     "rules":    [{"field":"col2","op":"bw","data":"xx"}],
+     "groups":   []}]}]}'''
         def filters = service.filters(listGridConfig)
 
         then:
-        filters.size() == 1
-        filters[0].paramName == 'col1'
-        filters[0].paramValue == '3'
+        filters.filters.size() == 4
 
         when:
         params.clear()
@@ -177,13 +190,13 @@ class JqgridSpec extends Specification {
 */
     }
 
-    def "test multisort"(){
+    def "test multisort"() {
         when:
         def domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication, {
             testDomainGrid {
                 dataSourceType 'gorm'
                 domainClass TestDomain
-                jqgrid{
+                jqgrid {
                     multiSort true
                 }
             }
@@ -194,7 +207,7 @@ class JqgridSpec extends Specification {
         params.sord = 'desc'
 
         then:
-        [[sort:'testStringProperty', order: 'asc'],[sort:'testIntProperty', order: 'desc']]==service.listParams(domainGridConfig).multiSort
+        [[sort: 'testStringProperty', order: 'asc'], [sort: 'testIntProperty', order: 'desc']] == service.listParams(domainGridConfig).multiSort
 
     }
 

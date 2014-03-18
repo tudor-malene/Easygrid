@@ -21,7 +21,9 @@ import static org.grails.plugin.easygrid.TestUtils.populateTestDomain
 @Mock(TestDomain)
 class VisualizationGridServiceSpec extends Specification {
 
-
+    def setup() {
+        service.filterService = new FilterService()
+    }
 
     def "testGlobalFilter"() {
 
@@ -76,7 +78,7 @@ class VisualizationGridServiceSpec extends Specification {
         when:
         params._filter = 'true'
         params.testStringProperty = '3'
-        def filters = service.filters(domainGridConfig)
+        def filters = service.filters(domainGridConfig).filters
 
         then:
         1 == filters.size()
@@ -131,9 +133,13 @@ class VisualizationGridServiceSpec extends Specification {
                             [name: 'Ion Creanga', nation: 'romanian', birthDate: new GregorianCalendar(1837, 2, 3).time],
                     ]
                     if (listParams.sort != 'age') {
-                        values.sort { o1, o2 -> def x = o1[listParams.sort] <=> o2[listParams.sort]; (listParams.order == 'asc') ? x : -x }
+                        values.sort { o1, o2 ->
+                            def x = o1[listParams.sort] <=> o2[listParams.sort]; (listParams.order == 'asc') ? x : -x
+                        }
                     } else {
-                        values.sort { o1, o2 -> def x = o1.birthDate <=> o2.birthDate; (listParams.order == 'asc') ? x : -x }
+                        values.sort { o1, o2 ->
+                            def x = o1.birthDate <=> o2.birthDate; (listParams.order == 'asc') ? x : -x
+                        }
                     }
                 }
                 dataCount { filterClosure ->

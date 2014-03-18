@@ -59,7 +59,7 @@ class EasygridInitService {
     def registerControllerMethods(controller, String gridName, GridConfig gridConfig) {
         def easyGridLogger = LoggerFactory.getLogger(controller.clazz)
         def closureMap = [
-                html: {
+                html  : {
                     easyGridLogger.debug("entering ${gridName}Html")
                     def model = easygridService.htmlGridDefinition(gridConfig)
                     if (model) {
@@ -67,7 +67,7 @@ class EasygridInitService {
                         render(template: gridConfig.gridRenderer, model: model)
                     }
                 },
-                rows: {
+                rows  : {
                     easyGridLogger.debug("entering ${gridName}Rows")
                     render easygridService.gridData(gridConfig)
                 },
@@ -216,7 +216,8 @@ class EasygridInitService {
 
     /**
      * adds the default values specified in the config file - to the grid configuration
-     * todo - refactor
+     * also adds convention rules
+     * todo - refactor ( extract the conventions & document properly)
      * @param originalGridConfig
      * @return a grid with the default values
      */
@@ -229,7 +230,6 @@ class EasygridInitService {
         assert gridConfig.id
 
         log.trace "before defaults: $gridConfig"
-
 
 //        grid.beforeApplyingGridDefaults?.call(grid)
 
@@ -328,9 +328,16 @@ class EasygridInitService {
                 column.formatter = defaultValues?.formats[column.formatName]
             }
 
+            //convention - set the property to the name
             if (!column.property && !column.value) {
                 column.property = column.name
             }
+
+            //set the filterProperty in case
+            if (!column.filterProperty && !column.filterClosure) {
+                column.filterProperty = column.property ?: column.name
+            }
+
 
             if (column.label == null) {
                 def prefix = gridConfig.labelPrefix
@@ -345,13 +352,6 @@ class EasygridInitService {
                 }
             }
 
-            // add default filterClosure
-            if (column.enableFilter && column.filterClosure == null && column.filterFieldType) {
-                assert !column.property.contains('.'): "Currently default properties are supported only for simple properties. Please add the filter closure for ${column.name}"
-                def filterClosure = defaultValues?.dataSourceImplementations?."${gridConfig.dataSourceType}"?.filters?."${column.filterFieldType}"
-                assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
-                column.filterClosure = filterClosure
-            }
         }
 
         if (gridConfig.filterForm) {
@@ -368,6 +368,24 @@ class EasygridInitService {
             easygridDispatchService.callExportAddDefaultValues(gridConfig, defaultValues)
         }
 //        easygridDispatchService.callFFAddDefaultValues(gridConfig, defaultValues)
+
+/*
+        gridConfig.columns.each { ColumnConfig column ->
+            // add default filterClosure
+            if (column.enableFilter && column.filterClosure == null && column.filterFieldType) {
+//                assert !column.property.contains('.'): "Currently default properties are supported only for simple properties. Please add the filter closure for ${column.name}"
+                def defaultFilterClosure = defaultValues?.dataSourceImplementations?."${gridConfig.dataSourceType}"?.filters?."${column.filterFieldType}"
+//                assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
+
+                column.filterClosure = defaultFilterClosure
+//                if (column.property.indexOf('.') > -1) {
+//                    column.filterClosure = GridUtils.buildClosure(column.property.split('\\.')[0..-2], defaultFilterClosure)
+//                } else {
+//                    column.filterClosure = defaultFilterClosure
+//                }
+            }
+        }
+*/
 
         gridConfig.afterInitialization?.call(gridConfig)
 

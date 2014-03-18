@@ -1,4 +1,4 @@
-def jqgridVer = "4.5.4"
+def jqgridVer = "4.6.0"
 def dataTablesVer = "1.9.4"
 //def ngGridVer = "2.0.7"
 

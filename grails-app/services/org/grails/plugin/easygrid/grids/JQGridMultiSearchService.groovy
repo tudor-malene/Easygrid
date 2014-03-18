@@ -9,6 +9,11 @@ package org.grails.plugin.easygrid.grids
 
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
+import org.grails.plugin.easygrid.Filter
+import org.grails.plugin.easygrid.FilterOperatorsEnum
+import org.grails.plugin.easygrid.Filters
+import org.grails.plugin.easygrid.FiltersEnum
+import org.grails.plugin.easygrid.GridConfig
 
 /**
  * Created for PathOS.
@@ -24,8 +29,8 @@ import groovy.util.logging.Slf4j
 @Slf4j
 class JqGridMultiSearchService {
 
-
     static transactional = false
+    def filterService
 
     /**
      * Translate a jqgrid multi-clause search into a Criteria Closure for filtering
@@ -35,41 +40,27 @@ class JqGridMultiSearchService {
      *{"field":"consequence","op":"eq","data":"missense_variant"}*                          ]
      *}*
      * @param searchRules JSON format rules String
-     * @return Criteria Closure of rules
+     * @return Filters object
      */
-    public Closure multiSearchToCriteriaClosure(String searchRules) {
+    public Filters multiSearchToCriteriaClosure(GridConfig gridConfig, String searchRules) {
         def slurper = new JsonSlurper()
         Map r = slurper.parseText(searchRules) as Map
 
         log.info("In MultiSearchService.multiSearchToCriteriaClosure(): ${r}")
 
-        String clstr = translate(r)
-
-
-        log.info("Translation: " + clstr)
-        GroovyShell shell = new GroovyShell()
-        Closure cl = shell.evaluate(clstr) as Closure
-
-        assert cl instanceof Closure: "Check translation"
-
-        return cl
+        translate(gridConfig, r)
     }
 
     /**
-     * Translate a Map of jqgrid rules into a closure (in a String)
+     * Translate a Map of jqgrid rules into a Filters structure
      *
      * @param rules Map of rules from jqgrid
-     * @return String to be evaluated as a Groovy expression returning a Criteria closure
+     * @return
      */
-    public String translate(Map rules) {
-//        def out = new StringBuffer('Closure cl = { params -> ')
-        def out = new StringBuffer('{ params ->\n')
-
-        doBlock(out, rules)
-
-        out << "}"
-
-        return out.toString()
+    public Filters translate(gridConfig, Map rules) {
+        def out = new Filters()
+        doBlock(gridConfig, out, rules)
+        out
     }
 
     /** Example complex rule of clauses (redundant) in JSON format
@@ -88,7 +79,7 @@ class JqGridMultiSearchService {
      * @param out StringBuffer to append to
      * @param rules Block of the query <block> = [groupOp:AND|OR rules:[<field>...], groups:[<block>...]]
      */
-    private void doBlock(StringBuffer out, Map rules, int indent = 1) {
+    private void doBlock(gridConfig, Filters out, Map rules) {
         log.debug("doBlock: " + rules)
 
         def noofelements = (rules.rules?.size() ?: 0) + (rules.containsKey('groups') ? 1 : 0)
@@ -96,113 +87,59 @@ class JqGridMultiSearchService {
         //  Opening operation of group if more than one element
         //
         if (noofelements > 1) {
-            out << '\t' * indent
             switch (rules.groupOp) {
-                case 'AND': out << "and {"; break
-                case 'OR': out << "or  {"; break
-                default: out << " {";
-                    log.warn("Operation not supported " + rules.groupOp)
+                case 'AND': out.type = FiltersEnum.and; break
+                case 'OR': out.type = FiltersEnum.or; break
             }
-            out << '\n'
         }
 
         //  Process nested field operations
-        //
         if (rules.rules) {
             assert rules.rules instanceof List
-
-            doRules(out, rules.rules, indent + 1)
+            doRules(gridConfig, out, rules.rules)
         }
 
         //  Process nested groups of rules
-        //
         if (rules.groups) {
             assert rules.groups instanceof List
-
-            doGroups(out, rules.groups, indent)
+            doGroups(gridConfig, out, rules.groups)
         }
 
-        //  Closing brace of group if more than one element
-        //
-        if (noofelements > 1) {
-            out << '\t' * indent
-            out << "}"
-            out << '\n'
-        }
     }
 
     /**
      * Recursively parse the query
      *
-     * @param out StringBuffer to append to
+     * @param out Filters to append to
      * @param fields Rule to process [field: <fieldName>, op: <op>, data: <data> ]
      */
-    private void doRules(StringBuffer out, List fields, int indent) {
+    private void doRules(gridConfig, Filters out, List fields) {
         log.debug("doRules: " + fields)
 
         for (field in fields) {
-            out << '\t' * indent
-            switch (field.op) {
-            //  See http://grails.org/doc/latest/ref/Domain%20Classes/createCriteria.html
-            //
-            //                eq	equal
-            //                ne	not equal
-            //                lt	less
-            //                le	less or equal
-            //                gt	greater
-            //                ge	greater or equal
-            //                bw	begins with
-            //                bn	does not begin with
-            //                in	is in
-            //                ni	is not in
-            //                ew	ends with
-            //                en	does not end with
-            //                cn	contains
-            //                nc	does not contain
-
-                case 'eq':
-                    if (field.data) {
-                        out << "eq('${field.field}','${field.data}')"
-                    } else {
-                        out << "isNull('${field.field}')"
-                    }
-                    break
-                case 'ne':
-                    if (field.data) {
-                        out << "ne('${field.field}','${field.data}')"
-                    } else {
-                        out << "isNotNull('${field.field}')"
-                    }
-                    break
-                case 'lt': out << "lt('${field.field}','${field.data}')"; break
-                case 'le': out << "le('${field.field}','${field.data}')"; break
-                case 'gt': out << "gt('${field.field}','${field.data}')"; break
-                case 'ge': out << "ge('${field.field}','${field.data}')"; break
-                case 'bw': out << "ilike('${field.field}','${field.data}%')"; break
-                case 'bn': out << "not{ilike('${field.field}','${field.data}%')}"; break
-                case 'in': out << "'in'('${field.field}',${field.data})"; break
-                case 'ni': out << "not{'in'('${field.field}',${field.data})}"; break
-                case 'ew': out << "ilike('${field.field}','%${field.data}')"; break
-                case 'en': out << "not{ilike('${field.field}','%${field.data}')}"; break
-                case 'cn': out << "ilike('${field.field}','%${field.data}%')"; break
-                case 'nc': out << "not{ilike('${field.field}','%${field.data}%')}"; break
-                default: log.warn("Operation not supported [${field.op}]")
-            }
-            out << '\n'
+            def column = gridConfig.columns[field.field]
+            assert column
+            out.filters << filterService.createFilterFromColumn(gridConfig, column, getFilterOperator(field.op), field.data)
         }
     }
 
-    /**
+    private FilterOperatorsEnum getFilterOperator(String  op) {
+        FilterOperatorsEnum.valueOf(op.toUpperCase())
+    }
+
+/**
      * Recursively parse the query
      *
-     * @param out StringBuffer to append to
+     * @param out to append to
      * @param fields Rule to process [<block>...]
      */
-    private void doGroups(StringBuffer out, List blocks, indent) {
+    private void doGroups(gridConfig, Filters out, List blocks) {
         log.debug("doGroups: " + blocks)
 
         for (block in blocks) {
-            doBlock(out, block as Map, indent + 1)
+            Filters newBlock = new Filters()
+            out.filters << newBlock
+            doBlock(gridConfig, newBlock, block as Map)
         }
     }
 }

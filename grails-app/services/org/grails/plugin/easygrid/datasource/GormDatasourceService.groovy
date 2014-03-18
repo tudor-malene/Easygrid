@@ -5,17 +5,15 @@ import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator
-import org.grails.datastore.mapping.query.Query
 import org.grails.datastore.mapping.query.api.Criteria
-import org.grails.plugin.easygrid.ColumnConfig
-import org.grails.plugin.easygrid.Filter
-import org.grails.plugin.easygrid.GridConfig
-import org.grails.plugin.easygrid.GridUtils
+import org.grails.plugin.easygrid.*
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.transaction.annotation.Transactional
 
 import static org.codehaus.groovy.grails.commons.GrailsClassUtils.getStaticPropertyValue
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
+import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
+import static org.grails.plugin.easygrid.GridUtils.*
 
 /**
  * Datasource implementation for a GORM Domain class
@@ -28,6 +26,7 @@ class GormDatasourceService {
 
     def grailsApplication
 //    def filterPaneService
+    def filterService
 
     /**
      * if no columns specified in the gridConfig - then generate the columns from the properties of the domain class
@@ -38,7 +37,7 @@ class GormDatasourceService {
 
         // only generate if there are no columns defined
         if (!gridConfig.columns && gridConfig.domainClass) {
-            GrailsDomainClass domainClass = GridUtils.resolveDomainClass grailsApplication, gridConfig.domainClass
+            GrailsDomainClass domainClass = resolveDomainClass grailsApplication, gridConfig.domainClass
 
             def idProperty = domainClass.identifier
             if (idProperty) {
@@ -64,13 +63,14 @@ class GormDatasourceService {
 
         gridConfig.columns.each { ColumnConfig column ->
             // add default filterClosure
-            if (column.enableFilter && column.filterClosure == null) {
+            if (column.filterClosure == null) {
 
                 if (column.filterFieldType == null) {
                     if (gridConfig.domainClass) {
 //                        assert column.property: "you must specify a filterFieldType for ${column.name}"
                         if (column.property) {
-                            Class columnPropertyType = GridUtils.getPropertyType(grailsApplication, gridConfig.domainClass, column.property)
+                            Class columnPropertyType = getPropertyType(grailsApplication, gridConfig.domainClass, column.property)
+                            column.dataType = columnPropertyType
                             if (!columnPropertyType) {
                                 log.warn("Property '${column.property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}")
                             }
@@ -107,11 +107,13 @@ class GormDatasourceService {
                     }
                 }
 
+/*
                 if (column.filterFieldType) {
                     def filterClosure = defaultValues?.dataSourceImplementations?."${gridConfig.dataSourceType}"?.filters?."${column.filterFieldType}"
                     assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
                     column.filterClosure = filterClosure
                 }
+*/
             }
 
 
@@ -180,7 +182,8 @@ class GormDatasourceService {
     def getById(GridConfig gridConfig, id) {
         String idProp = gridConfig.autocomplete.idProp
         if (id != null) {
-            createWhereQuery(gridConfig, [new Filter({ filter -> eq(idProp, id) })]).find()
+//            createWhereQuery(gridConfig, [new Filter({ filter -> eq(idProp, id) })]).find()
+            createWhereQuery(gridConfig, filterService.createGlobalFilters { eq(idProp, id) }).find()
         }
     }
 
@@ -198,35 +201,91 @@ class GormDatasourceService {
      * @param filters - map of filter closures
      * @return
      */
-    Criteria createWhereQuery(GridConfig gridConfig, List<Filter> filters) {
+    Criteria createWhereQuery(GridConfig gridConfig, Filters filters) {
         DetachedCriteria baseCriteria = new DetachedCriteria(gridConfig.domainClass)
         if (gridConfig.initialCriteria) {
             baseCriteria = baseCriteria.build(gridConfig.initialCriteria)
         }
 
-        filters.collect { getCriteria(it) }.each { Closure filterCriteria ->
+        Closure filterCriteria = createFiltersClosure(filters)
+        if (filterCriteria) {
             filterCriteria.resolveStrategy = Closure.DELEGATE_FIRST
             filterCriteria.delegate = baseCriteria
             filterCriteria()
         }
-
-        // add the filterpane stuff -if supported
-/*
-        if (filterPaneService) {
-            filterPaneService.addFiltersToCriteria(result, params, gridConfig.domainClass)
-        }
-*/
         return baseCriteria
+
     }
 
-    //todo - move to filter
+    /**
+     * traverses the filters structure and creates a criteria closure that will be applied to the Detached Criteria
+     * @param filters
+     * @return
+     */
+    private Closure createFiltersClosure(Filters filters) {
+        if (filters) {
+            filters.postorder(
+                    { Filters node, List siblings ->
+                        return {
+                            "${node.type}" {
+                                def del = delegate
+                                siblings.each { Closure criteria ->
+                                    criteria.delegate = del
+                                    criteria.resolveStrategy = DELEGATE_FIRST
+                                    criteria()
+                                }
+                            }
+                        }
+                    },
+                    { Filter filter ->
+                        getCriteria(filter)
+                    }
+            )
+        }
+    }
+
+    /**
+     * transforms a filter into a criteria closure
+     * supports nested
+     * @param filter
+     * @return
+     */
     def getCriteria(Filter filter) {
-        assert filter.searchFilter instanceof Closure
-        assert filter.searchFilter.parameterTypes.size() == 1
+        if(filter.searchFilter){
+            return filter.searchFilter
+        }
 
-        //if a global filter , then pass the params
-        filter.searchFilter.curry(filter.global ? params : filter)
+        //create a dynamic closure
+        def c = createFilterClosure(filter.operator, lastProperty(filter.filterable.name), filter.value)
+        def prop = filter.filterable?.filterProperty
+        if (prop && prop.indexOf('.') > -1) {
+            return buildClosure(prop.split('\\.')[0..-2], c)
+        } else {
+            return c
+        }
     }
+
+    //thanks to doig ken
+    private Closure createFilterClosure(FilterOperatorsEnum operator, String property, Object value) {
+        switch (operator) {
+            case EQ: return { eq(property, value) }
+            case NE: return { ne(property, value) }
+            case LT: return { lt(property, value) }
+            case LE: return { le(property, value) }
+            case GT: return { gt(property, value) }
+            case GE: return { ge(property, value) }
+            case BW: return { ilike(property, "${value}%") }
+            case BN: return { not { ilike(property, "${value}%") } }
+            case IN: return { 'in'(property, value) }
+            case NI: return { not { 'in'(property, value) } }
+            case EW: return { ilike(property, "%${value}") }
+            case EN: return { not { ilike(property, "%${value}") } }
+            case CN: return { ilike(property, "%${value}%") }
+            case NC: return { not { ilike(property, "%${value}%") } }
+            default: log.warn("Operation not supported [${op}]")
+        }
+    }
+
 
     Criteria addOrderBy(Criteria criteria, List orderBy) {
         orderBy.each {

@@ -4,8 +4,10 @@ import grails.converters.JSON
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.Filter
+import org.grails.plugin.easygrid.Filters
 import org.grails.plugin.easygrid.GridUtils
 import static org.grails.plugin.easygrid.EasygridContextHolder.*
+
 /**
  * implementation for Datatable
  *
@@ -17,8 +19,6 @@ class DataTablesGridService {
 
     def easygridService
     def grailsApplication
-
-
 
 /*
 int	iDisplayStart	Display start point in the current data set.
@@ -37,17 +37,19 @@ string	mDataProp_(int)	The value specified by mDataProp for each column. This ca
 string	sEcho	Information for DataTables to use for rendering.
 */
 
+    def filterService
+
     def filters(gridConfig) {
-        def filterClosures = []
-        gridConfig.columns.findAll {it.enableFilter}.eachWithIndex {col, i ->
+        def filters = new Filters()
+        gridConfig.columns.findAll { it.enableFilter }.eachWithIndex { col, i ->
             if (params["bSearchable_$i"] && params["sSearch_$i"]) {
                 def val = params["sSearch_$i"]
-                params["${col.name}"] = val
+//                params["${col.name}"] = val
 //                filterClosures.add new Filter(searchFilter: col?.filterClosure, paramName: "${col.name}", paramValue: val, column: col)
-                filterClosures.add new Filter(col)
+                filters << filterService.createFilterFromColumn(gridConfig, col, null, val)
             }
         }
-        filterClosures
+        filters
     }
 
 
@@ -72,7 +74,7 @@ string	sEcho	Information for DataTables to use for rendering.
         //for now only single sorting
         def sort = null
         def order = null
-        orderMap.find {1}.each {
+        orderMap.find { 1 }.each {
             order = it.value
             sort = it.key.name
         }
@@ -88,14 +90,14 @@ string	sColumns	Optional - this is a string of column names, comma separated (us
 array	aaData	The data in a 2D array. Note that you can change the name of this parameter with sAjaxDataProp.
 */
 
-    def transform(gridConfig,rows, nrRecords, listParams) {
+    def transform(gridConfig, rows, nrRecords, listParams) {
         [
-                sEcho: params.sEcho?:'-1' as int,
-                iTotalRecords: nrRecords,
+                sEcho               : params.sEcho ?: '-1' as int,
+                iTotalRecords       : nrRecords,
                 iTotalDisplayRecords: nrRecords,
 //                sColumns: [], - todo -
 
-                aaData: rows.collect { element ->
+                aaData              : rows.collect { element ->
                     def cell = []
                     gridConfig.columns.eachWithIndex { col, row ->
                         cell.add GridUtils.valueOfColumn(gridConfig, col, element, row + 1)

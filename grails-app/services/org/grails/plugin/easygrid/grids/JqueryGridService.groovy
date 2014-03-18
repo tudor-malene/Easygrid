@@ -3,8 +3,11 @@ package org.grails.plugin.easygrid.grids
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.grails.plugin.easygrid.Filter
+import org.grails.plugin.easygrid.Filters
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
+import org.springframework.beans.factory.annotation.Autowire
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.validation.Errors
 
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
@@ -19,28 +22,23 @@ class JqueryGridService {
     def easygridDispatchService
 
     def jqGridMultiSearchService
+    def filterService
 
-    def filters(gridConfig) {
-        def filters = []
+    def filters(GridConfig gridConfig) {
         if (params._search == 'true') {        // text field not boolean
-            //todo - implement dynamic search: searchOper
-
-            // determine if there is a search
-            def searchParams = params.keySet().intersect(gridConfig.columns.collect { it.name })
-
-            // determine the search closure from the config
-            filters = searchParams.inject([]) { list, param ->
+/*
+            searchParams.each { param ->
                 def column = gridConfig.columns[param]
-                column?.filterClosure ? (list + new Filter(column)) : list
+                if(column){
+                    filters << filterService.createFilterFromColumn(gridConfig, column)
+                }
             }
-
-            //  MultiSearch mode on
-            if (gridConfig.jqgrid.multiSearch && params.filters) {
-                //  Translate jqgrid search rules into Closure for EasyGrid
-                filters << new Filter(jqGridMultiSearchService.multiSearchToCriteriaClosure(params.filters))
+*/
+            if ( params.filters) {
+                //  Translate jqgrid search rules into a Filters structure for EasyGrid
+                jqGridMultiSearchService.multiSearchToCriteriaClosure(gridConfig, params.filters)
             }
         }
-        filters
     }
 
     def listParams(gridConfig) {

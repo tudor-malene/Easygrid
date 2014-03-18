@@ -1,17 +1,17 @@
-<%@page defaultCodec="none" %>
+<%@ page defaultCodec="none" %>
 <g:if test="${gridConfig.filterForm}">
 
     <script type="text/javascript">
-    // implementation to work with the dynamic search form
-    function filterForm${attrs.id}(form) {
-        var ser = jQuery(form).serialize();
-        console.log(ser);
-        var grid = jQuery("#${attrs.id}_table");
-        grid.jqGrid('setGridParam', {postData: ser});
-        grid.trigger('reloadGrid');
-        return false;
-    }
-</script>
+        // implementation to work with the dynamic search form
+        function filterForm${attrs.id}(form) {
+            var ser = jQuery(form).serialize();
+            console.log(ser);
+            var grid = jQuery("#${attrs.id}_table");
+            grid.jqGrid('setGridParam', {postData: ser});
+            grid.trigger('reloadGrid');
+            return false;
+        }
+    </script>
 </g:if>
 
 <jq:jquery>
@@ -47,7 +47,8 @@
    viewrecords: true,
     "loadError": function (xhr, status, err) {
         try {
-            jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div class="ui-state-error">' + xhr.responseText + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
+            jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div
+        class="ui-state-error">' + xhr.responseText + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
         } catch (e) {
             alert(xhr.responseText);
         }
@@ -62,7 +63,8 @@
                     keys:true,
                     errorfunc:function (rowid, xhr) {
                             try {
-                                jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div class="ui-state-error">' + xhr.responseText + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
+                                jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div
+            class="ui-state-error">' + xhr.responseText + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
                             } catch (e) {
                                 alert(xhr.responseText);
                             }
@@ -79,15 +81,15 @@
             add: false,
             edit:false,
             del: false,
-        <g:if test="${ ! gridConfig.jqgrid.multiSearch}">
+        <g:if test="${!gridConfig.jqgrid.multiSearch}">
             search: false,
         </g:if>
-            refresh: true
-            },
-            {},
-            {},
-            {},
-            {
+        refresh: true
+        },
+        {},
+        {},
+        {},
+        {
         <g:if test="${gridConfig.jqgrid.multiSearch}">
             multipleSearch:true,
             multipleGroup:true,
@@ -110,11 +112,7 @@
     </g:if>
 
     <g:if test="${gridConfig.enableFilter}">
-        jQuery('#${attrs.id}_table').jqGrid('filterToolbar',
-        {
-            autosearch: true,
-            searchOnEnter: true
-        });
+        jQuery('#${attrs.id}_table').jqGrid('filterToolbar', {"stringResult": true, "searchOperators": true});
     </g:if>
 
 

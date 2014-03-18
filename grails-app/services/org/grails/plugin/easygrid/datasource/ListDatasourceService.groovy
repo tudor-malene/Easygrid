@@ -1,10 +1,16 @@
 package org.grails.plugin.easygrid.datasource
 
 import groovy.util.logging.Slf4j
-import org.grails.plugin.easygrid.EasygridContextHolder
+import org.codehaus.groovy.runtime.DefaultGroovyMethods
 import org.grails.plugin.easygrid.Filter
+import org.grails.plugin.easygrid.FilterOperatorsEnum
+import org.grails.plugin.easygrid.Filters
 import org.springframework.web.context.request.RequestContextHolder
+
 import static org.grails.plugin.easygrid.EasygridContextHolder.*
+import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
+import static org.grails.plugin.easygrid.FiltersEnum.and
+import static org.grails.plugin.easygrid.FiltersEnum.or
 
 /**
  * Datasource implementation
@@ -36,12 +42,9 @@ class ListDatasourceService {
      * @param filters - the search filters
      * @return
      */
-    def list(gridConfig, Map listParams, filters = null) {
+    def list(gridConfig, Map listParams, Filters filters = null) {
 
-        Collection tempList = filters.inject(getList(gridConfig)) { list, Filter filter ->
-            list.findAll getCriteria(filter)
-        }
-
+        def tempList = filteredList(gridConfig, filters)
         if (tempList) {
             def offset = listParams.rowOffset ?: 0
             def maxRows = listParams.maxRows ?: tempList.size()
@@ -72,16 +75,63 @@ class ListDatasourceService {
         []
     }
 
+    private filteredList(gridConfig, Filters filters) {
+        def list = getList(gridConfig)
+        filters ? list.findAll(createFiltersClosure(filters)) : list
+    }
+
+    /**
+     * traverses the filters structure and creates a criteria closure that will be applied to the Detached Criteria
+     * @param filters
+     * @return
+     */
+    private Closure createFiltersClosure(Filters filters) {
+        if (filters) {
+            filters.postorder(
+                    { Filters node, List siblings ->
+                        return { row ->
+                            boolean result = node.type == and  // true - for 'and' , and false for 'or'
+                            for (Closure criteria : siblings) {
+                                result = DefaultGroovyMethods."${node.type}"(result, criteria(row))
+                                //optimization - if result=0 for 'and' or 1 for 'or' then stop and return
+                                if (result == (node.type == or)) {
+                                    break
+                                }
+                            }
+                            result
+                        }
+                    },
+                    { Filter filter ->
+                        getCriteria(filter)
+                    }
+            )
+        }
+    }
+
+
     def getCriteria(Filter filter) {
-/*
-        Closure curriedClosure = filter.searchFilter
-        curriedClosure = curriedClosure.curry(filter)
-//        if (curriedClosure.parameterTypes.size() > 1) {
-//            curriedClosure = curriedClosure.curry(params)
-//        }
-        curriedClosure
-*/
-        filter.searchFilter.curry(filter)
+        filter.searchFilter ?: createFilterClosure(filter.operator, filter.filterable.filterProperty, filter.value)
+    }
+
+    //thanks to doig ken
+    private Closure createFilterClosure(FilterOperatorsEnum operator, String property, Object value) {
+        switch (operator) {
+            case EQ: return { row -> row[property] == value }
+            case NE: return { row -> row[property] != value }
+            case LT: return { row -> row[property] < value }
+            case LE: return { row -> row[property] <= value }
+            case GT: return { row -> row[property] > value }
+            case GE: return { row -> row[property] >= value }
+            case BW: return { row -> row[property].startsWith(value) }
+            case BN: return { row -> !(row[property].startsWith(value)) }
+            case IN: return { row -> row[property] in value }
+            case NI: return { row -> !(row[property] in value) }
+            case EW: return { row -> row[property].endsWith(value) }
+            case EN: return { row -> !(row[property].endsWith(value)) }
+            case CN: return { row -> row[property].contains(value) }
+            case NC: return { row -> !(row[property].contains(value)) }
+            default: log.warn("Operation not supported [${op}]")
+        }
     }
 
     /**
@@ -91,10 +141,7 @@ class ListDatasourceService {
      * @return
      */
     def countRows(gridConfig, filters = null) {
-        filters.inject(getList(gridConfig)) { list, Filter filter ->
-            list.findAll getCriteria(filter)
-        }.size()
-
+        filteredList(gridConfig, filters)?.size()
     }
 
     // inlineEdit implementations

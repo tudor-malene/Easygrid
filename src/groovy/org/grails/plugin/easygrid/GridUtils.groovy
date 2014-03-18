@@ -1,9 +1,13 @@
 package org.grails.plugin.easygrid
 
+import grails.validation.ValidationErrors
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
+import org.codehaus.groovy.grails.web.binding.DataBindingUtils
+
 /**
  * utility methods
  *
@@ -49,7 +53,7 @@ class GridUtils {
 
     static valueOfPropertyColumn(gridConfig, ColumnConfig column, element, idx) {
         assert column.property
-        def val = GridUtils.getNestedPropertyValue(column.property, element)
+        def val = getNestedPropertyValue(column.property, element)
 
         if (val == null) {
             return null
@@ -218,11 +222,54 @@ class GridUtils {
      * @return
      */
     static Class getPropertyType(GrailsApplication grailsApplication, Class clazz, String property) {
-        resolveDomainClass(grailsApplication,clazz)?.getPropertyByName(property)?.type
+        resolveDomainClass(grailsApplication, clazz)?.getPropertyByName(property)?.type
     }
 
     static GrailsDomainClass resolveDomainClass(grailsApplication, Class beanClass) {
         grailsApplication.getDomainClass(beanClass.name)
+    }
+
+
+    static Closure buildClosure(tkns, Closure last) {
+        if (tkns.size() == 1) {
+            return { filter ->
+                "${tkns[-1]}"(last)
+            }
+        }
+        return buildClosure(tkns[0..-2]) {
+            "${tkns[-1]}"(last)
+        }
+    }
+
+    @CompileStatic
+    static String lastProperty(String property) {
+        int idx = property.lastIndexOf('.')
+        if (idx > -1) {
+            return property[(idx + 1)..-1]
+        } else {
+            return property
+        }
+    }
+
+
+    static def convertValueUsingBinding(String source, Class type) {
+        def instance = new Object() {
+            def errors = new Object()
+        }
+        addPropertyWithType(instance, 'x', type)
+        DataBindingUtils.bindObjectToInstance(instance, [x: source])
+        ValidationErrors errors = instance.errors
+        if (errors.hasErrors()) {
+            errors.allErrors[0]
+            //todo
+        } else {
+            instance.x
+        }
+    }
+
+    static private void addPropertyWithType(instance, prop, type) {
+        instance.metaClass[prop] = new Object()
+        instance.metaClass.expandoProperties.find { it.name == prop }.type = type
     }
 
 

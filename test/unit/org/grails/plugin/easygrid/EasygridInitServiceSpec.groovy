@@ -105,7 +105,7 @@ class EasygridInitServiceSpec extends Specification {
         customGridConfig.columns[1]
         customGridConfig.columns['name']
         customGridConfig.columns['name'] == customGridConfig.columns[1]
-        customGridConfig.columns.age.property == null
+        null == customGridConfig.columns.age.property // because the property is used to generate the default filter
         'birthDate' == customGridConfig.columns.birthDate.property
         'testLabel' == customGridConfig.columns.name.label
         'custom' == customGridConfig.dataSourceType

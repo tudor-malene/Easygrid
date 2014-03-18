@@ -18,6 +18,7 @@ class EasygridService {
 
     def grailsApplication
     def easygridDispatchService
+    def filterService
 
     /**
      * returns the model for  the html/javascript template code that will render the grid
@@ -89,25 +90,25 @@ class EasygridService {
      * @param gridConfig
      * @return list of filters after applying all conditions
      */
-    List<Filter> filters(GridConfig gridConfig) {
-        List<Filter> filters = []
+    Filters filters(GridConfig gridConfig) {
+        def filters = new Filters()
 
         // apply the global filter
         if (gridConfig.globalFilterClosure) {
-            filters.add(new Filter(gridConfig.globalFilterClosure))
+            filters << filterService.createGlobalFilter(gridConfig.globalFilterClosure)
         }
 
         //apply the filters input in the actual grid
-        filters.addAll(easygridDispatchService.callGridImplFilters(gridConfig) ?: [])
+        filters << easygridDispatchService.callGridImplFilters(gridConfig)
 
         // apply the selection component constraint filter ( if it's the case )
         if (gridConfig.autocomplete) {
-            filters.addAll(easygridDispatchService.callACFilters(gridConfig) ?: [])
+            filters << easygridDispatchService.callACFilters(gridConfig)
         }
 
         //add the search form filters
         if (gridConfig.filterForm) {
-            filters.addAll(easygridDispatchService.callFFFilters(gridConfig) ?: [])
+            filters << easygridDispatchService.callFFFilters(gridConfig)
         }
 
         filters

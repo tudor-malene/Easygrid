@@ -1,7 +1,4 @@
 package org.grails.plugin.easygrid
-
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
-
 /**
  * represents a search filter
  *
@@ -15,32 +12,44 @@ class Filter {
     // the name of the request parameter
     String paramName
 
-    // the search filter
-    Closure searchFilter
+    FilterOperatorsEnum operator
 
     // the actual value of the user input
     String paramValue
+    // converted to the actual filter type
+    def value
 
-    // the parameter map
-    def params
-
-//    def convertedValue - todo : convert type
+    //only used for global
+    // the search filter
+    Closure searchFilter
     boolean global = false
 
+
+    Filter() {
+    }
+
+    // the parameter map
+    @Deprecated
+    def params
+
+    @Deprecated
     public Filter(FilterableConfig filterableConfig) {
         init()
         this.filterable = filterableConfig
         this.searchFilter = filterableConfig.filterClosure
         this.paramName = filterableConfig.name
         this.paramValue = this.params[this.paramName]
+        this.value = GridUtils.convertValueUsingBinding(paramValue, filterableConfig.dataType)
     }
 
+    @Deprecated
     public Filter(Closure searchFilter, String paramValue) {
         init()
         this.searchFilter = searchFilter
         this.paramValue = paramValue
     }
 
+    @Deprecated
     public Filter(Closure searchFilter, boolean global = true) {
         init()
         this.searchFilter = searchFilter
@@ -52,4 +61,29 @@ class Filter {
         this.params = EasygridContextHolder.params
     }
 
+}
+
+enum FilterOperatorsEnum {
+    EQ('equal'),
+    NE('not equal'),
+    LT('less'),
+    LE('less or equal'),
+    GT('greater'),
+    GE('greater or equal'),
+    BW('begins with'),
+    BN('does not begin with'),
+    IN('is in'),
+    NI('is not in'),
+    EW('ends with'),
+    EN('does not end with'),
+    CN('contains'),
+    NC('does not contain')
+//    nu,
+//    nn,
+
+    FilterOperatorsEnum(String name) {
+        this.name = name
+    }
+
+    String name
 }

@@ -136,14 +136,14 @@ easygrid {
             dataSourceService = GormDatasourceService
             filters {
                 //default search closures
-                text = { filter -> ilike(filter.filterable.name, "%${filter.paramValue}%") }
-                number = { filter -> eq(filter.filterable.name, filter.paramValue as int) }
-                integerF = { filter -> eq(filter.filterable.name, filter.paramValue as Integer) }
-                longF = { filter -> eq(filter.filterable.name, filter.paramValue as Long) }
-                doubleF = { filter -> eq(filter.filterable.name, filter.paramValue as Double) }
-                floatF = { filter -> eq(filter.filterable.name, filter.paramValue as Float) }
-                bigDecimalF = { filter -> eq(filter.filterable.name, filter.paramValue as BigDecimal) }
-                date = { filter -> eq(filter.filterable.name, new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
+                text = { filter -> ilike(GridUtils.lastProperty(filter.filterable.name), "%${filter.paramValue}%") }
+                number = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as int) }
+                integerF = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as Integer) }
+                longF = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as Long) }
+                doubleF = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as Double) }
+                floatF = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as Float) }
+                bigDecimalF = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as BigDecimal) }
+                date = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
             }
         }
 
@@ -218,7 +218,10 @@ easygrid {
             gridRenderer = '/templates/easygrid/visualizationGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date): { def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it); cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal }, //wtf?
+                    (Date): {
+                        def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it);
+                        cal.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone("GMT")); cal
+                    }, //wtf?
             ]
         }
 

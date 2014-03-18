@@ -13,6 +13,7 @@ import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.Filter
+import org.grails.plugin.easygrid.Filters
 import org.grails.plugin.easygrid.GridUtils
 import static org.grails.plugin.easygrid.EasygridContextHolder.*
 
@@ -39,14 +40,21 @@ class VisualizationGridService {
         column.visualization.valueType = getValueType(column.valueType)
     }
 
+    def filterService
 
     def filters(gridConfig) {
         if (params._filter) {
-            params.findAll { k, v -> v }.collect { k, v -> k }.intersect(gridConfig.columns.collect { it.name }).inject([]) { list, param ->
-//                def column = gridConfig.columns.find { col -> col.name == param }
+            def filters = new Filters()
+            params.findAll { k, v -> v }.collect { k, v -> k }.intersect(gridConfig.columns.collect {
+                it.name
+            }).each { param ->
                 def column = gridConfig.columns[param]
-                column ? (list + new Filter(column)) : list
+//                column ? (list + new Filter(column)) : list
+                if (column) {
+                    filters << filterService.createFilterFromColumn(gridConfig, column, null, params[param])
+                }
             }
+            filters
         }
     }
 

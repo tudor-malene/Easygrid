@@ -7,9 +7,8 @@ import org.grails.plugin.easygrid.datasource.GormDatasourceService
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
 import static org.grails.plugin.easygrid.TestUtils.*
-
-import static org.junit.Assert.assertEquals
 
 /**
  * test the Gorm impl
@@ -20,12 +19,17 @@ import static org.junit.Assert.assertEquals
 @Mock([TestDomain, PetTest, OwnerTest])
 class GormDatasourceServiceSpec extends Specification {
 
+    def filterService
+
     GridConfig domainGridConfig
     GridConfig criteriaGridConfig
 
     static int N = 100
 
     def setup() {
+
+        filterService = new FilterService()
+        service.filterService = filterService
         domainGridConfig = generateConfigForGrid(grailsApplication, service) {
             'testDomainGrid' {
                 labelPrefix ''
@@ -103,9 +107,7 @@ class GormDatasourceServiceSpec extends Specification {
         //test criteria search
         when:
         domainRows = service.list(criteriaGridConfig, [maxRows: 10, rowOffset: 0],
-                [new Filter(
-                        { between("testIntProperty", 31, 80) }
-                        , '1')]
+                filterService.createGlobalFilters { between("testIntProperty", 31, 80) }
         )
         then:
         10 == domainRows.size()
@@ -136,11 +138,9 @@ class GormDatasourceServiceSpec extends Specification {
         //test criteria search
         when:
         domainRows = service.list(domainGridConfig, [maxRows: 10, rowOffset: 10],
-                [new Filter(
-                        { filter ->
-                            between("testIntProperty", 31, 80)
-                        }
-                )]
+                filterService.createGlobalFilters {
+                    between("testIntProperty", 31, 80)
+                }
         )
         then:
         10 == domainRows.size()
@@ -153,30 +153,29 @@ class GormDatasourceServiceSpec extends Specification {
         def (params, request, response, session) = mockEasyGridContextHolder()
 
         when:
-        params.testStringProperty = 1
-
-        //todo - conversion, move this to  config
-//        domainGridConfig.columns.testStringProperty.filterClosure = { Filter filter -> ilike(filter.column.name, "%${filter.paramValue}%") }
-//        domainGridConfig.columns.testIntProperty.filterClosure = { Filter filter -> eq(filter.column.name, filter.paramValue as int) }
+        def filters = new Filters(filters: [filterService.createFilterFromColumn(domainGridConfig, domainGridConfig.columns.testStringProperty, BW, '%1%')])
+        def cnt = service.countRows(domainGridConfig, filters)
+        def lst = service.list(domainGridConfig, [maxRows: 5, rowOffset: 5, sort: 'testIntProperty'], filters)
 
         then:
-        20 == service.countRows(domainGridConfig, [new Filter(domainGridConfig.columns.testStringProperty)])
+        20 == cnt
 
-
-        [14, 15, 16, 17, 18] == service.list(domainGridConfig,
-                [maxRows: 5, rowOffset: 5, sort: 'testIntProperty'],
-                [new Filter(domainGridConfig.columns.testStringProperty)]
-        ).collect { it.testIntProperty }
+        and:
+        [14, 15, 16, 17, 18] == lst.collect { it.testIntProperty }
 
 
         when:
-        params.testIntProperty = 100
-        then:
-
-        [100] == service.list(domainGridConfig,
+        def val = service.list(domainGridConfig,
                 [maxRows: 5, sort: 'testIntProperty'],
-                [new Filter(domainGridConfig.columns.testStringProperty), new Filter(domainGridConfig.columns.testIntProperty),]
-        ).collect { it.testIntProperty }
+                new Filters(filters:
+                        [
+                                filterService.createFilterFromColumn(domainGridConfig, domainGridConfig.columns.testStringProperty, CN, '1'),
+                                filterService.createFilterFromColumn(domainGridConfig, domainGridConfig.columns.testIntProperty, EQ, '100'),
+                        ])
+        )
+
+        then:
+        [100] == val.collect { it.testIntProperty }
     }
 
     def "test Gorm operations"() {
@@ -326,23 +325,22 @@ class GormDatasourceServiceSpec extends Specification {
 
         when:
 
-        def query = service.createWhereQuery([domainClass: PetTest] as GridConfig, [
-                new Filter(
-                        { Filter filter ->
-                            if (filter.paramValue.size() > 2) {
-                                eq('name', filter.paramValue)
-                            } else {
-                                owner {
-                                    eq('city', filter.paramValue)
-                                }
-                            }
-                        }, paramVal)])
+        def query = service.createWhereQuery([domainClass: PetTest] as GridConfig,
+                filterService.createGlobalFilters {
+                    if (paramVal.size() > 2) {
+                        eq('name', paramVal)
+                    } else {
+                        owner {
+                            eq('city', paramVal)
+                        }
+                    }
+                })
 
         then:
         count == query.count()
 
         where:
-        paramVal  | count
+        paramVal | count
         'NJ'      | 2
         'Bonkers' | 1
         'LA'      | 1
@@ -356,24 +354,23 @@ class GormDatasourceServiceSpec extends Specification {
 
         when:
 
-        def query = service.createWhereQuery([domainClass: OwnerTest] as GridConfig, [
-                new Filter(
-                        { Filter filter ->
-                            if (filter.paramValue.size() == 2) {
-                                eq('city', filter.paramValue)
-                            } else {
-                                pets {
-                                    eq('name', filter.paramValue)
-                                }
-                            }
-                        }, paramVal)])
+        def query = service.createWhereQuery([domainClass: OwnerTest] as GridConfig,
+                filterService.createGlobalFilters {
+                    if (paramVal.size() == 2) {
+                        eq('city', paramVal)
+                    } else {
+                        pets {
+                            eq('name', paramVal)
+                        }
+                    }
+                })
         def owners = query.list()
 
         then:
         owners[0].name == name
 
         where:
-        paramVal  | name
+        paramVal | name
         'NJ'      | 'Mary'
         'Bonkers' | 'John'
     }
@@ -381,6 +378,7 @@ class GormDatasourceServiceSpec extends Specification {
 
     def "test a complex query"() {
         given:
+        def (params, request, response, session) = mockEasyGridContextHolder()
         populatePets()
         def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
             'petsGridConfig' {
@@ -435,16 +433,23 @@ class GormDatasourceServiceSpec extends Specification {
         'Bonkers' == data[0].name
 
         when:
-        data = service.list(petsGridConfig, [:], [new Filter(petsGridConfig.columns['owner.name'])])
+        data = service.list(petsGridConfig, [:], new Filters(filters: [filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns['owner.name'], BW, 'John')]))
         then:
         2 == data.size()
         'Bonkers' == data[0].name
         'tommy' == data[1].name
 
         when:
-        int cnt = service.countRows(petsGridConfig, [new Filter(petsGridConfig.columns['owner.name'])])
+        int cnt = service.countRows(petsGridConfig, new Filters(filters: [filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns['owner.name'], BW, 'John')]))
         then:
         2 == cnt
+
+        when: "verify default composed filter closure "
+        data = service.list(petsGridConfig, [:], new Filters(filters: [filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns['owner.city'], EQ, 'NJ')]))
+        then:
+        2 == data.size()
+        'pandora' == data[0].name
+        'wanikiy' == data[1].name
 
     }
 
@@ -464,6 +469,54 @@ class GormDatasourceServiceSpec extends Specification {
         then:
         10 == domainRows.size()
         10 == domainRows[0].testIntProperty
+    }
+
+    def "test create nested filter criteria"() {
+        given:
+        populatePets()
+
+        when:
+        def c = new DetachedCriteria(PetTest)
+        c = c.build(GridUtils.buildClosure(['owner'], { ilike('name', "J%") }))
+
+        then:
+        3 == c.count()
+    }
+
+    def "test complex filter"() {
+        given:
+        def (params, request, response, session) = mockEasyGridContextHolder()
+        populatePets()
+        def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
+            'petsGridConfig' {
+                dataSourceType 'gorm'
+                domainClass PetTest
+                columns {
+                    id
+                    name
+                    'owner.name' {}
+                    'owner.city' {}
+                }
+            }
+        }.petsGridConfig
+
+
+        when:
+        Filters filters = new Filters(filters: [
+                filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns.name, CN, 'o'),
+                new Filters(type: FiltersEnum.or, filters: [
+                        filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns['owner.city'], EQ, 'NJ'),
+                        filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns['owner.name'], BW, 'J'),
+                ])
+        ])
+
+        and:
+        def pets = service.list(petsGridConfig, [:], filters)
+
+        then:
+        3 == pets.size()
+        ['Bonkers', 'pandora', 'tommy',] == pets.collect { it.name }.sort()
+
     }
 
     //utility
