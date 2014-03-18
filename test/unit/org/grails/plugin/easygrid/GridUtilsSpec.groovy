@@ -90,10 +90,10 @@ class GridUtilsSpec extends Specification {
 
     def "failed data binding"() {
         when:
-        def error = GridUtils.convertValueUsingBinding('string', Integer)
+        def val = GridUtils.convertValueUsingBinding('string', Integer)
 
         then:
-        error instanceof FieldError
+        null == val
     }
 
 

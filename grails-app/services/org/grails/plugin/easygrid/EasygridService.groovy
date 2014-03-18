@@ -59,26 +59,6 @@ class EasygridService {
         //returns a map of search [colName: Closure]
         def listParams = easygridDispatchService.callGridImplListParams(gridConfig)
 
-/*
-//todo   validation  of input filters
-                def validationClosure = gridConfig.constraints
-                if (validationClosure) {
-                    def constrainedPropertyBuilder = new ConstrainedPropertyBuilder(cmdObject)
-                    validationClosure.setDelegate(constrainedPropertyBuilder)
-                    validationClosure()
-                    def messageSource = grailsApplication.mainContext?.containsBean('messageSource') ? grailsApplication.mainContext.getBean('messageSource') : null
-                    def localErrors = new ValidationErrors(cmdObject, gridConfig.id)
-
-                    for (prop in constrainedPropertyBuilder.constrainedProperties.values()) {
-                        prop.messageSource = messageSource
-                        prop.validate(cmdObject, cmdObject.getProperty(prop.propertyName), localErrors)
-                    }
-                    if(localErrors.hasErrors()){
-                        println localErrors.errorCount
-                    }
-                }
-*/
-
         def filters = filters(gridConfig)
         def rows = easygridDispatchService.callDSList(gridConfig, listParams, filters)
         def nrRecords = easygridDispatchService.callDSCountRows(gridConfig, filters)

@@ -19,14 +19,18 @@ class FilterService {
      */
     Filter createFilterFromColumn(GridConfig gridConfig, FilterableConfig filterableConfig,
                                   def operator, String value) {
+        def val = GridUtils.convertValueUsingBinding(value, filterableConfig.dataType)
+
+        // by default - if the conversion fails - ignore the filter
+        if (val == null) {
+            return null
+        }
+
         def f = new Filter()
         f.filterable = filterableConfig
-
         f.paramName = filterableConfig.name
         f.paramValue = value
-        //todo - return validation
-        f.value = GridUtils.convertValueUsingBinding(f.paramValue, filterableConfig.dataType)
-
+        f.value = val
         f.operator = operator ?: filterableConfig.defaultFilterOperator
 
         if (filterableConfig.filterClosure) {

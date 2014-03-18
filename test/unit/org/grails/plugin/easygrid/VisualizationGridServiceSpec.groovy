@@ -49,12 +49,14 @@ class VisualizationGridServiceSpec extends Specification {
                     }
                     testStringProperty {
                         valueType String
+                        dataType String
                         filterClosure { filter ->
                             ilike('testStringProperty', "%${filter.paramValue}%")
                         }
                     }
                     testIntProperty {
                         valueType Integer
+                        dataType Integer
                         filterClosure { filter ->
                             eq('testIntProperty', filter.paramValue as int)
                         }

@@ -63,60 +63,51 @@ class GormDatasourceService {
 
         gridConfig.columns.each { ColumnConfig column ->
             // add default filterClosure
-            if (column.filterClosure == null) {
-
-                if (column.filterFieldType == null) {
-                    if (gridConfig.domainClass) {
-//                        assert column.property: "you must specify a filterFieldType for ${column.name}"
-                        if (column.property) {
-                            Class columnPropertyType = getPropertyType(grailsApplication, gridConfig.domainClass, column.property)
-                            column.dataType = columnPropertyType
-                            if (!columnPropertyType) {
-                                log.warn("Property '${column.property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}")
-                            }
-                            switch (columnPropertyType) {
-                                case String:
-                                    column.filterFieldType = 'text'
-                                    break
-                                case int:
-                                case Integer:
-                                    column.filterFieldType = 'integerF'
-                                    break
-                                case long:
-                                case Long:
-                                    column.filterFieldType = 'longF'
-                                    break
-                                case double:
-                                case Double:
-                                    column.filterFieldType = 'doubleF'
-                                    break
-                                case float:
-                                case Float:
-                                    column.filterFieldType = 'floatF'
-                                    break
-                                case BigDecimal:
-                                    column.filterFieldType = 'bigDecimalF'
-                                    break
-                                case Date:
-                                    column.filterFieldType = 'date'
-                                    break
-                                default:
-                                    break
-                            }
-                        }
-                    }
+            if (column.property ) {
+                Class columnPropertyType = getPropertyType(grailsApplication, gridConfig.domainClass, column.property)
+                column.dataType = columnPropertyType
+                if (!columnPropertyType) {
+                    log.warn("Property '${column.property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}")
                 }
-
 /*
-                if (column.filterFieldType) {
-                    def filterClosure = defaultValues?.dataSourceImplementations?."${gridConfig.dataSourceType}"?.filters?."${column.filterFieldType}"
-                    assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
-                    column.filterClosure = filterClosure
+                switch (columnPropertyType) {
+                    case String:
+                        column.filterFieldType = 'text'
+                        break
+                    case int:
+                    case Integer:
+                        column.filterFieldType = 'integerF'
+                        break
+                    case long:
+                    case Long:
+                        column.filterFieldType = 'longF'
+                        break
+                    case double:
+                    case Double:
+                        column.filterFieldType = 'doubleF'
+                        break
+                    case float:
+                    case Float:
+                        column.filterFieldType = 'floatF'
+                        break
+                    case BigDecimal:
+                        column.filterFieldType = 'bigDecimalF'
+                        break
+                    case Date:
+                        column.filterFieldType = 'date'
+                        break
+                    default:
+                        break
                 }
 */
             }
-
-
+/*
+            if (column.filterFieldType) {
+                def filterClosure = defaultValues?.dataSourceImplementations?."${gridConfig.dataSourceType}"?.filters?."${column.filterFieldType}"
+                assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
+                column.filterClosure = filterClosure
+            }
+*/
         }
     }
 
@@ -251,7 +242,7 @@ class GormDatasourceService {
      * @return
      */
     def getCriteria(Filter filter) {
-        if(filter.searchFilter){
+        if (filter.searchFilter) {
             return filter.searchFilter
         }
 

@@ -130,43 +130,15 @@ easygrid {
 
     // each grid has a "type" - which must be one of the datasources defined here
     dataSourceImplementations {
-        // renamed for consistency
-        gorm {
-            // mandatory attribute: domainClass or initialCriteria
-            dataSourceService = GormDatasourceService
-            filters {
-                //default search closures
-                text = { filter -> ilike(GridUtils.lastProperty(filter.filterable.name), "%${filter.paramValue}%") }
-                number = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as int) }
-                integerF = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as Integer) }
-                longF = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as Long) }
-                doubleF = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as Double) }
-                floatF = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as Float) }
-                bigDecimalF = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), filter.paramValue as BigDecimal) }
-                date = { filter -> eq(GridUtils.lastProperty(filter.filterable.name), new SimpleDateFormat(stdDateFormat).parse(filter.paramValue)) }
-            }
-        }
+        // mandatory attribute: domainClass or initialCriteria
 
-        list {
-            //mandatory attributes: context, attributeName
-            dataSourceService = ListDatasourceService
-            filters {
-                //default search closures
-                text = { filter, row -> row[filter.filterable.name].contains filter.paramValue }
-                number = { filter, row -> row[filter.filterable.name] == filter.paramValue as int }
-                integerF = { filter, row -> row[filter.filterable.name] == filter.paramValue as Integer }
-                longF = { filter, row -> row[filter.filterable.name] == filter.paramValue as Long }
-                doubleF = { filter, row -> row[filter.filterable.name] == filter.paramValue as Double }
-                floatF = { filter, row -> row[filter.filterable.name] == filter.paramValue as Float }
-                bigDecimalF = { filter, row -> row[filter.filterable.name] == filter.paramValue as BigDecimal }
-                date = { filter, row -> row[filter.filterable.name] == new SimpleDateFormat(stdDateFormat).parse(filter.paramValue) }
-            }
-        }
+        gorm.dataSourceService = GormDatasourceService
 
-        custom {
-            // mandatory attributes: 'dataProvider', 'dataCount'
-            dataSourceService = CustomDatasourceService
-        }
+        //mandatory attributes: context, attributeName
+        list.dataSourceService = ListDatasourceService
+
+        // mandatory attributes: 'dataProvider', 'dataCount'
+        custom.dataSourceService = CustomDatasourceService
     }
 
     // these are the actual UI grid implementations
@@ -179,7 +151,7 @@ easygrid {
             gridImplService = ClassicGridService
             inlineEdit = false
             formats = [
-                    (Date): { it.format(stdDateFormat) },
+                    (Date)   : { it.format(stdDateFormat) },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }
@@ -195,9 +167,9 @@ easygrid {
             // using the named formatters ( defined below )
             // using the default type formats ( defined here ) - where you specify the type of data & the format closure
             formats = [
-                    (Date): { it.format(stdDateFormat) },
+                    (Date)    : { it.format(stdDateFormat) },
                     (Calendar): { Calendar cal -> cal.format(stdDateFormat) },
-                    (Boolean): { it ? "Yes" : "No" }
+                    (Boolean) : { it ? "Yes" : "No" }
             ]
         }
 
@@ -207,7 +179,7 @@ easygrid {
             gridRenderer = '/templates/easygrid/dataTablesGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date): { it.format(stdDateFormat) },
+                    (Date)   : { it.format(stdDateFormat) },
                     (Boolean): { it ? "Yes" : "No" }
             ]
         }

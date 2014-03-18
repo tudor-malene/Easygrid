@@ -63,7 +63,7 @@ class JqgridSpec extends Specification {
                     }
                     col2 {
                         enableFilter true
-                        filterFieldType 'text'
+//                        filterFieldType 'text'
                         jqgrid {
                         }
                     }

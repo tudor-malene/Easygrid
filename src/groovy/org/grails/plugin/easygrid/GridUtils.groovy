@@ -261,10 +261,9 @@ class GridUtils {
         ValidationErrors errors = instance.errors
         if (errors.hasErrors()) {
             errors.allErrors[0]
-            //todo
-        } else {
-            instance.x
+            return null
         }
+        instance.x
     }
 
     static private void addPropertyWithType(instance, prop, type) {

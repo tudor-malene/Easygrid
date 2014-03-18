@@ -433,7 +433,8 @@ class GormDatasourceServiceSpec extends Specification {
         'Bonkers' == data[0].name
 
         when:
-        data = service.list(petsGridConfig, [:], new Filters(filters: [filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns['owner.name'], BW, 'John')]))
+        data = service.list(petsGridConfig, [:],
+                new Filters(filters: [filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns['owner.name'], BW, 'John')]))
         then:
         2 == data.size()
         'Bonkers' == data[0].name
