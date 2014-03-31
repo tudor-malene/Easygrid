@@ -3,6 +3,7 @@ package org.grails.plugin.easygrid
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import groovy.time.TimeCategory
+import org.codehaus.groovy.grails.commons.DefaultGrailsControllerClass
 import spock.lang.Ignore
 import spock.lang.Specification
 
@@ -110,7 +111,6 @@ class EasygridInitServiceSpec extends Specification {
         'testLabel' == customGridConfig.columns.name.label
         'custom' == customGridConfig.dataSourceType
         'name' == customGridConfig.columns[1].property
-        1 == customGridConfig.columns[1].jqgrid.size()
         true == customGridConfig.columns[1].jqgrid.editable
         1 == customGridConfig.columns[1].export.size()
         'testLabel' == customGridConfig.columns[1].label
@@ -241,7 +241,7 @@ class EasygridInitServiceSpec extends Specification {
         service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
 
         when:
-        def grids = service.initControllerGrids(new TestDomainController(), TestDomainController)
+        def grids = service.initControllerGrids(new DefaultGrailsControllerClass(TestDomainController), new TestDomainController())
 
         then:
         4 == grids.size()
@@ -254,7 +254,7 @@ class EasygridInitServiceSpec extends Specification {
         service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
 
         when:
-        def grids = service.initControllerGrids(new TestController(), TestController)
+        def grids = service.initControllerGrids(new DefaultGrailsControllerClass(TestController), new TestController())
 
         then:
         1 == grids.size()
@@ -268,7 +268,7 @@ class EasygridInitServiceSpec extends Specification {
         service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
 
         when:
-        def grids = service.initControllerGrids(new Test1Controller(), Test1Controller)
+        def grids = service.initControllerGrids(new DefaultGrailsControllerClass(Test1Controller), new Test1Controller())
 
         then:
         1 == grids.size()
@@ -307,7 +307,7 @@ class EasygridInitServiceSpec extends Specification {
         '1' == domainGridConfig.someUselessProperty
 
         and: "they type set for the actions column was applied correctly"
-        '"actions"' == domainGridConfig.columns.actions.jqgrid.formatter
+        "actions" == domainGridConfig.columns.actions.jqgrid.formatter
     }
 
 }

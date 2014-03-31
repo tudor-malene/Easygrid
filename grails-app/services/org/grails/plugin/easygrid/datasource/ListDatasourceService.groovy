@@ -11,6 +11,7 @@ import static org.grails.plugin.easygrid.EasygridContextHolder.*
 import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
 import static org.grails.plugin.easygrid.FiltersEnum.and
 import static org.grails.plugin.easygrid.FiltersEnum.or
+import static org.grails.plugin.easygrid.GridUtils.valueOfSortColumn
 
 /**
  * Datasource implementation
@@ -63,15 +64,34 @@ class ListDatasourceService {
                     }
                 }
 
+/*
                 return orderBy.inject(tempList) { acc, val ->
                     acc.sort { a, b ->
                         def comp = a[val.sort] <=> b[val.sort]
                         (val.order == 'asc') ? comp : -comp
                     }
                 }
+*/
+                orderBy.each { val ->
+                    def sortCol = gridConfig.columns[val.sort]
+                    assert sortCol
+                    def sort = valueOfSortColumn(gridConfig, sortCol)
 
+                    if (sort instanceof Closure) {
+                        //execute the closure
+                        tempList = tempList.sort(sort)
+                    } else {
+                        tempList = tempList.sort { a, b ->
+                            def comp = a[sort] <=> b[sort]
+                            (val.order == 'asc') ? comp : -comp
+                        }
+                    }
+                }
+                return tempList
             }
         }
+
+        //return an empty array
         []
     }
 

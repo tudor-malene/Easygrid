@@ -31,11 +31,14 @@ class Filters {
     }
 
     def leftShift(filter) {
-        if(filter){
-            filters << filter
+        if (filter) {
+            if (filter instanceof Collection) {
+                filters.addAll(filter)
+            } else {
+                filters << filter
+            }
         }
     }
-
 }
 
 

@@ -1,18 +1,22 @@
 package org.grails.plugin.easygrid.datasource
 
-import grails.gorm.DetachedCriteria
+import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
-import org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator
-import org.grails.datastore.mapping.query.api.Criteria
+import org.codehaus.groovy.grails.validation.ConstrainedProperty
+
+//import org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator
 import org.grails.plugin.easygrid.*
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.transaction.annotation.Transactional
 
+import static groovy.lang.Closure.DELEGATE_FIRST
 import static org.codehaus.groovy.grails.commons.GrailsClassUtils.getStaticPropertyValue
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
+import static org.grails.plugin.easygrid.FilterUtils.getOperatorMapKey
+import static org.grails.plugin.easygrid.GormUtils.createFilterClosure
 import static org.grails.plugin.easygrid.GridUtils.*
 
 /**
@@ -25,7 +29,6 @@ import static org.grails.plugin.easygrid.GridUtils.*
 class GormDatasourceService {
 
     def grailsApplication
-//    def filterPaneService
     def filterService
 
     /**
@@ -62,52 +65,42 @@ class GormDatasourceService {
     def addDefaultValues(GridConfig gridConfig, Map defaultValues) {
 
         gridConfig.columns.each { ColumnConfig column ->
-            // add default filterClosure
-            if (column.property ) {
-                Class columnPropertyType = getPropertyType(grailsApplication, gridConfig.domainClass, column.property)
-                column.dataType = columnPropertyType
+            if (!column.filterProperty) {
+                column.filterProperty = column.property
+            }
+        }
+
+        (gridConfig.columns.elementList + gridConfig.filterForm?.fields?.elementList).findAll {
+            it
+        }.each { FilterableConfig filterable ->
+            def property = filterable.filterProperty
+            if (property) {
+                GrailsDomainClassProperty columnProperty = getDomainProperty(grailsApplication, gridConfig.domainClass, property)
+                Class columnPropertyType = columnProperty?.type
+                if (!filterable.filterDataType) {
+                    filterable.filterDataType = columnPropertyType
+                }
                 if (!columnPropertyType) {
-                    log.warn("Property '${column.property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}")
+                    log.warn("Property '${property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}")
+                } else {
+                    if (!filterable.filterType) {
+                        filterable.filterType = getOperatorMapKey(columnPropertyType)
+                    }
                 }
-/*
-                switch (columnPropertyType) {
-                    case String:
-                        column.filterFieldType = 'text'
-                        break
-                    case int:
-                    case Integer:
-                        column.filterFieldType = 'integerF'
-                        break
-                    case long:
-                    case Long:
-                        column.filterFieldType = 'longF'
-                        break
-                    case double:
-                    case Double:
-                        column.filterFieldType = 'doubleF'
-                        break
-                    case float:
-                    case Float:
-                        column.filterFieldType = 'floatF'
-                        break
-                    case BigDecimal:
-                        column.filterFieldType = 'bigDecimalF'
-                        break
-                    case Date:
-                        column.filterFieldType = 'date'
-                        break
-                    default:
-                        break
+
+//                if (columnProperty.association) {
+//                    def assoc = columnProperty.referencedDomainClass
+//                    println assoc
+//                }
+            } else {
+                //by default - if no other config -
+                if (!filterable.filterDataType) {
+                    filterable.filterDataType = String
                 }
-*/
+                if (!filterable.filterType) {
+                    filterable.filterType = getOperatorMapKey(filterable.filterDataType)
+                }
             }
-/*
-            if (column.filterFieldType) {
-                def filterClosure = defaultValues?.dataSourceImplementations?."${gridConfig.dataSourceType}"?.filters?."${column.filterFieldType}"
-                assert filterClosure: "no default filterClosure defined for '${column.filterFieldType}'"
-                column.filterClosure = filterClosure
-            }
-*/
         }
     }
 
@@ -130,8 +123,44 @@ class GormDatasourceService {
         properties.removeAll { !it.domainClass.constrainedProperties[it.name]?.display }
         properties.removeAll { it.derived }
 
-        Collections.sort(properties, new DomainClassPropertyComparator(domainClass))
-        properties
+//        Collections.sort(properties, new DomainClassPropertyComparator(domainClass))
+        //implement the comparator locally because it moved
+        properties.sort { o1, o2 ->
+            if (o1.equals(domainClass.getIdentifier())) {
+                return -1;
+            }
+            if (o2.equals(domainClass.getIdentifier())) {
+                return 1;
+            }
+
+            GrailsDomainClassProperty prop1 = (GrailsDomainClassProperty) o1;
+            GrailsDomainClassProperty prop2 = (GrailsDomainClassProperty) o2;
+
+            ConstrainedProperty cp1 = (ConstrainedProperty) domainClass.constrainedProperties.get(prop1.getName());
+            ConstrainedProperty cp2 = (ConstrainedProperty) domainClass.constrainedProperties.get(prop2.getName());
+
+            if (cp1 == null & cp2 == null) {
+                return prop1.getName().compareTo(prop2.getName());
+            }
+
+            if (cp1 == null) {
+                return 1;
+            }
+
+            if (cp2 == null) {
+                return -1;
+            }
+
+            if (cp1.getOrder() > cp2.getOrder()) {
+                return 1;
+            }
+
+            if (cp1.getOrder() < cp2.getOrder()) {
+                return -1;
+            }
+
+            return 0;
+        }
     }
 
 
@@ -163,7 +192,21 @@ class GormDatasourceService {
             }
         }
 
-        addOrderBy(createWhereQuery(gridConfig, filters), orderBy).list(max: listParams.maxRows, offset: listParams.rowOffset)
+//        def result = addOrderBy(gridConfig, createWhereQuery(gridConfig, filters), orderBy).list(max: listParams.maxRows, offset: listParams.rowOffset)
+        def criteria = createWhereQuery(gridConfig, filters, orderBy, false)
+        if (listParams.maxRows) {
+            criteria.maxResults = listParams.maxRows
+        }
+        if (listParams.rowOffset) {
+            criteria.firstResult = listParams.rowOffset
+        }
+        def result = criteria.list()
+
+        if (gridConfig.transformData) {
+            result.collect(gridConfig.transformData)
+        } else {
+            result
+        }
     }
 
     /**
@@ -173,8 +216,8 @@ class GormDatasourceService {
     def getById(GridConfig gridConfig, id) {
         String idProp = gridConfig.autocomplete.idProp
         if (id != null) {
-//            createWhereQuery(gridConfig, [new Filter({ filter -> eq(idProp, id) })]).find()
-            createWhereQuery(gridConfig, filterService.createGlobalFilters { eq(idProp, id) }).find()
+//            createWhereQuery(gridConfig, filterService.createGlobalFilters { eq(idProp, id) }).find()
+            gridConfig.domainClass."findBy${idProp.capitalize()}"(id)
         }
     }
 
@@ -184,7 +227,8 @@ class GormDatasourceService {
      * @return
      */
     def countRows(gridConfig, filters = null) {
-        createWhereQuery(gridConfig, filters).count()
+        createWhereQuery(gridConfig, filters, null, true).uniqueResult()
+//1
     }
 
     /**
@@ -192,20 +236,45 @@ class GormDatasourceService {
      * @param filters - map of filter closures
      * @return
      */
-    Criteria createWhereQuery(GridConfig gridConfig, Filters filters) {
-        DetachedCriteria baseCriteria = new DetachedCriteria(gridConfig.domainClass)
-        if (gridConfig.initialCriteria) {
-            baseCriteria = baseCriteria.build(gridConfig.initialCriteria)
-        }
+    def createWhereQuery(GridConfig gridConfig, Filters filters, List orderBy = [], boolean countRows = false) {
+//        DetachedCriteria baseCriteria = new DetachedCriteria(gridConfig.domainClass)
+        def baseCriteria = gridConfig.domainClass.createCriteria()
+        baseCriteria.buildCriteria {
+            if (gridConfig.initialCriteria) {
+//            baseCriteria = baseCriteria.build(gridConfig.initialCriteria)
+                def initialCriteria = gridConfig.initialCriteria.clone()
+                initialCriteria.resolveStrategy = DELEGATE_FIRST
+                initialCriteria.delegate = delegate
+                initialCriteria()
+            }
 
-        Closure filterCriteria = createFiltersClosure(filters)
-        if (filterCriteria) {
-            filterCriteria.resolveStrategy = Closure.DELEGATE_FIRST
-            filterCriteria.delegate = baseCriteria
-            filterCriteria()
+            Closure filterCriteria = createFiltersClosure(filters)
+            if (filterCriteria) {
+                filterCriteria.resolveStrategy = DELEGATE_FIRST
+                filterCriteria.delegate = delegate
+                filterCriteria()
+            }
+            if (countRows) {
+                projections {
+                    count()
+                }
+            } else {
+                orderBy.each {
+                    def sortCol = gridConfig.columns[it.sort]
+                    assert sortCol
+                    def sort = valueOfSortColumn(gridConfig, sortCol)
+                    if (sort instanceof Closure) {
+                        //execute the closure
+                        sort.delegate = delegate
+                        sort.call(it.order)
+                    } else {
+                        def c = getOrderClosure(sort, it.order)
+                        c.delegate = delegate
+                        c()
+                    }
+                }
+            }
         }
-        return baseCriteria
-
     }
 
     /**
@@ -217,13 +286,15 @@ class GormDatasourceService {
         if (filters) {
             filters.postorder(
                     { Filters node, List siblings ->
-                        return {
-                            "${node.type}" {
-                                def del = delegate
-                                siblings.each { Closure criteria ->
-                                    criteria.delegate = del
-                                    criteria.resolveStrategy = DELEGATE_FIRST
-                                    criteria()
+                        if(siblings){
+                            return {
+                                "${node.type}" {
+                                    def del = delegate
+                                    siblings.each { Closure criteria ->
+                                        criteria.delegate = del
+                                        criteria.resolveStrategy = DELEGATE_FIRST
+                                        criteria()
+                                    }
                                 }
                             }
                         }
@@ -242,6 +313,7 @@ class GormDatasourceService {
      * @return
      */
     def getCriteria(Filter filter) {
+        assert filter
         if (filter.searchFilter) {
             return filter.searchFilter
         }
@@ -256,31 +328,27 @@ class GormDatasourceService {
         }
     }
 
-    //thanks to doig ken
-    private Closure createFilterClosure(FilterOperatorsEnum operator, String property, Object value) {
-        switch (operator) {
-            case EQ: return { eq(property, value) }
-            case NE: return { ne(property, value) }
-            case LT: return { lt(property, value) }
-            case LE: return { le(property, value) }
-            case GT: return { gt(property, value) }
-            case GE: return { ge(property, value) }
-            case BW: return { ilike(property, "${value}%") }
-            case BN: return { not { ilike(property, "${value}%") } }
-            case IN: return { 'in'(property, value) }
-            case NI: return { not { 'in'(property, value) } }
-            case EW: return { ilike(property, "%${value}") }
-            case EN: return { not { ilike(property, "%${value}") } }
-            case CN: return { ilike(property, "%${value}%") }
-            case NC: return { not { ilike(property, "%${value}%") } }
-            default: log.warn("Operation not supported [${op}]")
+    def getOrderClosure(sort, orderDir) {
+        def c = { order(lastProperty(sort), orderDir) }
+        if (sort.indexOf('.') > -1) {
+            return buildClosure(sort.split('\\.')[0..-2], c)
+        } else {
+            return c
         }
     }
 
-
-    Criteria addOrderBy(Criteria criteria, List orderBy) {
+    def addOrderBy(GridConfig gridConfig, criteria, List orderBy) {
         orderBy.each {
-            criteria.order(it.sort, it.order)
+            def sortCol = gridConfig.columns[it.sort]
+            assert sortCol
+            def sort = valueOfSortColumn(gridConfig, sortCol)
+            if (sort instanceof Closure) {
+                //execute the closure
+                sort.delegate = criteria
+                sort.call(it.order)
+            } else {
+                criteria.order(sort, it.order)
+            }
         }
         criteria
     }

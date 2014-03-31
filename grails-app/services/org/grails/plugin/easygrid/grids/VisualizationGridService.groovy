@@ -69,7 +69,7 @@ class VisualizationGridService {
             result.order = (sortColumn.order == SortOrder.DESCENDING) ? 'desc' : 'asc'
         }
 
-        result.maxRows = query.rowLimit
+        result.maxRows = (query.rowLimit <= 0) ? null : query.rowLimit
         result.rowOffset = query.rowOffset
 
         result

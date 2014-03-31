@@ -16,12 +16,14 @@ import static org.grails.plugin.easygrid.EasygridContextHolder.*
 class AutocompleteService {
 
     def easygridDispatchService
+    def filterService
 
     def filters(gridConfig) {
         // add the selection component constraint filter closure
         if (params.selectionComp && gridConfig.autocomplete.constraintsFilterClosure) {
             //add a new criteria
-            [new Filter(gridConfig.autocomplete.constraintsFilterClosure)]
+//            [new Filter(gridConfig.autocomplete.constraintsFilterClosure)]
+            filterService.createGlobalFilters gridConfig.autocomplete.constraintsFilterClosure
         }
     }
 
@@ -35,10 +37,12 @@ class AutocompleteService {
         assert gridConfig.autocomplete.textBoxFilterClosure
 
         // compose an array with the input term filter and an eventual contraint
-        def filters = [new Filter(gridConfig.autocomplete.textBoxFilterClosure, params.term)]
+//        def filters = [new Filter(gridConfig.autocomplete.textBoxFilterClosure, params.term)]
+        def filters = filterService.createGlobalFilters(gridConfig.autocomplete.textBoxFilterClosure)
 
         if (gridConfig.autocomplete.constraintsFilterClosure != null) {
-            filters << new Filter(gridConfig.autocomplete.constraintsFilterClosure)
+//            filters << new Filter(gridConfig.autocomplete.constraintsFilterClosure)
+            filters << filterService.createGlobalFilters(gridConfig.autocomplete.constraintsFilterClosure)
         }
 
         //retreive the rows & transform the values to the JSON format
@@ -49,7 +53,7 @@ class AutocompleteService {
         easygridDispatchService.callDSList(gridConfig, [rowOffset: 0, maxRows: gridConfig.autocomplete.maxRows], filters)
                 .collect {
             [
-                    id: GridUtils.getNestedPropertyValue(gridConfig.autocomplete.idProp, it),
+                    id   : GridUtils.getNestedPropertyValue(gridConfig.autocomplete.idProp, it),
                     label: getLabel(gridConfig, it),
             ]
         } as JSON

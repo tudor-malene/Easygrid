@@ -34,7 +34,7 @@
  *         sortColumn {number} set according to the given sort.
  * @constructor
  */
-var TableQueryWrapper = function(query, container, options) {
+var TableQueryWrapper = function (query, container, options) {
 
     this.table = new google.visualization.Table(container);
     this.query = query;
@@ -45,8 +45,12 @@ var TableQueryWrapper = function(query, container, options) {
 
     var self = this;
     var addListener = google.visualization.events.addListener;
-    addListener(this.table, 'page', function(e) {self.handlePage(e)});
-    addListener(this.table, 'sort', function(e) {self.handleSort(e)});
+    addListener(this.table, 'page', function (e) {
+        self.handlePage(e)
+    });
+    addListener(this.table, 'sort', function (e) {
+        self.handleSort(e)
+    });
 
     options = options || {};
     options = TableQueryWrapper.clone(options);
@@ -69,17 +73,19 @@ var TableQueryWrapper = function(query, container, options) {
  * container. If the query refresh interval is set then the visualization will
  * be redrawn upon each refresh.
  */
-TableQueryWrapper.prototype.sendAndDraw = function() {
+TableQueryWrapper.prototype.sendAndDraw = function () {
     this.query.abort();
     var queryClause = this.sortQueryClause + ' ' + this.pageQueryClause;
     this.query.setQuery(queryClause);
     this.table.setSelection([]);
     var self = this;
-    this.query.send(function(response) {self.handleResponse(response)});
+    this.query.send(function (response) {
+        self.handleResponse(response)
+    });
 };
 
 /** Handles the query response after a send returned by the data source. */
-TableQueryWrapper.prototype.handleResponse = function(response) {
+TableQueryWrapper.prototype.handleResponse = function (response) {
     this.currentDataTable = null;
     if (response.isError()) {
         google.visualization.errors.addError(this.container, response.getMessage(),
@@ -87,22 +93,22 @@ TableQueryWrapper.prototype.handleResponse = function(response) {
     } else {
         this.currentDataTable = response.getDataTable();
 
-        var finalOptions = this.tableOptions ;
-        var serverProps =this.currentDataTable.getTableProperties();
-        for (var key in serverProps ){
-            if(!finalOptions[key]){
+        var finalOptions = this.tableOptions;
+        var serverProps = this.currentDataTable.getTableProperties();
+        for (var key in serverProps) {
+            if (!finalOptions[key]) {
 //                console.log(key);
-                finalOptions[key]=serverProps[key];
+                finalOptions[key] = serverProps[key];
             }
         }
-        console.log(finalOptions);
+//        console.log(finalOptions);
         this.table.draw(this.currentDataTable, finalOptions);
     }
 };
 
 
 /** Handles a sort event with the given properties. Will page to page=0. */
-TableQueryWrapper.prototype.handleSort = function(properties) {
+TableQueryWrapper.prototype.handleSort = function (properties) {
     var columnIndex = properties['column'];
     var isAscending = properties['ascending'];
     this.tableOptions['sortColumn'] = columnIndex;
@@ -116,7 +122,7 @@ TableQueryWrapper.prototype.handleSort = function(properties) {
 
 
 /** Handles a page event with the given properties. */
-TableQueryWrapper.prototype.handlePage = function(properties) {
+TableQueryWrapper.prototype.handlePage = function (properties) {
     var localTableNewPage = properties['page']; // 1, -1 or 0
     var newPage = 0;
     if (localTableNewPage != 0) {
@@ -134,7 +140,7 @@ TableQueryWrapper.prototype.handlePage = function(properties) {
  * based on the previous request.
  * Returns true if a new page query clause was set, false otherwise.
  */
-TableQueryWrapper.prototype.setPageQueryClause = function(pageIndex) {
+TableQueryWrapper.prototype.setPageQueryClause = function (pageIndex) {
     var pageSize = this.pageSize;
 
     if (pageIndex < 0) {
@@ -157,10 +163,42 @@ TableQueryWrapper.prototype.setPageQueryClause = function(pageIndex) {
 
 
 /** Performs a shallow clone of the given object. */
-TableQueryWrapper.clone = function(obj) {
+TableQueryWrapper.clone = function (obj) {
     var newObj = {};
     for (var key in obj) {
         newObj[key] = obj[key];
     }
     return newObj;
 };
+
+var easygrid = {
+    filterForm: function (gridName, form) {
+        var ser = jQuery(form).serialize();
+        this.initTable(gridName, ser)();
+        return false;
+    },
+
+    initTable: function (gridName, params) {
+        return function () {
+            var container = document.getElementById(gridName + "_div");
+            var data = $.data(container, 'grid');
+            console.log(data);
+            var query = new google.visualization.Query(data.url + "?" + params);
+            if (data.loadAll) {
+                query.send(function (response) {
+                    if (response.isError()) {
+                        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+                        return;
+                    }
+                    var visualization = new google.visualization.Table(container);
+                    visualization.draw(response.getDataTable(), null);
+                });
+
+            } else {
+                query.abort();
+                new TableQueryWrapper(query, container, data.options).sendAndDraw();
+            }
+        }
+    }
+}
+

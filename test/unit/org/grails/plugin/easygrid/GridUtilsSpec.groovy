@@ -1,9 +1,9 @@
 package org.grails.plugin.easygrid
 
-import grails.validation.ValidationErrors
+import grails.converters.JSON
+import grails.test.mixin.TestMixin
+import grails.test.mixin.web.ControllerUnitTestMixin
 import org.codehaus.groovy.control.ConfigurationException
-import org.codehaus.groovy.grails.web.binding.DataBindingUtils
-import org.springframework.validation.FieldError
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -12,6 +12,7 @@ import spock.lang.Unroll
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
+@TestMixin(ControllerUnitTestMixin)
 class GridUtilsSpec extends Specification {
 
     def "test Copy Properties"() {
@@ -116,5 +117,13 @@ class GridUtilsSpec extends Specification {
 
     }
 
+    def "converting to javascript"() {
+
+        when:
+        def result = [a: 1, b: [ba: 2, bc: 3, bb: [bbb: 1]]] as JSON
+
+        then:
+        '{"a":1,"b":{"ba":2,"bc":3,"bb":{"bbb":1}}}' == result.toString()
+    }
 
 }

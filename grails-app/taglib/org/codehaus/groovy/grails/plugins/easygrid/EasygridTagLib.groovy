@@ -65,6 +65,9 @@ class EasygridTagLib {
             gridConfig = easygridService.overwriteGridProperties(originalGridConfig, attrs)
         }
 
+        pageScope.setVariable(CURRENT_GRID, gridConfig)
+        body()
+        pageScope.setVariable(CURRENT_GRID, null)
         def model = easygridService.htmlGridDefinition(gridConfig)
 
         if (model) {
@@ -72,6 +75,67 @@ class EasygridTagLib {
             out << render(template: gridConfig.gridRenderer, model: model)
         }
 
+    }
+
+    private static final String CURRENT_GRID = 'currentGrid'
+
+    def set = { attrs, body ->
+        GridConfig grid = pageScope.getVariable(CURRENT_GRID)
+        if (!grid) {
+            throwTagError("'grid:set' tag must be nested inside a 'grid:grid' tag")
+        }
+        ColumnConfig column
+        if (attrs.col) {
+            def col = attrs.remove('col')
+            column = grid.columns[col]
+            if (!column) {
+                throwTagError("${col} is not a valid column")
+            }
+        }
+        def gridImpl = grid.gridImpl
+        attrs.each{k,v->
+            if (column) {
+                column[gridImpl][k]=v
+            } else {
+                grid[gridImpl][k]=v
+            }
+
+        }
+
+    }
+
+    //general properties
+    def p = { attrs, body ->
+        GridConfig grid = pageScope.getVariable(CURRENT_GRID)
+        if (!grid) {
+            throwTagError("'grid:c' tag must be nested inside a 'grid:grid' tag")
+        }
+        String val = body()
+        val.split(',').each { String tkn ->
+            if (tkn.trim()) {
+                def key = tkn.split(':')[0]
+                grid.jqgrid.remove(key.trim())
+            }
+        }
+        grid.otherProperties = val
+    }
+
+    //  column properties
+    def c = { attrs, body ->
+        def colName = attrs.name
+        GridConfig grid = pageScope.getVariable(CURRENT_GRID)
+        if (!grid) {
+            throwTagError("'grid:c' tag must be nested inside a 'grid:grid' tag")
+        }
+        ColumnConfig currentColumn = grid.columns[colName]
+        String val = body()
+        val.split(',').each { String tkn ->
+            if (tkn.trim()) {
+                def key = tkn.split(':')[0]
+                currentColumn.jqgrid.remove(key.trim())
+            }
+        }
+        currentColumn.otherProperties = val
     }
 
     /**
@@ -127,7 +191,7 @@ class EasygridTagLib {
         if (attrs.function) {
             out << "${attrs.function};"
         }
-        out << "return filterForm${attrs.name}(this)"
+        out << "return easygrid.filterForm('${attrs.name}',this)"
         out << "'>"
         out << body()
         out << "</form> "

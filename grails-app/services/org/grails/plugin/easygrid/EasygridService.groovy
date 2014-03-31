@@ -108,7 +108,7 @@ class EasygridService {
 
         //todo - refactor this
         // restore the previous search params
-        GridUtils.markRestorePreviousSearch()
+        GridUtils.markRestorePreviousSearch(gridConfig)
         GridUtils.restoreSearchParams(gridConfig)
 
         //apply the previous filters, fetch all the data & call the export method

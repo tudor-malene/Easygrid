@@ -19,9 +19,26 @@ import static org.grails.plugin.easygrid.TestUtils.mockEasyGridContextHolder
 class ListDatasourceServiceSpec extends Specification {
 
     def filterService
+    def peopleGridConfig
 
     def setup() {
         filterService = new FilterService()
+        peopleGridConfig = generateConfigForGrid(grailsApplication, service) {
+            'peopleGridConfig' {
+                dataSourceType 'list'
+                attributeName 'people'
+                columns {
+                    id
+                    name {
+                        filterDataType String
+                    }
+                    age {
+                        filterDataType Integer
+                    }
+                }
+            }
+        }.peopleGridConfig
+
     }
 
     @Unroll
@@ -30,7 +47,7 @@ class ListDatasourceServiceSpec extends Specification {
         mockEasyGridContextHolder()[3].people = list
 
         when:
-        def result = service.list([attributeName: 'people'], [maxRows: 10, rowOffset: 0, sort: 'age', order: 'desc'])
+        def result = service.list(peopleGridConfig, [maxRows: 10, rowOffset: 0, sort: 'age', order: 'desc'])
 
         then:
         result.size() == size
@@ -46,13 +63,13 @@ class ListDatasourceServiceSpec extends Specification {
         mockEasyGridContextHolder()[3].people = [[name: 'john', age: 5], [name: 'mary', age: 10]]
 
         when:
-        def result = service.list([attributeName: 'people'], [maxRows: 10, rowOffset: 0, sort: 'age', order: 'desc'])
+        def result = service.list(peopleGridConfig, [maxRows: 10, rowOffset: 0, sort: 'age', order: 'desc'])
 
         then:
         result == [[name: 'mary', age: 10], [name: 'john', age: 5]]
 
         when:
-        result = service.list([attributeName: 'people'], [maxRows: 10, rowOffset: 0, sort: 'name', order: 'asc'])
+        result = service.list(peopleGridConfig, [maxRows: 10, rowOffset: 0, sort: 'name', order: 'asc'])
 
         then:
         result == [[name: 'john', age: 5], [name: 'mary', age: 10]]
@@ -64,7 +81,7 @@ class ListDatasourceServiceSpec extends Specification {
         mockEasyGridContextHolder()[3].people = (1..100).collect { [name: "$it", age: it] }
 
         when:
-        def result = service.list([attributeName: 'people'], [maxRows: 20, rowOffset: 30, sort: 'age', order: 'desc'])
+        def result = service.list(peopleGridConfig, [maxRows: 20, rowOffset: 30, sort: 'age', order: 'desc'])
 
         then:
         result.size == 20
@@ -76,7 +93,7 @@ class ListDatasourceServiceSpec extends Specification {
         mockEasyGridContextHolder()[3].people = (1..100).collect { [name: "$it", age: it] }
 
         when:
-        def result = service.list([attributeName: 'people'], [maxRows: 20, rowOffset: 0, sort: 'age', order: 'asc'],
+        def result = service.list(peopleGridConfig, [maxRows: 20, rowOffset: 0, sort: 'age', order: 'asc'],
                 new Filters(filters: [
                         filterService.createGlobalFilter({ params, row ->
                             row.age >= 50
@@ -92,7 +109,7 @@ class ListDatasourceServiceSpec extends Specification {
         result[9].age == 59
 
         when:
-        def count = service.countRows([attributeName: 'people'],
+        def count = service.countRows(peopleGridConfig,
                 new Filters(filters: [
                         filterService.createGlobalFilter({ params, row ->
                             row.age >= 50
@@ -112,7 +129,7 @@ class ListDatasourceServiceSpec extends Specification {
         mockEasyGridContextHolder()[3].people = (1..10).collect { [name: "John", age: it] }
 
         when:
-        def result = service.list([attributeName: 'people'], [multiSort: [[sort: 'name', order: 'asc'], [sort: 'age', order: 'desc']]])
+        def result = service.list(peopleGridConfig, [multiSort: [[sort: 'name', order: 'asc'], [sort: 'age', order: 'desc']]])
 
         then:
         10 == result.size()
@@ -122,24 +139,6 @@ class ListDatasourceServiceSpec extends Specification {
     def "test complex filter"() {
         given:
         mockEasyGridContextHolder()[3].people = (1..100).collect { [name: "John ${it}", age: it] }
-
-        and:
-        def peopleGridConfig = generateConfigForGrid(grailsApplication, service) {
-            'peopleGridConfig' {
-                dataSourceType 'list'
-                attributeName 'people'
-                columns {
-                    id
-                    name {
-                        dataType String
-                    }
-                    age {
-                        dataType Integer
-                    }
-                }
-            }
-        }.peopleGridConfig
-
 
         when:
         def filters = new Filters(filters: [

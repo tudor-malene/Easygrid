@@ -1,25 +1,23 @@
 package org.grails.plugin.easygrid
 
 import grails.gorm.DetachedCriteria
-import grails.test.mixin.Mock
-import grails.test.mixin.TestFor
+import grails.test.spock.IntegrationSpec
 import org.grails.plugin.easygrid.datasource.GormDatasourceService
-import spock.lang.Specification
 import spock.lang.Unroll
 
 import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
-import static org.grails.plugin.easygrid.TestUtils.*
 
 /**
  * test the Gorm impl
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@TestFor(GormDatasourceService)
-@Mock([TestDomain, PetTest, OwnerTest])
-class GormDatasourceServiceSpec extends Specification {
+class GormDatasourceServiceSpec extends IntegrationSpec {
 
     def filterService
+    def grailsApplication
+    GormDatasourceService service
+    GormDatasourceService gormDatasourceService
 
     GridConfig domainGridConfig
     GridConfig criteriaGridConfig
@@ -27,6 +25,8 @@ class GormDatasourceServiceSpec extends Specification {
     static int N = 100
 
     def setup() {
+
+        service = gormDatasourceService
 
         filterService = new FilterService()
         service.filterService = filterService
@@ -57,8 +57,12 @@ class GormDatasourceServiceSpec extends Specification {
         criteriaGridConfig = generateConfigForGrid(grailsApplication, service) {
             'testDomainGrid' {
                 labelPrefix ''
-                dataSourceType 'gorm'
+//                dataSourceType 'gorm'
                 domainClass TestDomain
+                transformData { data ->
+//                    data.unique { a, b -> a <=> b }
+                    data
+                }
                 initialCriteria {
                     between("testIntProperty", 21, 40)
                 }
@@ -85,7 +89,6 @@ class GormDatasourceServiceSpec extends Specification {
     def "testCriteriaDataSource"() {
         given:
         populateTestDomain(N)
-        def (params, request, response, session) = mockEasyGridContextHolder()
 
         expect:
         20 == service.countRows(criteriaGridConfig)
@@ -117,7 +120,6 @@ class GormDatasourceServiceSpec extends Specification {
     def "testDomainDataSource"() {
         given:
         populateTestDomain(N)
-        def (params, request, response, session) = mockEasyGridContextHolder()
 
         expect:
         N == service.countRows(domainGridConfig)
@@ -150,7 +152,6 @@ class GormDatasourceServiceSpec extends Specification {
     def "testGormSearch"() {
         given:
         populateTestDomain(N)
-        def (params, request, response, session) = mockEasyGridContextHolder()
 
         when:
         def filters = new Filters(filters: [filterService.createFilterFromColumn(domainGridConfig, domainGridConfig.columns.testStringProperty, BW, '%1%')])
@@ -181,10 +182,11 @@ class GormDatasourceServiceSpec extends Specification {
     def "test Gorm operations"() {
         given:
         populateTestDomain(N)
-        def (params, request, response, session) = mockEasyGridContextHolder()
+//        def (params, request, response, session) = mockEasyGridContextHolder()
+        def c = new TestDomainController()
 
         when: "delete"
-        params.id = TestDomain.findByTestIntProperty(1).id
+        c.params.id = TestDomain.findByTestIntProperty(1).id
         service.delRow(domainGridConfig)
         then:
         N - 1 == service.countRows(domainGridConfig)
@@ -196,11 +198,11 @@ class GormDatasourceServiceSpec extends Specification {
         '2' == before.testStringProperty
 
         when: "update"
-        params.id = TestDomain.findByTestIntProperty(2).id
-        params.testIntProperty = -2
-        params.testStringProperty = 'two'
+        c.params.id = TestDomain.findByTestIntProperty(2).id
+        c.params.testIntProperty = -2
+        c.params.testStringProperty = 'two'
         service.updateRow(domainGridConfig)
-        def instance = TestDomain.get(params.id)
+        def instance = TestDomain.get(c.params.id)
 
         then:
         -2 == instance.testIntProperty
@@ -210,8 +212,8 @@ class GormDatasourceServiceSpec extends Specification {
         N - 1 == service.countRows(domainGridConfig)
 
         when: "add"
-        params.testIntProperty = 101
-        params.testStringProperty = '101'
+        c.params.testIntProperty = 101
+        c.params.testStringProperty = '101'
         def errors = service.saveRow(domainGridConfig)
         instance = TestDomain.findByTestIntProperty(101)
 
@@ -223,8 +225,9 @@ class GormDatasourceServiceSpec extends Specification {
 
     def "test update operation with Integer id"() {
         given:
+        def c = new TestDomainController()
         populatePets()
-        def (params, request, response, session) = mockEasyGridContextHolder()
+        and:
         def petsConfig = generateConfigForGrid(grailsApplication, service) {
             'petsGridConfig' {
                 dataSourceType 'gorm'
@@ -234,10 +237,10 @@ class GormDatasourceServiceSpec extends Specification {
 
 
         when: "update"
-        params.id = "${PetTest.findByName('Bonkers').id}"
-        params.name = "Bonkers the Great"
+        c.params.id = "${PetTest.findByName('Bonkers').id}"
+        c.params.name = "Bonkers the Great"
         service.updateRow(petsConfig)
-        def instance = PetTest.get(params.id)
+        def instance = PetTest.get(c.params.id)
 
         then:
         "Bonkers the Great" == instance.name
@@ -248,7 +251,6 @@ class GormDatasourceServiceSpec extends Specification {
     def "test Complex Query"() {
         given:
         populatePets()
-        def (params, request, response, session) = mockEasyGridContextHolder()
 
         def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
             'petsGridConfig' {
@@ -334,10 +336,10 @@ class GormDatasourceServiceSpec extends Specification {
                             eq('city', paramVal)
                         }
                     }
-                })
+                }, null, true)
 
         then:
-        count == query.count()
+        count == query.uniqueResult()
 
         where:
         paramVal | count
@@ -378,7 +380,6 @@ class GormDatasourceServiceSpec extends Specification {
 
     def "test a complex query"() {
         given:
-        def (params, request, response, session) = mockEasyGridContextHolder()
         populatePets()
         def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
             'petsGridConfig' {
@@ -460,8 +461,6 @@ class GormDatasourceServiceSpec extends Specification {
             new TestDomain(id: it, testStringProperty: "val", testIntProperty: it).save(failOnError: true)
         }
 
-        def (params, request, response, session) = mockEasyGridContextHolder()
-
         expect:
         10 == service.countRows(domainGridConfig)
 
@@ -486,7 +485,6 @@ class GormDatasourceServiceSpec extends Specification {
 
     def "test complex filter"() {
         given:
-        def (params, request, response, session) = mockEasyGridContextHolder()
         populatePets()
         def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
             'petsGridConfig' {
@@ -520,6 +518,61 @@ class GormDatasourceServiceSpec extends Specification {
 
     }
 
+    def "test projections"() {
+        given:
+        populatePets()
+
+        when:
+        def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
+            'petsGridConfig' {
+                domainClass PetTest
+                initialCriteria {
+                    projections {
+                        property('id')
+                        property('name')
+                        owner {
+                            property('name')
+                            property('city')
+                        }
+                    }
+                }
+                transformData { row ->
+                    def result = [:]
+                    result.id = row[0]
+                    result.name = row[1]
+                    result['owner.name'] = row[2]
+                    result['owner.city'] = row[3]
+                    result
+                }
+                columns {
+                    id
+                    name
+                    'owner.name' {}
+                    'owner.city' {
+                    }
+                }
+            }
+        }.petsGridConfig
+
+
+        and:
+        Filters filters = new Filters(filters: [
+                filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns.name, CN, 'o'),
+                new Filters(type: FiltersEnum.or, filters: [
+                        filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns['owner.city'], EQ, 'NJ'),
+                        filterService.createFilterFromColumn(petsGridConfig, petsGridConfig.columns['owner.name'], BW, 'J'),
+                ])
+        ])
+
+        and:
+        def pets = service.list(petsGridConfig, [:], filters)
+
+        then:
+        3 == pets.size()
+        ['Bonkers', 'pandora', 'tommy',] == pets.collect { it.name }.sort()
+
+    }
+
     //utility
     private void populatePets() {
         def john = new OwnerTest(name: 'John', city: 'NY').save()
@@ -536,9 +589,23 @@ class GormDatasourceServiceSpec extends Specification {
         mary.addToPets(pandora).addToPets(wanikiy).save()
         joe.addToPets(severin).save()
 
-        assertEquals 3, OwnerTest.count()
-        assertEquals 2, OwnerTest.findByName('John').pets.size()
+    }
+
+    def easygridInitService
+    /**
+     * generates a config from a grid closure
+     * @param gridConfigClosure
+     * @return
+     */
+    GridConfig generateConfigForGrid(grailsApplication, dataSourceService = null, Closure gridConfigClosure) {
+        easygridInitService.initializeFromClosure gridConfigClosure
     }
 
 
+    static populateTestDomain(N = 100) {
+        (1..N).each {
+            new TestDomain(id: it, testStringProperty: "$it", testIntProperty: it).save(failOnError: true)
+        }
+        assert N == TestDomain.count()
+    }
 }

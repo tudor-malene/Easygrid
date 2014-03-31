@@ -54,6 +54,7 @@ class JqgridSpec extends Specification {
                 attributeName 'listData'
                 columns {
                     col1 {
+                        filterDataType String
                         filterClosure { Filter filter, element ->
                             element.col1 > filter.params.min
                         }
@@ -63,14 +64,13 @@ class JqgridSpec extends Specification {
                     }
                     col2 {
                         enableFilter true
-//                        filterFieldType 'text'
-                        jqgrid {
-                        }
+                        filterDataType String
                     }
                     col3 {
                         value {
                             val -> val.col1 ^ 2
                         }
+                        filterDataType String
                         filterClosure { val, element ->
                         }
                     }
@@ -209,6 +209,36 @@ class JqgridSpec extends Specification {
         then:
         [[sort: 'testStringProperty', order: 'asc'], [sort: 'testIntProperty', order: 'desc']] == service.listParams(domainGridConfig).multiSort
 
+    }
+
+    def "test configuration"() {
+        when:
+        GridConfig someGrid = TestUtils.generateConfigForGrid(grailsApplication, {
+            someGrid {
+                domainClass TestDomain
+                jqgrid {
+                    multiSort true
+                }
+                columns {
+                    testStringProperty {
+                        jqgrid {
+                            searchoptions {
+                                clearSearch false
+                                attr {
+                                    title 'title'
+                                }
+                                sopt(['eq', 'ne'])
+                            }
+                        }
+                    }
+                }
+            }
+        }).someGrid
+
+        then:
+        false == someGrid.columns.testStringProperty.jqgrid.searchoptions.clearSearch
+        ['eq', 'ne'] == someGrid.columns.testStringProperty.jqgrid.searchoptions.sopt
+        'title' == someGrid.columns.testStringProperty.jqgrid.searchoptions.attr.title
     }
 
 

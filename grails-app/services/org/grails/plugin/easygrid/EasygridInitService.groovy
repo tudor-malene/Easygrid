@@ -6,6 +6,7 @@ import groovy.text.SimpleTemplateEngine
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
 import org.codehaus.groovy.grails.commons.GrailsClassUtils
+import org.codehaus.groovy.grails.commons.GrailsControllerClass
 import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
 import org.slf4j.LoggerFactory
@@ -15,6 +16,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
 import static org.codehaus.groovy.grails.commons.GrailsClassUtils.getStaticFieldValue
+import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
 
 /**
  * handles the initialization of the grid
@@ -45,7 +47,7 @@ class EasygridInitService {
 
         // on each annotated controller - first invoke the builder and construct the GridConfigs and then register the grid methods
         grailsApplication.controllerClasses?.findAll { it.clazz.isAnnotationPresent(Easygrid) }?.each { controller ->
-            Map<String, GridConfig> gridsConfig = initControllerGrids(grailsApplication.mainContext.getBean(controller.clazz), controller.clazz)
+            Map<String, GridConfig> gridsConfig = initControllerGrids(controller)
             grids[controller.logicalPropertyName] = gridsConfig
             log.debug "${gridsConfig.size()} grids found in ${controller}"
             gridsConfig.each this.&registerControllerMethods.curry(controller)
@@ -63,7 +65,7 @@ class EasygridInitService {
                     easyGridLogger.debug("entering ${gridName}Html")
                     def model = easygridService.htmlGridDefinition(gridConfig)
                     if (model) {
-                        model.attrs = [id: gridConfig.id]
+                        model.attrs = [id: params.gridId?:gridConfig.id, params: params]
                         render(template: gridConfig.gridRenderer, model: model)
                     }
                 },
@@ -151,11 +153,13 @@ class EasygridInitService {
 
     /**
      * constructs the configuration from the builder
-     * @param controllerBean - the controller bean
-     * @param controllerClass - the controller bean
+     * @param controller - the controller bean
      * @return the initialized grids structure for the controller
      */
-    def Map<String, GridConfig> initControllerGrids(controllerBean, controllerClass) {
+    def Map<String, GridConfig> initControllerGrids(GrailsControllerClass controller, controllerBean = null) {
+
+        def controllerClass = controller.clazz
+        controllerBean = controllerBean ?: grailsApplication.mainContext.getBean(controllerClass)
 
         log.debug("   Run init grids for ${controllerClass}")
         def controllerGridsMap = [:]
@@ -181,6 +185,8 @@ class EasygridInitService {
         controllerClass.declaredFields.findAll { Field field -> field.name.endsWith(GRID_SUFFIX) && !Modifier.isStatic(field.modifiers) && (controllerBean[field.name] instanceof Closure) }.each { Field field ->
             def name = field.name[0..-GRID_SUFFIX.length() - 1]
             controllerGridsMap[name] = initializeFromClosureMethod(name, controllerBean[field.name])
+            //remove the action
+            //todo
         }
 
         controllerGridsMap
@@ -214,6 +220,7 @@ class EasygridInitService {
         }
     }
 
+    public static final String DEFAULT_DATASOURCE = 'gorm'
     /**
      * adds the default values specified in the config file - to the grid configuration
      * also adds convention rules
@@ -229,9 +236,10 @@ class EasygridInitService {
 
         assert gridConfig.id
 
-        log.trace "before defaults: $gridConfig"
-
-//        grid.beforeApplyingGridDefaults?.call(grid)
+        //convention - if no dataSourceType then set 'gorm'
+        if (!gridConfig.dataSourceType && !gridConfig.dataSourceService) {
+            gridConfig.dataSourceType = DEFAULT_DATASOURCE
+        }
 
         //add the default values for the mandatory properties ( impl, type )
         GridUtils.copyProperties defaultValues.defaults, gridConfig, 1
@@ -330,12 +338,14 @@ class EasygridInitService {
 
             //convention - set the property to the name
             if (!column.property && !column.value) {
+                log.debug("set default property: ${column.name}")
                 column.property = column.name
             }
 
             //set the filterProperty in case
-            if (!column.filterProperty && !column.filterClosure) {
-                column.filterProperty = column.property ?: column.name
+            if (column.enableFilter && !column.filterProperty && !column.filterClosure) {
+//                column.filterProperty = column.property ?: column.name
+                column.filterProperty = column.property
             }
 
 
@@ -362,8 +372,8 @@ class EasygridInitService {
         }
 
         //calls the "addDefaultValues" method of the service class for the specific implementation of the grid
-        easygridDispatchService.callGridImplAddDefaultValues(gridConfig, defaultValues)
         easygridDispatchService.callDSAddDefaultValues(gridConfig, defaultValues)
+        easygridDispatchService.callGridImplAddDefaultValues(gridConfig, defaultValues)
         if (gridConfig.export) {
             easygridDispatchService.callExportAddDefaultValues(gridConfig, defaultValues)
         }

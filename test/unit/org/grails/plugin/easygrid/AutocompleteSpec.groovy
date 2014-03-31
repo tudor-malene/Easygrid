@@ -18,6 +18,7 @@ class AutocompleteSpec extends Specification {
 
     def setup() {
         populateTestDomain(100)
+        service.filterService = new FilterService()
     }
 
 
@@ -67,7 +68,9 @@ class AutocompleteSpec extends Specification {
 //                TestDomain.where { testStringProperty ==~ "%${term}%" }.list(max: listParams.maxRows)
 //            }
 //        }
-        easygridDispatchService.callDSList(_, _, _) >> TestDomain.where { testStringProperty ==~ "%${term}%" }.list(max: 10)
+        easygridDispatchService.callDSList(_, _, _) >> TestDomain.where {
+            testStringProperty ==~ "%${term}%"
+        }.list(max: 10)
         def result = service.searchedElementsJSON(autocompleteGridConfig)
 
         then:
@@ -75,9 +78,9 @@ class AutocompleteSpec extends Specification {
         firstLabel == result.target[0].label
 
         where:
-        term  | size | firstLabel
-        '1'   | 10   | '1'
-        '100' | 1    | '100'
+        term | size | firstLabel
+        '1' | 10  | '1'
+        '100' | 1 | '100'
 
 
     }

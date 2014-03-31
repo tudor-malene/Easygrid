@@ -2,6 +2,8 @@ package org.grails.plugin.easygrid
 
 import groovy.util.logging.Slf4j
 
+import static org.grails.plugin.easygrid.GridUtils.convertValueUsingBinding
+
 /**
  * responsible for the creation of filters
  *
@@ -10,6 +12,7 @@ import groovy.util.logging.Slf4j
 @Slf4j
 class FilterService {
     static transactional = false
+    def grailsApplication
 
     /**
      *
@@ -18,8 +21,12 @@ class FilterService {
      * @return
      */
     Filter createFilterFromColumn(GridConfig gridConfig, FilterableConfig filterableConfig,
-                                  def operator, String value) {
-        def val = GridUtils.convertValueUsingBinding(value, filterableConfig.dataType)
+                                  def operator,  value) {
+
+        assert filterableConfig.filterDataType
+
+        //if a filterConverter is defined use it , otherwise use the standard binding
+        def val = filterableConfig.filterConverter ? filterableConfig.filterConverter(value) : convertValueUsingBinding(value, filterableConfig.filterDataType)
 
         // by default - if the conversion fails - ignore the filter
         if (val == null) {
@@ -31,7 +38,8 @@ class FilterService {
         f.paramName = filterableConfig.name
         f.paramValue = value
         f.value = val
-        f.operator = operator ?: filterableConfig.defaultFilterOperator
+        f.operator = (operator ?: filterableConfig.defaultFilterOperator) ?: grailsApplication.config.easygrid.defaults.filterType[filterableConfig.filterType]?.defaultOperator
+        log.warn("operator is null for filter: ${filterableConfig.name}")
 
         if (filterableConfig.filterClosure) {
             f.searchFilter = filterableConfig.filterClosure.curry(f)

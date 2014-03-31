@@ -5,6 +5,7 @@ import org.grails.plugin.easygrid.EasygridContextHolder
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
 import static org.grails.plugin.easygrid.EasygridContextHolder.*
+
 /**
  * implements the classic grails grid
  * ( just for demo )
@@ -34,15 +35,15 @@ class ClassicGridService {
 //        def currentPage = 1 + (params.offset ? (params.offset as int) : 0) / maxRows
         def sort = params.sort
         def order = params.order
-        [rowOffset: params.offset, maxRows: maxRows, sort: sort, order: order]
+        [rowOffset: params.offset ? params.offset as int : 0, maxRows: maxRows, sort: sort, order: order]
     }
 
-    def transform(gridConfig, rows, nrRecords, listParams){
+    def transform(gridConfig, rows, nrRecords, listParams) {
         def results = []
         rows.each { element ->
             def row = [:]
-            gridConfig.columns.eachWithIndex {  col, idx ->
-                row[col] = GridUtils.valueOfColumn(gridConfig, col, element,  idx + 1)
+            gridConfig.columns.eachWithIndex { col, idx ->
+                row[col] = GridUtils.valueOfColumn(gridConfig, col, element, idx + 1)
             }
             results << row
         }

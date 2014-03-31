@@ -1,4 +1,5 @@
 package org.grails.plugin.easygrid
+
 /**
  * represents a search filter
  *
@@ -39,7 +40,7 @@ class Filter {
         this.searchFilter = filterableConfig.filterClosure
         this.paramName = filterableConfig.name
         this.paramValue = this.params[this.paramName]
-        this.value = GridUtils.convertValueUsingBinding(paramValue, filterableConfig.dataType)
+        this.value = GridUtils.convertValueUsingBinding(paramValue, filterableConfig.filterDataType)
     }
 
     @Deprecated

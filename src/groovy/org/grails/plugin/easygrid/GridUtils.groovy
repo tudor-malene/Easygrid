@@ -4,8 +4,10 @@ import grails.validation.ValidationErrors
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.control.ConfigurationException
+import org.codehaus.groovy.grails.commons.ControllerArtefactHandler
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.codehaus.groovy.grails.web.binding.DataBindingUtils
 
 /**
@@ -15,6 +17,23 @@ import org.codehaus.groovy.grails.web.binding.DataBindingUtils
  */
 @Slf4j
 class GridUtils {
+
+    /**
+     * the logic of determining the sort property
+     * @param gridConfig
+     * @param column
+     * @return
+     */
+    static valueOfSortColumn(gridConfig, ColumnConfig column) {
+        assert column.sortable
+        if (column.sortClosure) {
+            return column.sortClosure
+        }
+        if (column.sortProperty) {
+            return column.sortProperty
+        }
+        return column.name
+    }
 
     /**
      * return the export value
@@ -138,10 +157,10 @@ class GridUtils {
     static void restoreSearchParams(gridConfig) {
         String searchParamsAttrName = "searchParams_${gridConfig.id}".toString()
 
-        if (EasygridContextHolder.session.getAttribute('restoreLastSearch')) {
+        if (EasygridContextHolder.session.getAttribute(lastSearchAttr(gridConfig))) {
             def localParams = EasygridContextHolder.session.getAttribute(searchParamsAttrName) ?: EasygridContextHolder.params
             EasygridContextHolder.storeParams(localParams)
-            EasygridContextHolder.session.removeAttribute('restoreLastSearch')
+            EasygridContextHolder.session.removeAttribute(lastSearchAttr(gridConfig))
         } else {
             //save the current search param
             EasygridContextHolder.session.setAttribute(searchParamsAttrName, EasygridContextHolder.params)
@@ -151,8 +170,12 @@ class GridUtils {
     /**
      * when exporting a table or returning from an add/update screen and you want to save the old search use this
      */
-    static void markRestorePreviousSearch() {
-        EasygridContextHolder.session.setAttribute('restoreLastSearch', true)
+    static void markRestorePreviousSearch(GridConfig gridConfig) {
+        EasygridContextHolder.session.setAttribute(lastSearchAttr(gridConfig), true)
+    }
+
+    private static String lastSearchAttr(gridConfig) {
+        "restoreLastSearch${gridConfig.id}".toString()
     }
 
     /**
@@ -164,8 +187,6 @@ class GridUtils {
      */
     static getNestedPropertyValue(String expression, object) {
         try {
-            // first try to evaluate the expression using the high performance engine -MVEL
-//            MVEL.eval(expression, object)
             def val = object
             for (String fieldPart in expression.split("\\.")) {
                 val = val?."$fieldPart"
@@ -222,13 +243,16 @@ class GridUtils {
      * @return
      */
     static Class getPropertyType(GrailsApplication grailsApplication, Class clazz, String property) {
-        resolveDomainClass(grailsApplication, clazz)?.getPropertyByName(property)?.type
+        getDomainProperty(grailsApplication, clazz, property)?.type
     }
 
     static GrailsDomainClass resolveDomainClass(grailsApplication, Class beanClass) {
         grailsApplication.getDomainClass(beanClass.name)
     }
 
+    static GrailsDomainClassProperty getDomainProperty(GrailsApplication grailsApplication, Class clazz, String property) {
+        resolveDomainClass(grailsApplication, clazz)?.getPropertyByName(property)
+    }
 
     static Closure buildClosure(tkns, Closure last) {
         if (tkns.size() == 1) {
@@ -246,13 +270,12 @@ class GridUtils {
         int idx = property.lastIndexOf('.')
         if (idx > -1) {
             return property[(idx + 1)..-1]
-        } else {
-            return property
         }
+        return property
     }
 
 
-    static def convertValueUsingBinding(String source, Class type) {
+    static def convertValueUsingBinding( source, Class type) {
         def instance = new Object() {
             def errors = new Object()
         }
@@ -271,5 +294,9 @@ class GridUtils {
         instance.metaClass.expandoProperties.find { it.name == prop }.type = type
     }
 
+//    @Memoized
+    static boolean isControllerEasygridEnabled(grailsApplication, controllerName) {
+        controllerName && grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, controllerName)?.clazz?.isAnnotationPresent(Easygrid)
+    }
 
 }

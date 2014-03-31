@@ -119,7 +119,7 @@ class JqGridMultiSearchService {
         for (field in fields) {
             def column = gridConfig.columns[field.field]
             assert column
-            out.filters << filterService.createFilterFromColumn(gridConfig, column, getFilterOperator(field.op), field.data)
+            out << filterService.createFilterFromColumn(gridConfig, column, getFilterOperator(field.op), field.data)
         }
     }
 

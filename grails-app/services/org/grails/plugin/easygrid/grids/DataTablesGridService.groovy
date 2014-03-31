@@ -40,7 +40,7 @@ string	sEcho	Information for DataTables to use for rendering.
     def filterService
 
     def filters(gridConfig) {
-        def filters = new Filters()
+        def filters = []
         gridConfig.columns.findAll { it.enableFilter }.eachWithIndex { col, i ->
             if (params["bSearchable_$i"] && params["sSearch_$i"]) {
                 def val = params["sSearch_$i"]

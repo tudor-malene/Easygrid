@@ -1,138 +1,70 @@
-<%@ page defaultCodec="none" %>
-<g:if test="${gridConfig.filterForm}">
+<%@ page import="org.grails.plugin.easygrid.JsUtils" defaultCodec="none" %>
 
-    <script type="text/javascript">
-        // implementation to work with the dynamic search form
-        function filterForm${attrs.id}(form) {
-            var ser = jQuery(form).serialize();
-            console.log(ser);
-            var grid = jQuery("#${attrs.id}_table");
-            grid.jqGrid('setGridParam', {postData: ser});
-            grid.trigger('reloadGrid');
-            return false;
-        }
-    </script>
-</g:if>
+<g:set var="gridId" value="${attrs.id}_table"/>
+<g:set var="pagerId" value="${attrs.id}Pager"/>
+<g:set var="conf" value="${gridConfig.jqgrid}"/>
+
+<table id="${gridId}"></table>
+
+<div id="${pagerId}"></div>
 
 <jq:jquery>
-    jQuery("#${attrs.id}_table").jqGrid(
-            {
-        datatype: 'json',
-        url: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}Rows", params: params)}',
-    <g:each in="${gridConfig.jqgrid}" var="property">
-        "${property.key}":${property.value},
-    </g:each>
+    jQuery("#${gridId}").jqGrid({
+    url: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}Rows", params: params)}',
+    loadError: easygrid.loadError,
+    pager: '#${pagerId}',
+    ${JsUtils.convertToJs(conf - [navGrid: conf.navGrid] - [filterToolbar: conf.filterToolbar], true)},
+    <g:if test="${gridConfig.subGrid}">
+        subGrid: true,
+        subGridRowExpanded: easygrid.subGridRowExpanded('${g.createLink(controller: attrs.controller, action: "${gridConfig.subGrid}Html")}'),
+    </g:if>
     <g:if test="${gridConfig.childGrid}">
-        "onSelectRow":function(id){onSelectGridRowReloadGrid('${gridConfig.childGrid}','${gridConfig.childParamName}',id);},
+        "onSelectRow":easygrid.onSelectGridRowReloadGrid('${gridConfig.childGrid}','${gridConfig.childParamName}'),
     </g:if>
     <g:if test="${gridConfig.inlineEdit}">
         editurl: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}InlineEdit")}',
         cellurl: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}InlineEdit")}',
+        onSelectRow: easygrid.onSelectRowInlineEdit('${attrs.id}_table'),
     </g:if>
-    colNames: [
+    colModel: [
     <grid:eachColumn gridConfig="${gridConfig}">
-        '${g.message(code: col.label, default: col.label)}'<g:if test="${!last}">,</g:if>
+        <g:if test="${col.render}">
+            {${JsUtils.convertToJs(col.jqgrid + [name: col.name, search: col.enableFilter, label: g.message(code: col.label, default: col.label)], true)}
+            <g:if test="${col.otherProperties}">
+                ,${col.otherProperties}
+            </g:if>
+            },
+        </g:if>
     </grid:eachColumn>
     ],
-   colModel: [
-    <grid:eachColumn gridConfig="${gridConfig}">
-        {name:'${col.name}',
-        "search":${col.enableFilter},
-        <g:each in="${col.jqgrid}">
-            "${it.key}":${it.value},
-        </g:each>
-        },
-    </grid:eachColumn>
-    ],
-   viewrecords: true,
-    "loadError": function (xhr, status, err) {
-        try {
-            jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div
-        class="ui-state-error">' + xhr.responseText + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
-        } catch (e) {
-            alert(xhr.responseText);
-        }
-     },
-
-   pager: '#${attrs.id}Pager',
-    <g:if test="${gridConfig.inlineEdit}">
-        onSelectRow: function(id){
-
-            jQuery("#${attrs.id}_table").jqGrid('editRow', id //, true
-                , {
-                    keys:true,
-                    errorfunc:function (rowid, xhr) {
-                            try {
-                                jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div
-            class="ui-state-error">' + xhr.responseText + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
-                            } catch (e) {
-                                alert(xhr.responseText);
-                            }
-                    }
-                }
-            );
-        }
+    <g:if test="${gridConfig.otherProperties}">
+        ${gridConfig.otherProperties.trim()}   // render properties defined in the gsp
     </g:if>
     });
+    <g:if test="${gridConfig.masterGrid}">%{--set the on select row of the master grid--}%
+        jQuery('#${gridConfig.masterGrid}_table').jqGrid('setGridParam',{ "onSelectRow" : easygrid.onSelectGridRowReloadGrid('${attrs.id}_table','${gridConfig.childParamName}')});
+    </g:if>
+    <g:if test="${gridConfig.enableFilter}">
+        jQuery('#${gridId}').jqGrid('filterToolbar', ${JsUtils.convertToJs(conf.filterToolbar)});
+    </g:if>
 
     <g:if test="${gridConfig.addNavGrid}">
-        jQuery('#${attrs.id}_table').jqGrid('navGrid','#${attrs.id}Pager',
-        {
-            add: false,
-            edit:false,
-            del: false,
-        <g:if test="${!gridConfig.jqgrid.multiSearch}">
-            search: false,
-        </g:if>
-        refresh: true
-        },
-        {},
-        {},
-        {},
-        {
-        <g:if test="${gridConfig.jqgrid.multiSearch}">
-            multipleSearch:true,
-            multipleGroup:true,
-            showQuery: true,
-            caption: 'Multi-clause Searching',
-            closeAfterSearch: true,
-            groupOps: [ { op: "AND", text: "and" }, { op: "OR", text: "or" } ],
-            sopt: ['eq','ne','lt','le','gt','ge','bw','bn','ew','en','cn','nc','nu','nn']
-        </g:if>
-
-        })
+        jQuery('#${gridId}').jqGrid('navGrid','#${pagerId}',
+        ${JsUtils.convertToJs(conf.navGrid.generalOpts)},
+        ${JsUtils.convertToJs(conf.navGrid.editOpts)},     //edit
+        ${JsUtils.convertToJs(conf.navGrid.addOpts)},     //add
+        ${JsUtils.convertToJs(conf.navGrid.delOpts)},     //delete
+        ${JsUtils.convertToJs(conf.navGrid.searchOpts)},     //search
+        ${JsUtils.convertToJs(conf.navGrid.viewOpts)}     //view
+        )
         <g:if test="${gridConfig.addUrl}">
-            .jqGrid('navButtonAdd','#${attrs.id}Pager',{caption:"", buttonicon:"ui-icon-plus", onClickButton:function(){
+            .jqGrid('navButtonAdd','#${pagerId}',{caption:"", buttonicon:"ui-icon-plus", onClickButton:function(){
             document.location = '${gridConfig.addUrl}';
         }});
         </g:if>
         <g:if test="${gridConfig.addFunction}">
-            .jqGrid('navButtonAdd','#${attrs.id}Pager',{caption:"", buttonicon:"ui-icon-plus", onClickButton:${gridConfig.addFunction}});
+            .jqGrid('navButtonAdd','#${pagerId}',{caption:"", buttonicon:"ui-icon-plus", onClickButton:${gridConfig.addFunction}});
         </g:if>
     </g:if>
-
-    <g:if test="${gridConfig.enableFilter}">
-        jQuery('#${attrs.id}_table').jqGrid('filterToolbar', {"stringResult": true, "searchOperators": true});
-    </g:if>
-
-
-%{--test if the current grid has a master grid --}%
-    <g:if test="${gridConfig.masterGrid}">
-    %{--set the on select row of the master grid--}%
-        jQuery('#${gridConfig.masterGrid}_table').setGridParam(
-            {
-                "onSelectRow" : function(rowid,status,e){
-                        onSelectGridRowReloadGrid('${attrs.id}_table','${gridConfig.childParamName}',rowid);
-                    }
-            }
-        );
-
-    </g:if>
-
 </jq:jquery>
-
-<table id="${attrs.id}_table"></table>
-
-<div id="${attrs.id}Pager"></div>
-
 

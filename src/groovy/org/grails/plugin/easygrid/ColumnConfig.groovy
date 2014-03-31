@@ -33,6 +33,10 @@ class ColumnConfig extends FilterableConfig{
 //    Closure filterClosure    // a closure called when filtering on a column from the UI ( either specified directly or through the filterFieldType
 
     Boolean sortable // flag to enable sortable
+    String sortProperty
+    Closure sortClosure
 
     Boolean showInSelection // if selection is enabled for the grid - this flag decides if this column will be shown in the dialog
+
+//    Map view //will contain the view properties
 }

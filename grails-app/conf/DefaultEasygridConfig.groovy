@@ -1,4 +1,5 @@
 import com.google.visualization.datasource.datatable.value.ValueType
+import org.codehaus.groovy.grails.plugins.web.taglib.FormatTagLib
 import org.grails.plugin.easygrid.AutocompleteService
 import org.grails.plugin.easygrid.EasygridExportService
 import org.grails.plugin.easygrid.FilterFormService
@@ -11,16 +12,16 @@ import org.grails.plugin.easygrid.grids.DataTablesGridService
 import org.grails.plugin.easygrid.grids.JqueryGridService
 import org.grails.plugin.easygrid.grids.VisualizationGridService
 
-import java.awt.Color
-import java.text.SimpleDateFormat
+import java.awt.*
 
-def stdDateFormat = 'MM/dd/yyyy'
+import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
+
 easygrid {
 
     //default values added to each defined grid  ( if they are not already set )
     defaults {
 
-        defaultMaxRows = 10 // the max no of rows displayed in the grid
+        defaultMaxRows = 20 // the max no of rows displayed in the grid
 
         //used for automatically generating label messages from the column name
         //this will be transformed into a SimpleTemplateEngine instance ( '#' will be replaced with '$') and the binding variables will be: labelPrefix , column, gridConfig
@@ -97,21 +98,66 @@ easygrid {
         // jqgrid default properties
         // check the jqgrid documentation
         jqgrid {
-            width = '"100%"'
-            height = 250
+            datatype = 'json'
+            viewrecords = true
+            width = "100%"
+            height = 240
             // number of rows to display by default
-            rowNum = 20
-            rowList = '[10,20,50]'
+            rowNum = 10
+            rowList = [10, 20, 50]
 
-            //allow multi-clause searching
-            multiSearch = false
+            multiSort = true
+
+            navGrid {
+                generalOpts {
+                    add = false
+                    view = true
+                    edit = false
+                    del = false
+                    search = true
+                    refresh = true
+                }
+                editOpts {
+
+                }
+                addOpts {
+
+                }
+                delOpts {
+
+                }
+                searchOpts {
+                    multipleSearch = true
+                    multipleGroup = true
+                    showQuery = true
+                    caption = 'Multi-clause Searching'
+                    closeAfterSearch = true
+//                    groupOps = '[ { op: "AND", text: "and" }, { op: "OR", text: "or" } ]'
+                    sopt = ['eq', 'ne', 'lt', 'le', 'gt', 'ge', 'bw', 'bn', 'ew', 'en', 'cn', 'nc', 'nu', 'nn']
+                }
+                viewOpts {
+                    closeOnEscape = true
+                }
+            }
+
+            filterToolbar {
+                stringResult = true
+                searchOperators = true
+            }
+
         }
 
         dataTables {
+            bFilter = true
+            bStateSave = false
+            sPaginationType = 'full_numbers'
+            bSort = true
+            bProcessing = true
+            bServerSide = true
         }
 
         visualization {
-            page = "'enable'"
+            page = "enable"
             allowHtml = true
             alternatingRowStyle = true
 //            showRowNumber = false
@@ -125,6 +171,27 @@ easygrid {
             maxRows = 10 // the max no of elements to be displayed by the jquery autocomplete box
             template = '/templates/easygrid/autocompleteRenderer' //the default autocomplete renderer
             autocompleteService = AutocompleteService
+        }
+
+        filterType {
+            'text' {
+                defaultOperator = CN
+            }
+            'boolean' {
+                defaultOperator = EQ
+            }
+            'numeric' {
+                defaultOperator = EQ
+            }
+            'date' {
+                defaultOperator = EQ
+            }
+            'enum' {
+                defaultOperator = EQ
+            }
+            'currency' {
+                defaultOperator = EQ
+            }
         }
     }
 
@@ -151,8 +218,8 @@ easygrid {
             gridImplService = ClassicGridService
             inlineEdit = false
             formats = [
-                    (Date)   : { it.format(stdDateFormat) },
-                    (Boolean): { it ? "Yes" : "No" }
+                    (Date)   : { new FormatTagLib().formatDate(date: it) },
+                    (Boolean): { new FormatTagLib().formatBoolean(boolean: it) }
             ]
         }
 
@@ -167,9 +234,9 @@ easygrid {
             // using the named formatters ( defined below )
             // using the default type formats ( defined here ) - where you specify the type of data & the format closure
             formats = [
-                    (Date)    : { it.format(stdDateFormat) },
-                    (Calendar): { Calendar cal -> cal.format(stdDateFormat) },
-                    (Boolean) : { it ? "Yes" : "No" }
+                    (Date)    : { new FormatTagLib().formatDate(date: it) },
+                    (Calendar): { new FormatTagLib().formatDate(date: it) },
+                    (Boolean) : { new FormatTagLib().formatBoolean(boolean: it) }
             ]
         }
 
@@ -179,8 +246,8 @@ easygrid {
             gridRenderer = '/templates/easygrid/dataTablesGridRenderer'
             inlineEdit = false
             formats = [
-                    (Date)   : { it.format(stdDateFormat) },
-                    (Boolean): { it ? "Yes" : "No" }
+                    (Date)   : { new FormatTagLib().formatDate(date: it) },
+                    (Boolean): { new FormatTagLib().formatBoolean(boolean: it) }
             ]
         }
 
@@ -207,9 +274,14 @@ easygrid {
             enableFilter = true
             showInSelection = true
             sortable = true
+            render = true
+
             jqgrid {
-                editable = true
+                searchoptions {
+                    clearSearch = false
+                }
             }
+
             classic {
                 sortable = true
             }
@@ -219,12 +291,20 @@ easygrid {
                 valueType = ValueType.TEXT
             }
             dataTables {
-                sWidth = "'100%'"
-                sClass = "''"
+                sWidth = '100%'
+                sClass = ""
+                bVisible = true
             }
             export {
                 width = 25
             }
+            //the operators supported for different types of columns
+            filterOperators.text = [CN, NC, EQ, NE, BW, EW]
+            filterOperators.boolean = [EQ, NE]
+            filterOperators.numeric = [EQ, NE, LT, LE, GT, GE]
+            filterOperators.date = [EQ, NE, LT, LE]
+            filterOperators.enum = [EQ, NE]
+            filterOperators.currency = [EQ, NE]
         }
 
         // predefined column types  (set of configurations)
@@ -251,15 +331,18 @@ easygrid {
 
             actions {
                 value = { '' }
+                enableFilter = false
                 jqgrid {
-                    formatter = '"actions"'
+                    formatter = 'actions'
                     editable = false
                     sortable = false
                     resizable = false
                     fixed = true
                     width = 60
                     search = false
-                    formatoptions = '{"keys":true}'
+                    formatoptions {
+                        keys = true
+                    }
                 }
                 export {
                     hidden = true
@@ -294,14 +377,14 @@ easygrid {
     // these are specified in the column section using : formatName
     formats {
         stdDateFormatter = {
-            it.format(stdDateFormat)
+            new FormatTagLib().formatDate(date: it)
         }
         visualizationDateFormatter = {
             def cal = com.ibm.icu.util.Calendar.getInstance(); cal.setTime(it);
             cal.setTimeZone(TimeZone.getTimeZone("GMT") as com.ibm.icu.util.TimeZone); cal
         }
         stdBoolFormatter = {
-            it ? "Yes" : "No"
+            new FormatTagLib().formatBoolean(boolean: it)
         }
     }
 }

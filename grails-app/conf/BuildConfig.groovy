@@ -37,8 +37,9 @@ grails.project.dependency.resolution = {
         compile (":scaffolding:2.0.1"){
             export = false
         }
-//        compile ":filterpane:2.3.0"
+//        compile ":filterpane:2.3.2"
 //        compile ":plugin-config:0.1.8"
+        compile ":joda-time:1.4"
 
         build(":release:3.0.1") {
             export = false

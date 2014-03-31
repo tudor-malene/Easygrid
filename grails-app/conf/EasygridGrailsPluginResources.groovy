@@ -15,6 +15,8 @@ modules = {
 
         resource id: 'js-jqgrid-dev', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js", file: "jquery.jqGrid.min.js"],
                 nominify: true, disposition: 'head'
+        resource id: 'js-jqgrid-addons', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/plugins", file: "grid.addons.js"],
+                nominify: true, disposition: 'head'
         //todo multilanguage
         resource id: 'js-locale-jqgrid-dev', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js/i18n", file: "grid.locale-en.js"],
                 nominify: true, disposition: 'head'
@@ -46,6 +48,8 @@ modules = {
         //JQGRID
         resource id: 'js-jqgrid', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js", file: "jquery.jqGrid.src.js"],
                 nominify: true, disposition: 'head'
+        resource id: 'js-jqgrid-addons', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/plugins", file: "grid.addons.js"],
+                nominify: true, disposition: 'head'
         //todo multilanguage
         resource id: 'js-locale-jqgrid', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/src/i18n", file: "grid.locale-en.js"],
                 nominify: true, disposition: 'head'
@@ -60,6 +64,8 @@ modules = {
                 nominify: true, disposition: 'head'
 
         resource id: 'js-fixedColumns', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/extras/FixedColumns/media/js", file: "FixedColumns.js"],
+                nominify: true, disposition: 'head'
+        resource id: 'utils', url: [plugin: 'easygrid', dir: "js/datatables", file: "utils.js"],
                 nominify: true, disposition: 'head'
     }
 

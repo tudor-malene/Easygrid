@@ -9,7 +9,14 @@ class FilterableConfig {
     String name   // the name of the filter field
 
     //// used for converting the param
-    Class dataType
+    Class filterDataType
+
+    //    can be 'numeric','text','date'
+    // used for determining different properties - like the filter operators
+    String filterType
+
+    // for converting filter values
+    Closure filterConverter
 
     //if the filterClosure is not defined then easygrid will generate a filter based on the operator & the filterProperty
     Closure filterClosure

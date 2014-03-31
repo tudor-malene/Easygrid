@@ -23,6 +23,7 @@ class VisualizationGridServiceSpec extends Specification {
 
     def setup() {
         service.filterService = new FilterService()
+        service.filterService.grailsApplication = grailsApplication
     }
 
     def "testGlobalFilter"() {
@@ -49,14 +50,14 @@ class VisualizationGridServiceSpec extends Specification {
                     }
                     testStringProperty {
                         valueType String
-                        dataType String
+                        filterDataType String
                         filterClosure { filter ->
                             ilike('testStringProperty', "%${filter.paramValue}%")
                         }
                     }
                     testIntProperty {
                         valueType Integer
-                        dataType Integer
+                        filterDataType Integer
                         filterClosure { filter ->
                             eq('testIntProperty', filter.paramValue as int)
                         }

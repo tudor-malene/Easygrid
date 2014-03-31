@@ -75,7 +75,7 @@ class EasygridBuilder {
                                                     break
                                                 default:
                                                     if (colProperty in GridUtils.findImplementations(grailsApplication?.config?.easygrid)) {
-                                                        column[colProperty] = new ClosureToMapPopulator().populate(colValue[0])
+                                                        column[colProperty] = new RecursiveClosureToMap().populate(colValue[0])
                                                     } else {
                                                         column[colProperty] = colValue[0]
                                                     }
@@ -179,4 +179,52 @@ class EasygridBuilder {
         }
     }
 
+}
+
+class RecursiveClosureToMap extends GroovyObjectSupport {
+
+    private Map map;
+
+    public RecursiveClosureToMap(Map theMap) {
+        map = theMap;
+    }
+
+    public RecursiveClosureToMap() {
+        this(new HashMap());
+    }
+
+    public Map populate(Closure callable) {
+        callable.setDelegate(this);
+        callable.setResolveStrategy(Closure.DELEGATE_FIRST);
+        callable.call();
+        return map;
+    }
+
+    @Override
+    public void setProperty(String name, Object o) {
+        if (o != null) {
+            map.put(name, o);
+        }
+    }
+
+    @Override
+    public Object invokeMethod(String name, Object o) {
+        if (o != null) {
+            if (o.getClass().isArray()) {
+                Object[] args = (Object[]) o;
+                if (args.length == 1) {
+                    if (args[0] instanceof Closure) {
+                        map.put(name, new RecursiveClosureToMap().populate(args[0]))
+                    } else {
+                        map.put(name, args[0]);
+                    }
+                } else {
+                    map.put(name, Arrays.asList(args));
+                }
+            } else {
+                map.put(name, o);
+            }
+        }
+        return null;
+    }
 }

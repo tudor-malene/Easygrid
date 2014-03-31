@@ -29,7 +29,9 @@ class JqGridMultiSearchServiceSpec extends Specification {
                 domainClass FilterEntity
                 columns {
                     id
-                    filterFlag
+                    filterFlag {
+                        filterDataType String
+                    }
                 }
             }
         }.filtersGridConfig

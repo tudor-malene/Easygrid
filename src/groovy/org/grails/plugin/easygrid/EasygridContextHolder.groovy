@@ -12,7 +12,6 @@ import javax.servlet.http.HttpSession
 
 /**
  * utility class
- * - stores the current GridConfig to ThreadLocal
  * - is used by services to access http parameters, session, etc
  * - stores the parameters
  *
@@ -21,21 +20,8 @@ import javax.servlet.http.HttpSession
 @Slf4j
 class EasygridContextHolder {
 
-    // used to store the gridConfig between method calls
-//    private static final ThreadLocal<GridConfig> gridConfigHolder = new NamedThreadLocal<GridConfig>("gridConfigHolder")
-
     // in case we need to work with an old set of parameters ( ex: exporting data already filtered , or returning from an add/update page )
     private static final ThreadLocal restoredParamsHolder = new NamedThreadLocal("restoredParamsHolder")
-
-/*
-    static GridConfig getGridConfig() {
-        gridConfigHolder.get()
-    }
-
-    static setLocalGridConfig(GridConfig config) {
-        gridConfigHolder.set(config)
-    }
-*/
 
     static storeParams(params) {
         restoredParamsHolder.set(params)

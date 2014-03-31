@@ -2,12 +2,10 @@ package org.grails.plugin.easygrid.grids
 
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
-import org.grails.plugin.easygrid.Filter
-import org.grails.plugin.easygrid.Filters
+import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
-import org.springframework.beans.factory.annotation.Autowire
-import org.springframework.beans.factory.annotation.Autowired
+import org.grails.plugin.easygrid.JsUtils
 import org.springframework.validation.Errors
 
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
@@ -24,6 +22,25 @@ class JqueryGridService {
     def jqGridMultiSearchService
     def filterService
 
+
+    def addDefaultValues(GridConfig gridConfig, defaultValues) {
+        gridConfig.columns.each { ColumnConfig columnConfig ->
+            if (columnConfig?.filterType) {
+                List operators = grailsApplication.config.easygrid.columns.defaults.filterOperators[columnConfig.filterType]
+//            "searchoptions":{"sopt":["eq","ne","le","lt","ge","gt"]}
+//                columnConfig.jqgrid.searchoptions = "{\"sopt\":[${operators.collect { JqGridUtils.jqgridFilterOperatorConverter(it) }.collect { "\"${it}\"" }.join(',')}]}"
+                columnConfig.jqgrid.searchoptions << [sopt: operators.collect {
+                    JsUtils.jqgridFilterOperatorConverter(it)
+                }]
+            }
+
+            //if no property defined
+            if (columnConfig.jqgrid.editable == null) {
+                columnConfig.jqgrid.editable = (columnConfig.property != null)
+            }
+        }
+    }
+
     def filters(GridConfig gridConfig) {
         if (params._search == 'true') {        // text field not boolean
 /*
@@ -34,7 +51,7 @@ class JqueryGridService {
                 }
             }
 */
-            if ( params.filters) {
+            if (params.filters) {
                 //  Translate jqgrid search rules into a Filters structure for EasyGrid
                 jqGridMultiSearchService.multiSearchToCriteriaClosure(gridConfig, params.filters)
             }

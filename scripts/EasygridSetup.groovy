@@ -24,7 +24,7 @@ target(easygridSetup: "The description of the script goes here!") {
                     } else {
                         grantedRoles = [grid.roles]
                     }
-                    SpringSecurityUtils.ifAllGranted(grantedRoles.inject('') { roles, role -> "\${roles},\${role}" })
+                    SpringSecurityUtils.ifAllGranted(grantedRoles.join(','))
 */
                 }
 
