@@ -26,12 +26,6 @@ class ColumnConfig extends FilterableConfig{
     String formatName   // when you want to use one of the predefined formatters
     Closure formatter   // a custom closure
 
-
-    // filtering of data settings
-    Boolean enableFilter   // flag that specifies if filtering should be enabled on this column
-//    String filterFieldType  // one of the predefined filters defined for each datasource
-//    Closure filterClosure    // a closure called when filtering on a column from the UI ( either specified directly or through the filterFieldType
-
     Boolean sortable // flag to enable sortable
     String sortProperty
     Closure sortClosure

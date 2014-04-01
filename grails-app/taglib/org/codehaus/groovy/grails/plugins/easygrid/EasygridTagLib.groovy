@@ -7,6 +7,8 @@ import org.grails.plugin.easygrid.GridUtils
 
 import java.util.concurrent.atomic.AtomicInteger
 
+import static org.grails.plugin.easygrid.GridUtils.setNestedPropertyValue
+
 /**
  * Taglib
  *
@@ -79,6 +81,11 @@ class EasygridTagLib {
 
     private static final String CURRENT_GRID = 'currentGrid'
 
+    /**
+     * overwrite view properties
+     *
+     * @attr col - the name of the column - if not specified , grid properties will be overwritten
+     */
     def set = { attrs, body ->
         GridConfig grid = pageScope.getVariable(CURRENT_GRID)
         if (!grid) {
@@ -91,20 +98,30 @@ class EasygridTagLib {
             if (!column) {
                 throwTagError("${col} is not a valid column")
             }
+
+            def label = attrs.remove('label')
+            if (label) {
+                column.label = label
+            }
+/*
+            def order = attrs.remove('order')
+            if (order) {
+                grid.columns.move(col, order as int)
+            }
+*/
         }
         def gridImpl = grid.gridImpl
-        attrs.each{k,v->
-            if (column) {
-                column[gridImpl][k]=v
-            } else {
-                grid[gridImpl][k]=v
-            }
-
+        attrs.each { k, v ->
+            setNestedPropertyValue(k, column ? column[gridImpl] : grid[gridImpl], v)
         }
 
     }
 
-    //general properties
+    /**
+     * can be used for quick prototyping
+     * the body will be evaluated and the result copied in the grid property section
+     * (attention - property conflicts may happen - better use set)
+     */
     def p = { attrs, body ->
         GridConfig grid = pageScope.getVariable(CURRENT_GRID)
         if (!grid) {
@@ -120,7 +137,13 @@ class EasygridTagLib {
         grid.otherProperties = val
     }
 
-    //  column properties
+    /**
+     * can be used for quick prototyping
+     * the body will be evaluated and the result copied in the grid property section
+     * (attention - property conflicts may happen - better use set)
+     *
+     * @attr name - the name of the column
+     */
     def c = { attrs, body ->
         def colName = attrs.name
         GridConfig grid = pageScope.getVariable(CURRENT_GRID)
@@ -196,22 +219,6 @@ class EasygridTagLib {
         out << body()
         out << "</form> "
     }
-
-/*
-    def currentCriteriaAjax = { attrs, body ->
-        def controller = grailsApplication.controllerClasses.find {
-            it.logicalPropertyName == controllerName
-        }
-        def action = 'currentCriteriaAjax'
-        controller.registerMapping action
-        controller.clazz.metaClass."get${action.capitalize()}" << { ->
-            Closure newClosure = {render currentCriteria(attrs)}
-            newClosure.delegate = delegate
-            newClosure
-        }
-    }
-
-*/
 
     /**
      * Generates a selection widget -

@@ -1,18 +1,15 @@
 package org.grails.plugin.easygrid.datasource
 
-import grails.gorm.CriteriaBuilder
-import grails.orm.HibernateCriteriaBuilder
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.codehaus.groovy.grails.validation.ConstrainedProperty
+import org.grails.plugin.easygrid.*
 
 //import org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator
-import org.grails.plugin.easygrid.*
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.transaction.annotation.Transactional
 
-import static groovy.lang.Closure.DELEGATE_FIRST
 import static org.codehaus.groovy.grails.commons.GrailsClassUtils.getStaticPropertyValue
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
 import static org.grails.plugin.easygrid.FilterUtils.getOperatorMapKey
@@ -71,21 +68,20 @@ class GormDatasourceService {
         }
 
         (gridConfig.columns.elementList + gridConfig.filterForm?.fields?.elementList).findAll {
-            it
+            it?.enableFilter
         }.each { FilterableConfig filterable ->
             def property = filterable.filterProperty
             if (property) {
-                GrailsDomainClassProperty columnProperty = getDomainProperty(grailsApplication, gridConfig.domainClass, property)
-                Class columnPropertyType = columnProperty?.type
                 if (!filterable.filterDataType) {
+                    GrailsDomainClassProperty columnProperty = getDomainProperty(grailsApplication, gridConfig.domainClass, property)
+                    Class columnPropertyType = columnProperty?.type
                     filterable.filterDataType = columnPropertyType
-                }
-                if (!columnPropertyType) {
-                    log.warn("Property '${property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}")
-                } else {
-                    if (!filterable.filterType) {
-                        filterable.filterType = getOperatorMapKey(columnPropertyType)
+                    if (!columnPropertyType) {
+                        log.warn("Property '${property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}")
                     }
+                }
+                if (!filterable.filterType) {
+                    filterable.filterType = getOperatorMapKey(filterable.filterDataType)
                 }
 
 //                if (columnProperty.association) {
@@ -243,14 +239,14 @@ class GormDatasourceService {
             if (gridConfig.initialCriteria) {
 //            baseCriteria = baseCriteria.build(gridConfig.initialCriteria)
                 def initialCriteria = gridConfig.initialCriteria.clone()
-                initialCriteria.resolveStrategy = DELEGATE_FIRST
+                initialCriteria.resolveStrategy = Closure.DELEGATE_FIRST
                 initialCriteria.delegate = delegate
                 initialCriteria()
             }
 
             Closure filterCriteria = createFiltersClosure(filters)
             if (filterCriteria) {
-                filterCriteria.resolveStrategy = DELEGATE_FIRST
+                filterCriteria.resolveStrategy = Closure.DELEGATE_FIRST
                 filterCriteria.delegate = delegate
                 filterCriteria()
             }
@@ -286,13 +282,13 @@ class GormDatasourceService {
         if (filters) {
             filters.postorder(
                     { Filters node, List siblings ->
-                        if(siblings){
+                        if (siblings.findAll{it}) {
                             return {
                                 "${node.type}" {
                                     def del = delegate
-                                    siblings.each { Closure criteria ->
+                                    siblings.findAll{it}.each { Closure criteria ->
                                         criteria.delegate = del
-                                        criteria.resolveStrategy = DELEGATE_FIRST
+                                        criteria.resolveStrategy = Closure.DELEGATE_FIRST
                                         criteria()
                                     }
                                 }
@@ -319,8 +315,8 @@ class GormDatasourceService {
         }
 
         //create a dynamic closure
-        def c = createFilterClosure(filter.operator, lastProperty(filter.filterable.name), filter.value)
         def prop = filter.filterable?.filterProperty
+        def c = createFilterClosure(filter.operator, lastProperty(prop), filter.value)
         if (prop && prop.indexOf('.') > -1) {
             return buildClosure(prop.split('\\.')[0..-2], c)
         } else {

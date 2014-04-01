@@ -1,5 +1,6 @@
 package org.grails.plugin.easygrid
 
+import static org.grails.plugin.easygrid.EasygridContextHolder.resetParams
 import static org.grails.plugin.easygrid.GridUtils.isControllerEasygridEnabled
 
 class EasygridFilters {
@@ -9,13 +10,12 @@ class EasygridFilters {
             before = {
                 !isControllerEasygridEnabled(grailsApplication, controllerName)
             }
-            after = { Map model ->
-
-            }
+        }
+        resetParamsAfterExport(controller: '*', action: '*Export') {
             afterView = { Exception e ->
-//                if (!e && controllerName && grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, controllerName)?.clazz?.isAnnotationPresent(Easygrid)) {
-//                    resetParams()
-//                }
+                if (isControllerEasygridEnabled(grailsApplication, controllerName)) {
+                    resetParams()
+                }
             }
         }
     }

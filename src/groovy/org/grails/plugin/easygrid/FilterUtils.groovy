@@ -52,6 +52,10 @@ class FilterUtils {
      * @return
      */
     static getOperatorMapKey(opType) {
+        if (!opType) {
+            return null
+        }
+
         def type = 'text'
         if (opType.getSimpleName().equalsIgnoreCase("boolean")) {
             type = 'boolean'

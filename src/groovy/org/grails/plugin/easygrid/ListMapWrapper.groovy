@@ -47,6 +47,16 @@ class ListMapWrapper<T> {
         elementMap[t[nameProperty]] = t
     }
 
+/*
+    def move(String key, int idx) {
+        def tmpElem = elementList[idx]
+        def oldElem = elementMap[key]
+        def oldIdx = elementList.indexOf(oldElem)
+        elementList[oldIdx] = tmpElem
+        elementList[idx] = oldElem
+    }
+*/
+
     // utility method - so that this container behaves like a list or like a map
     def T getAt(int idx) {
         elementList[idx]

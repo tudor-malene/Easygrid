@@ -1,6 +1,7 @@
 import grails.util.Environment
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.grails.plugin.easygrid.EasygridInitService
+import org.grails.plugin.easygrid.JsUtils
 
 class EasygridGrailsPlugin {
 
@@ -45,6 +46,7 @@ class EasygridGrailsPlugin {
     def scm = [url: "https://github.com/tudor-malene/Easygrid"]
 
     def doWithDynamicMethods = { ctx ->
+        JsUtils.registerMarshallers()
     }
 
     def doWithSpring = {

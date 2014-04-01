@@ -302,7 +302,7 @@ easygrid {
             filterOperators.text = [CN, NC, EQ, NE, BW, EW]
             filterOperators.boolean = [EQ, NE]
             filterOperators.numeric = [EQ, NE, LT, LE, GT, GE]
-            filterOperators.date = [EQ, NE, LT, LE]
+            filterOperators.date = [EQ, NE, LT, LE, GT, GE]
             filterOperators.enum = [EQ, NE]
             filterOperators.currency = [EQ, NE]
         }
@@ -312,6 +312,7 @@ easygrid {
         types {
             id {
                 property = 'id'
+                enableFilter = false
 
                 jqgrid {
                     width = 40

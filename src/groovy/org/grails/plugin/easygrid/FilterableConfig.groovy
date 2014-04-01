@@ -8,6 +8,8 @@ package org.grails.plugin.easygrid
 class FilterableConfig {
     String name   // the name of the filter field
 
+    Boolean enableFilter   // flag that specifies if filtering should be enabled on this column
+
     //// used for converting the param
     Class filterDataType
 

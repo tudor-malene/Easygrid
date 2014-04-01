@@ -16,20 +16,12 @@ import org.codehaus.groovy.grails.web.json.JSONException
  */
 class JsUtils {
 
-    static def jqgridFilterOperatorConverter(FilterOperatorsEnum op) {
-        op.toString().toLowerCase()
-    }
+    static def registerMarshallers() {
 
-    static class JSFunction {
-        String functionName
-
-        JSFunction(String functionName) {
-            this.functionName = functionName[2..-1]
+        JSON.registerObjectMarshaller(LazyString, 1) {
+            it.call()
         }
-    }
-
-    static String convertToJs(Map values, boolean include = false) {
-
+        //register custom json marshaller form rendering
         JSON.registerObjectMarshaller(new ObjectMarshaller<JSON>() {
             @Override
             boolean supports(Object object) {
@@ -50,15 +42,39 @@ class JsUtils {
                     throw new ConverterException(e);
                 }
             }
-        })
-        values = values.collectEntries { k, v ->
-            if (v instanceof CharSequence && v.startsWith('f:')) {
-                [(k): new JSFunction(v)]
-            } else {
-                [(k): v]
-            }
+        }, 2)
+
+    }
+
+
+    static def jqgridFilterOperatorConverter(FilterOperatorsEnum op) {
+        op.toString().toLowerCase()
+    }
+
+    static class JSFunction {
+        String functionName
+
+        JSFunction(String functionName) {
+            this.functionName = functionName[2..-1]
         }
-        JSON json = values as JSON
+    }
+
+    static replaceJSFunctions(values) {
+        if (values instanceof Map) {
+            values.collectEntries { k, v ->
+                if (v instanceof CharSequence && v.startsWith('f:')) {
+                    [(k): new JSFunction(v)]
+                } else {
+                    [(k): replaceJSFunctions(v)]
+                }
+            }
+        } else {
+            values
+        }
+    }
+
+    static String convertToJs(Map values, boolean include = false) {
+        JSON json = replaceJSFunctions(values) as JSON
 
         String val = json.toString()
         if (include) {
@@ -69,8 +85,33 @@ class JsUtils {
         }
     }
 
-/*
+    /**
+     * used mainly for jqgrid - to load the data in a selectbox - for filtering
+     * @param property
+     * @param listClosure
+     * @return
+     */
+    static def convertListToString(String property = 'name', Closure listClosure) {
+        new LazyString({
+            (
+                    [[(property): 'All', id: '']] + listClosure()).collect { "${it.id}:${it[property]}" }.join(';')
+        })
+    }
 
+    static class LazyString {
+        def lazyStringClosure
+
+        LazyString(lazyString) {
+            this.lazyStringClosure = lazyString
+        }
+
+        def call() {
+            lazyStringClosure.call()
+        }
+    }
+
+
+/*
     static enum JqgridType {
         string, function, array, mixed, object, number, bool, integer
     }

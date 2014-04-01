@@ -10,6 +10,9 @@ import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.codehaus.groovy.grails.web.binding.DataBindingUtils
 
+import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
+import static org.grails.plugin.easygrid.EasygridContextHolder.getSession
+
 /**
  * utility methods
  *
@@ -102,9 +105,9 @@ class GridUtils {
             case 1:
                 return closure.call(element)
             case 2:
-                return closure.call(element, EasygridContextHolder.params)
+                return closure.call(element, params)
             case 3:
-                return closure.call(element, EasygridContextHolder.params, idx + 1)
+                return closure.call(element, params, idx + 1)
         }
     }
 
@@ -148,15 +151,13 @@ class GridUtils {
      * stores the last search parameters
      * in the session , to be retrieved on the next return on the page
      *
-     * in case the restoreSearch mark is set, will restore the parameters
-     * todo - refactor
      * @param session
      * @param params
      * @param id
      */
-    static void restoreSearchParams(gridConfig) {
-        String searchParamsAttrName = "searchParams_${gridConfig.id}".toString()
+    static void storeLastSearch(gridConfig) {
 
+/*
         if (EasygridContextHolder.session.getAttribute(lastSearchAttr(gridConfig))) {
             def localParams = EasygridContextHolder.session.getAttribute(searchParamsAttrName) ?: EasygridContextHolder.params
             EasygridContextHolder.storeParams(localParams)
@@ -165,18 +166,27 @@ class GridUtils {
             //save the current search param
             EasygridContextHolder.session.setAttribute(searchParamsAttrName, EasygridContextHolder.params)
         }
+*/
+
+        session.setAttribute("searchParams_${gridConfig.id}".toString(), params)
+    }
+
+    static def retreiveLastSearch(gridConfig) {
+        session.getAttribute("searchParams_${gridConfig.id}".toString())
     }
 
     /**
      * when exporting a table or returning from an add/update screen and you want to save the old search use this
      */
+/*
     static void markRestorePreviousSearch(GridConfig gridConfig) {
-        EasygridContextHolder.session.setAttribute(lastSearchAttr(gridConfig), true)
+        session.setAttribute(lastSearchAttr(gridConfig), true)
     }
 
     private static String lastSearchAttr(gridConfig) {
         "restoreLastSearch${gridConfig.id}".toString()
     }
+*/
 
     /**
      * hack to navigate nested objects
@@ -223,7 +233,7 @@ class GridUtils {
      * @return
      */
     static eachColumn(GridConfig grid, boolean export = false, Closure closure) {
-        grid.columns.findAll { col -> (EasygridContextHolder.params.selectionComp) ? col.showInSelection : true }
+        grid.columns.findAll { col -> (params.selectionComp) ? col.showInSelection : true }
                 .findAll { col -> !(export && col.export.hidden) }
                 .eachWithIndex { col, idx ->
             switch (closure?.parameterTypes?.size()) {
@@ -275,7 +285,7 @@ class GridUtils {
     }
 
 
-    static def convertValueUsingBinding( source, Class type) {
+    static def convertValueUsingBinding(source, Class type) {
         def instance = new Object() {
             def errors = new Object()
         }

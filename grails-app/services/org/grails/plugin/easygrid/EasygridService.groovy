@@ -4,6 +4,8 @@ import groovy.util.logging.Slf4j
 import org.springframework.web.context.request.RequestContextHolder
 
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
+import static org.grails.plugin.easygrid.EasygridContextHolder.storeParams
+import static org.grails.plugin.easygrid.GridUtils.retreiveLastSearch
 
 /**
  * main service class
@@ -53,8 +55,8 @@ class EasygridService {
      */
     def gridData(GridConfig gridConfig) {
 
-        //save or restore the search params
-        GridUtils.restoreSearchParams(gridConfig)
+        //save the search params
+        GridUtils.storeLastSearch(gridConfig)
 
         //returns a map of search [colName: Closure]
         def listParams = easygridDispatchService.callGridImplListParams(gridConfig)
@@ -101,15 +103,13 @@ class EasygridService {
         def format = params.format
 
         if (format == null) {
-            // hack - incompatibility between the export plugin and the grails >=2.3.5
+            // hack - incompatibility between the export plugin and grails >=2.3.5
             //this should fix it temporarily
             format = RequestContextHolder.currentRequestAttributes().originalParams.format
         }
 
-        //todo - refactor this
         // restore the previous search params
-        GridUtils.markRestorePreviousSearch(gridConfig)
-        GridUtils.restoreSearchParams(gridConfig)
+        storeParams(retreiveLastSearch(gridConfig))
 
         //apply the previous filters, fetch all the data & call the export method
         def listParams = easygridDispatchService.callGridImplListParams(gridConfig)
