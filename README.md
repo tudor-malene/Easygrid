@@ -13,7 +13,7 @@ It also provides a powerful selection widget ( a direct replacement for drop-box
 Installation
 -----------------------------
 
-    compile ":easygrid:1.4.6"
+    compile ":easygrid:1.5.0"
 
     - For minimum functionality you need: jquery-ui and the export plugins.
     - For google visualization you also need: google-visualization
@@ -34,10 +34,8 @@ The issues that Easygrid tackles are:
 * combo-boxes are suitable only when the dataset is small. Easygrid proposes a custom widget based on the same mechanism of defining grids, where for selecting an element you open a grid (with pagination & filtering) in a dialog and select the desired element
 
 
-    - [Simple Online demo ](http://199.231.186.169:8080/easygrid)
-    - [Pet Clinic - Easygrid style](http://199.231.186.169:8080/petclinic/overview)
-    - [Pet Clinic - Source for controller](https://github.com/tudor-malene/grails-petclinic/blob/master/grails-app/controllers/org/grails/samples/OverviewController.groovy)
-    - [Pet Clinic - Source for view](https://github.com/tudor-malene/grails-petclinic/blob/master/grails-app/views/overview/index.gsp)
+    - [Pet Clinic - Easygrid style](http://199.231.186.169:8080/petclinic/)
+    - [Basic demo ](http://199.231.186.169:8080/easygrid)
 
 Easygrid solves these problems by proposing a solution based on declarations & conventions.
 
@@ -95,14 +93,14 @@ In each annotated controller ( @Easygrid ) you can define a static closure calle
 
 The plugin provides a custom Builder for making the configuration very straight forward.
 
-Ex:  ( from the easygrid petclinic )
+Ex:  ( from the  petclinic )
 
-        def ownersGrid = {         
-            dataSourceType 'gorm'
+        def ownersGrid = {
             domainClass Owner
             columns {
                 id {
                     type 'id'
+                    enableFilter false
                 }
                 firstName
                 lastName
@@ -110,10 +108,12 @@ Ex:  ( from the easygrid petclinic )
                 city
                 telephone
                 nrPets {
-                    label 'owner.nrPets.label'
                     enableFilter false
                     value { owner ->
                         owner.pets.size()
+                    }
+                    jqgrid {
+                        sortable false
                     }
                 }
             }
@@ -122,9 +122,12 @@ Ex:  ( from the easygrid petclinic )
 
 In the gsp, you can use this grid via the following tag:
 
-    <grid:grid name="owners" jqgrid.width='600' columns.id.jqgrid.formatter='customShowFormat'
-               jqgrid.caption='"Owners"' addUrl="${g.createLink(controller: 'owner',action: 'add')}"/>
-    <grid:exportButton name="ownersGrid"/>
+        <grid:grid name="owners" addUrl="${g.createLink(controller: 'owner', action: 'add')}">
+            <grid:set caption="Owners" width="800"/>
+            <grid:set col="id" formatter="f:customShowFormat" />
+            <grid:set col="nrPets" width="60" />
+        </grid:grid>
+        <grid:exportButton name="owners"/>
 
 You also have to add the resource modules for the grid implementation:
 
@@ -296,8 +299,8 @@ Like this:
         labelValue { val, params ->             // the label can be a property or a closure ( more advanced use cases )
             "${val.name} (${val.nationality})"
         }
-        textBoxFilterClosure { filter ->        // the closure called when a user inputs a text in the autocomplete input
-            ilike('name', "%${filter.paramValue}%")
+        textBoxFilterClosure {         // the closure called when a user inputs a text in the autocomplete input
+            ilike('name', "%${params.term}%")
         }
         constraintsFilterClosure { params ->    // the closure that will handle constraints defined in the taglib ( see example)
             if (params.nationality) {
@@ -428,6 +431,32 @@ A: You can raise a github ticket , drop me an email to: tudor.malene at gmail.co
 Version History
 ------------------------
 
+### 1.5.0
+    Improvements:
+       - enhanced the filtering capabilities
+           - default filtering for nested properties like: 'pet.owner'
+           - filtering with operators ( equals, contains, greater than )
+       - enhanced the sorting capabilities
+           - sorting nested properties
+           - customize sorting with closures
+       - switched from DetachedCriteria to Criteria
+           - ability to use projections
+       - new taglibs for customizing the view
+       - use grails Databinding for filter parameter conversion
+       - ability to use nested view parameters like
+            jqgrid{
+               searchoptions{
+                 sopt (['eq'])
+               }
+            }
+       - cleaned up grid implementation renderers
+       - Jqgrid support
+            - support for subgrids
+            - support for advanced searching ( thanks Ken Doig )
+            - support for toolbar search with operators
+            - more easy to configure searchoptions, editoptions, etc
+
+
 ### 1.4.6
     Bugs:
     - fixed https://github.com/tudor-malene/Easygrid/issues/44
@@ -527,6 +556,17 @@ Version History
 
 Upgrade
 ------------------------
+
+#### Upgrading to 1.5.0
+ This is a major update and it will break existing grids. Please let me know ASAP if you have problems upgrading
+ First of all check the [petclinic example:](https://github.com/tudor-malene/grails-petclinic) and the [example](https://github.com/tudor-malene/Easygrid_example) repositories.
+
+- the renderers were rewritten . Any change should be ported to default properties.
+- there is no longer necessary to define filterClosures in most of the cases. Easygrid generates them for you. Check the petclinic example for some examples.
+- taglibs: there are nicer ways of customizing the view in 1.5.0 using grid:set - check the example
+
+
+
 
 #### Upgrading to 1.4.2
 - isolate all the changes you did to the easygrid section of the Config file and move them to /conf/EasygridConfig.groovy
