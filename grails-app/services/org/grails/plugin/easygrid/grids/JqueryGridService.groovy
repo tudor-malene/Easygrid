@@ -24,19 +24,19 @@ class JqueryGridService {
 
 
     def addDefaultValues(GridConfig gridConfig, defaultValues) {
-        gridConfig.columns.each { ColumnConfig columnConfig ->
-            if (columnConfig?.filterType) {
-                List operators = grailsApplication.config.easygrid.columns.defaults.filterOperators[columnConfig.filterType]
-//            "searchoptions":{"sopt":["eq","ne","le","lt","ge","gt"]}
-//                columnConfig.jqgrid.searchoptions = "{\"sopt\":[${operators.collect { JqGridUtils.jqgridFilterOperatorConverter(it) }.collect { "\"${it}\"" }.join(',')}]}"
-                columnConfig.jqgrid.searchoptions << [sopt: operators.collect {
-                    JsUtils.jqgridFilterOperatorConverter(it)
-                }]
-            }
+        if(gridConfig.enableFilter) {
+            gridConfig.columns.each { ColumnConfig columnConfig ->
+                if (columnConfig.enableFilter && columnConfig?.filterType) {
+                    List operators = grailsApplication.config.easygrid.columns.defaults.filterOperators[columnConfig.filterType]
+                    columnConfig.jqgrid.searchoptions << [sopt: operators.collect {
+                        JsUtils.jqgridFilterOperatorConverter(it)
+                    }]
+                }
 
-            //if no property defined
-            if (columnConfig.jqgrid.editable == null) {
-                columnConfig.jqgrid.editable = (columnConfig.property != null)
+                //if no property defined
+                if (columnConfig.jqgrid.editable == null) {
+                    columnConfig.jqgrid.editable = (columnConfig.property != null)
+                }
             }
         }
     }

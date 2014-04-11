@@ -65,7 +65,7 @@ class EasygridInitService {
                     easyGridLogger.debug("entering ${gridName}Html")
                     def model = easygridService.htmlGridDefinition(gridConfig)
                     if (model) {
-                        model.attrs = [id: params.gridId?:gridConfig.id, params: params]
+                        model.attrs = [id: params.gridId ?: gridConfig.id, params: params]
                         render(template: gridConfig.gridRenderer, model: model)
                     }
                 },
@@ -340,6 +340,11 @@ class EasygridInitService {
             if (!column.property && !column.value) {
                 log.debug("set default property: ${column.name}")
                 column.property = column.name
+            }
+
+            //set enableFilter false in case the global setting is false
+            if (gridConfig.enableFilter == false) {
+                column.enableFilter = false
             }
 
             //set the filterProperty in case
