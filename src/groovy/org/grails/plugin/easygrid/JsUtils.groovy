@@ -59,13 +59,13 @@ class JsUtils {
         }
     }
 
-    static replaceJSFunctions(values) {
+    static traverseValues(values, Closure condition, Closure action) {
         if (values instanceof Map) {
             values.collectEntries { k, v ->
-                if (v instanceof CharSequence && v.startsWith('f:')) {
-                    [(k): new JSFunction(v)]
+                if (condition(k, v)) {
+                    action(k, v)
                 } else {
-                    [(k): replaceJSFunctions(v)]
+                    [(k): traverseValues(v, condition, action)]
                 }
             }
         } else {
@@ -74,7 +74,10 @@ class JsUtils {
     }
 
     static String convertToJs(Map values, boolean include = false) {
-        JSON json = replaceJSFunctions(values) as JSON
+        def newValues = traverseValues(values) { k, v -> v instanceof CharSequence && v.startsWith('f:') } { k, v -> [(k): new JSFunction(v)] }
+        newValues = traverseValues(newValues) { k, v -> v instanceof CharSequence && (v == 'true' || v == 'false') } { k, v -> [(k): v as boolean] }
+
+        JSON json = newValues as JSON
 
         String val = json.toString()
         if (include) {
@@ -109,7 +112,6 @@ class JsUtils {
             lazyStringClosure.call()
         }
     }
-
 
 /*
     static enum JqgridType {
