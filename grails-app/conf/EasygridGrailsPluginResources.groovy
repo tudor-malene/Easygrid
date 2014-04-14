@@ -30,6 +30,14 @@ modules = {
 
         resource id: 'js-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/js", file: "jquery.dataTables.min.js"],
                 nominify: true, disposition: 'head'
+
+        resource id: 'css-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/css", file: "jquery.dataTables.css"],
+                nominify: true, disposition: 'head'
+
+        resource id: 'js-fixedColumns', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/extras/FixedColumns/media/js", file: "FixedColumns.js"],
+                nominify: true, disposition: 'head'
+        resource id: 'utils', url: [plugin: 'easygrid', dir: "js/datatables", file: "utils.js"],
+                nominify: true, disposition: 'head'
     }
 
 /*
@@ -61,6 +69,9 @@ modules = {
         dependsOn 'jquery-ui'
 
         resource id: 'js-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/js", file: "jquery.dataTables.js"],
+                nominify: true, disposition: 'head'
+
+        resource id: 'css-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/css", file: "jquery.dataTables.css"],
                 nominify: true, disposition: 'head'
 
         resource id: 'js-fixedColumns', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/extras/FixedColumns/media/js", file: "FixedColumns.js"],
