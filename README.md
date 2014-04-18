@@ -13,7 +13,7 @@ It also provides a powerful selection widget ( a direct replacement for drop-box
 Installation
 -----------------------------
 
-    compile ":easygrid:1.5.0"
+    compile ":easygrid:1.5.1"
 
     - For minimum functionality you need: jquery-ui and the export plugins.
     - For google visualization you also need: google-visualization
@@ -52,7 +52,7 @@ Easygrid solves these problems by proposing a solution based on declarations & c
 - built-in support for exporting to different formats ( using the exporter plugin )
 - easy inline editing ( when using jqgrid )
 - configurable dynamic filtering form -
-- possibility to define master-slave grids ( see the petclinic example )
+- possibility to define master-slave grids or subgrids ( see the petclinic example )
 - easy to mock and test
 
 - Jquery-ui widget and custom tag for a powerful selection widget featuring a jquery autocomplete textbox and a selection dialog built with Easygrid ( with filtering, sorting,etc)
@@ -61,18 +61,18 @@ Easygrid solves these problems by proposing a solution based on declarations & c
 Concepts
 --------------------
 
-The entire grid is defined in the Controller (or in an outside file) using the provided custom builder.
+The entire grid logic is defined in the Controller (or in an outside file) using the provided custom builder. ( some particular view aspects can be defined in the gsp , using the provided taglibs)
 
 For each grid you can configure the following aspects:
 
-- datasource
-- grid implementation
+- datasource ( by default -if none specified - it uses the gorm datasource)
+- grid implementation ( by default is jqGrid - can be overwritten )
 - columns:
     - name
     - value ( could be a property of the datasource row, or a closure )
-    - formatting
+    - formatting ( see section below)
     - Optional specific grid implementation properties ( that will be available in the renderer)
-    - filterClosure - in case the grid supports per column filtering - this closure will act as a filter ( will depend on the underlying datasource )
+    - filterClosure - in case the grid supports per column filtering - this closure will act as a filter ( will depend on the underlying datasource ). (for the gorm datasource - a default filterClosure is generated for each column).
 - security
 - global formatting of values
 - export
@@ -89,11 +89,12 @@ Usage
 
 All grids will be defined in controllers - which must be annotated with @Easygrid. 
 
-In each annotated controller ( @Easygrid ) you can define a static closure called "grids" where you define the grids which will be made available by this controller. Starting with version 1.4.1, the preferred way of defining grids is by using plain closures ending with the 'Grid' suffix ( similar to flows in Spring WebFlow )
+In each annotated controller ( @Easygrid ) you can define a static closure called "grids" where you define the grids which will be made available by this controller.
+Starting with version 1.4.1, the preferred way of defining grids is by using plain closures ending with the 'Grid' suffix ( similar to flows in Spring WebFlow )
 
 The plugin provides a custom Builder for making the configuration very straight forward.
 
-Ex:  ( from the  petclinic )
+Ex:  ( from the  petclinic sample)
 
         def ownersGrid = {
             domainClass Owner
@@ -120,7 +121,7 @@ Ex:  ( from the  petclinic )
         }
 
 
-In the gsp, you can use this grid via the following tag:
+In the gsp, you can render this grid via the following tag:
 
         <grid:grid name="owners" addUrl="${g.createLink(controller: 'owner', action: 'add')}">
             <grid:set caption="Owners" width="800"/>
@@ -169,14 +170,15 @@ On installation of the plugin , the renderer templates for the default implement
 
 #### Grid Datasource Types:
 1.	**gorm**
-    * the datasource is a Gorm domain class.
+    * the datasource is actually a Criteria Builder created from the specified domainClass and initialCriteria. (basically it does: DomainClass.createCriteria().buildCriteria(initialCriteria) and afterwards applies the globalFilterClosure and the filterClosure from each column)
     * _domainClass_ - the domain ( mandatory)
-    * _initialCriteria_  - a filter that will be applied all the time
+    * _initialCriteria_  - used for complex queries
+    * _globalFilterClosure_  - a filter that will be applied all the time ( the only parameter is 'params' )
 
     For fast mock-up , grids with this type can be defined without columns, in which case these will be generated at runtime from the domain properties (dynamic scaffolding).
 
     A filter closure is defined per column and will have to be a closure which will be used by a GORM CriteriaBuilder
-
+    Starting from version 1.5.0 this datasource works only with Hibernate!
 
 2.	**list**
     * used when you have a list of custom objects (for ex. stored in the session ) that must be displayed in the grid
@@ -184,6 +186,7 @@ On installation of the plugin , the renderer templates for the default implement
     * _attributeName_ - and the attribute name (in the specified context)
     * pagination will be handled by the framework
 
+    The filterClosure takes 2 parameters: the Filter object and the actual row - and returns true if the row matches the filter
 
 3.	**custom**
     * when the list to be displayed is dynamic ( generated by a closure )
@@ -430,6 +433,16 @@ A: You can raise a github ticket , drop me an email to: tudor.malene at gmail.co
 
 Version History
 ------------------------
+
+### 1.5.1
+    Improvements:
+       - added some default values to the list datasource ( by default the filterDataType is String )
+
+    Bugs:
+       - added a countDistinct property to the GridConfig ( and also a smart default for handling count & the distinct projection )
+       - fixed a filtering bug for jqgrid
+       - fixed a stylesheet bug for datatables
+
 
 ### 1.5.0
     Improvements:
