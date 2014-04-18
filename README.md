@@ -13,7 +13,7 @@ It also provides a powerful selection widget ( a direct replacement for drop-box
 Installation
 -----------------------------
 
-    compile ":easygrid:1.5.1"
+    compile ":easygrid:1.5.2"
 
     - For minimum functionality you need: jquery-ui and the export plugins.
     - For google visualization you also need: google-visualization
@@ -433,6 +433,11 @@ A: You can raise a github ticket , drop me an email to: tudor.malene at gmail.co
 
 Version History
 ------------------------
+
+### 1.5.2
+    Bugs:
+       - the sortClosure for the 'list' datasource will receive 3 arguments ( first one will be the sort order )
+       - the list datasource is able to access a nested property from a context
 
 ### 1.5.1
     Improvements:

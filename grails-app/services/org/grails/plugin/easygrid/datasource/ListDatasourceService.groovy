@@ -10,6 +10,7 @@ import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
 import static org.grails.plugin.easygrid.FilterUtils.getOperatorMapKey
 import static org.grails.plugin.easygrid.FiltersEnum.and
 import static org.grails.plugin.easygrid.FiltersEnum.or
+import static org.grails.plugin.easygrid.GridUtils.getNestedPropertyValue
 import static org.grails.plugin.easygrid.GridUtils.valueOfSortColumn
 
 /**
@@ -90,7 +91,7 @@ class ListDatasourceService {
 
                     if (sort instanceof Closure) {
                         //execute the closure
-                        tempList = tempList.sort(sort)
+                        tempList = tempList.sort(sort.curry(val.order))
                     } else {
                         tempList = tempList.sort { a, b ->
                             def comp = a[sort] <=> b[sort]
@@ -247,7 +248,7 @@ class ListDatasourceService {
                 break
 
         }
-        ctx[gridConfig.attributeName]
+        getNestedPropertyValue(gridConfig.attributeName, ctx)
     }
 
 }

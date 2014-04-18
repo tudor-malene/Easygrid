@@ -182,5 +182,38 @@ class ListDatasourceServiceSpec extends Specification {
 
     }
 
+    def "test sort closure"() {
+        given:
+        mockEasyGridContextHolder()[3].people = (1..100).collect { [name: "John ${it}", age: it] }
+
+        and:
+        def grid = generateConfigForGrid(grailsApplication, service) {
+            'peopleGridConfig' {
+                dataSourceType 'list'
+                attributeName 'people'
+                columns {
+                    id
+                    name {
+                        filterDataType String
+                    }
+                    age {
+                        filterDataType Integer
+                        sortClosure { order, val1, val2 ->
+                            def comp = val1.age <=> val2.age
+                            (order == 'asc') ? comp : -comp
+                        }
+                    }
+                }
+            }
+        }.peopleGridConfig
+
+        when:
+        def result = service.list(grid, [sort: 'age', order: 'desc'])
+
+        then:
+        100 == result[0].age
+        1 == result[99].age
+
+    }
 
 }
