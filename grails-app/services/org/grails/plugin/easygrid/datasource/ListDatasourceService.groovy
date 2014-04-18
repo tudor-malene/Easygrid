@@ -2,13 +2,12 @@ package org.grails.plugin.easygrid.datasource
 
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.runtime.DefaultGroovyMethods
-import org.grails.plugin.easygrid.Filter
-import org.grails.plugin.easygrid.FilterOperatorsEnum
-import org.grails.plugin.easygrid.Filters
+import org.grails.plugin.easygrid.*
 import org.springframework.web.context.request.RequestContextHolder
 
 import static org.grails.plugin.easygrid.EasygridContextHolder.*
 import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
+import static org.grails.plugin.easygrid.FilterUtils.getOperatorMapKey
 import static org.grails.plugin.easygrid.FiltersEnum.and
 import static org.grails.plugin.easygrid.FiltersEnum.or
 import static org.grails.plugin.easygrid.GridUtils.valueOfSortColumn
@@ -34,6 +33,27 @@ class ListDatasourceService {
         }
 
         errors
+    }
+
+    def addDefaultValues(GridConfig gridConfig, Map defaultValues) {
+
+        gridConfig.columns.each { ColumnConfig column ->
+            if (!column.filterProperty) {
+                column.filterProperty = column.property
+            }
+        }
+
+        (gridConfig.columns.elementList + gridConfig.filterForm?.fields?.elementList).findAll {
+            it?.enableFilter
+        }.each { FilterableConfig filterable ->
+            //by default - if no other config -
+            if (!filterable.filterDataType) {
+                filterable.filterDataType = String
+            }
+            if (!filterable.filterType) {
+                filterable.filterType = getOperatorMapKey(filterable.filterDataType)
+            }
+        }
     }
 
     /**
@@ -124,7 +144,7 @@ class ListDatasourceService {
         filter.searchFilter ?: createFilterClosure(filter.operator, filter.filterable.filterProperty, filter.value)
     }
 
-    //thanks to doig ken
+//thanks to doig ken
     private Closure createFilterClosure(FilterOperatorsEnum operator, String property, Object value) {
         switch (operator) {
             case EQ: return { row -> row[property] == value }
@@ -155,7 +175,7 @@ class ListDatasourceService {
         filteredList(gridConfig, filters)?.size()
     }
 
-    // inlineEdit implementations
+// inlineEdit implementations
 
     /**
      * default method called on updating a grid element
@@ -227,7 +247,7 @@ class ListDatasourceService {
                 break
 
         }
-
         ctx[gridConfig.attributeName]
     }
+
 }
