@@ -15,8 +15,7 @@ class OwnerTest {
     }
 
     static namedQueries = {
-        nameQuery{
-            maxResults(0)
+        namedJohn{
             eq('name','John')
         }
     }

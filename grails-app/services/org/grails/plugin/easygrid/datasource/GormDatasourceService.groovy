@@ -5,9 +5,12 @@ import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.codehaus.groovy.grails.validation.ConstrainedProperty
 import org.grails.plugin.easygrid.*
-
-//import org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator
+import org.hibernate.Criteria
+import org.hibernate.criterion.Distinct
+import org.hibernate.criterion.ProjectionList
+import org.hibernate.criterion.PropertyProjection
 import org.springframework.dao.DataIntegrityViolationException
+
 import org.springframework.transaction.annotation.Transactional
 
 import static org.codehaus.groovy.grails.commons.GrailsClassUtils.getStaticPropertyValue
@@ -18,6 +21,7 @@ import static org.grails.plugin.easygrid.GridUtils.*
 
 /**
  * Datasource implementation for a GORM Domain class
+ * Works only with Hibernate Datasource
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
@@ -219,12 +223,12 @@ class GormDatasourceService {
 
     /**
      * returns the total no of rows
-     * @param filters - it will be a criteria
+     * @param filters -
      * @return
      */
     def countRows(gridConfig, filters = null) {
-        createWhereQuery(gridConfig, filters, null, true).uniqueResult()
-//1
+        Criteria c = createWhereQuery(gridConfig, filters, null, true)
+        c.uniqueResult()
     }
 
     /**
@@ -251,8 +255,36 @@ class GormDatasourceService {
                 filterCriteria()
             }
             if (countRows) {
+                ProjectionList projectionList = delegate.criteria.projection
                 projections {
-                    count()
+                    Distinct distinct = projectionList?.elements?.find { it instanceof Distinct }
+                    if (gridConfig.countDistinct || distinct) {
+                        def propertyName = gridConfig.countDistinct
+                        if (propertyName) {
+                            def c = { countDistinct(lastProperty(propertyName)) }
+                            if (propertyName.indexOf('.') > -1) {
+                                c = buildClosure(propertyName.split('\\.')[0..-2], c)
+                            }
+                            c.delegate = delegate
+                            c()
+                        } else {
+                            //try to determine the count distinct property from the criteria
+                            def proj = distinct.@projection
+                            if (proj && proj instanceof PropertyProjection) {
+                                propertyName = proj.propertyName
+                            }
+                            if (propertyName) {
+                                countDistinct(propertyName)
+                            } else {
+                                log.warn("Row count for grid: ${gridConfig.id} might not be correct")
+                                //fallback to rowCount
+                                rowCount()
+                            }
+                        }
+
+                    } else {
+                        rowCount()
+                    }
                 }
             } else {
                 orderBy.each {
@@ -282,11 +314,11 @@ class GormDatasourceService {
         if (filters) {
             filters.postorder(
                     { Filters node, List siblings ->
-                        if (siblings.findAll{it}) {
+                        if (siblings.findAll { it }) {
                             return {
                                 "${node.type}" {
                                     def del = delegate
-                                    siblings.findAll{it}.each { Closure criteria ->
+                                    siblings.findAll { it }.each { Closure criteria ->
                                         criteria.delegate = del
                                         criteria.resolveStrategy = Closure.DELEGATE_FIRST
                                         criteria()

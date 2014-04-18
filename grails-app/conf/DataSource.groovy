@@ -5,6 +5,7 @@ dataSource {
 	password = ''
 	dbCreate = 'update'
 	url = 'jdbc:h2:mem:testDb'
+//    logSql = true
 }
 
 hibernate {

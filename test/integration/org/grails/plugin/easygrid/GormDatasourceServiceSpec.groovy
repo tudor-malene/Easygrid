@@ -342,7 +342,7 @@ class GormDatasourceServiceSpec extends IntegrationSpec {
         count == query.uniqueResult()
 
         where:
-        paramVal | count
+        paramVal  | count
         'NJ'      | 2
         'Bonkers' | 1
         'LA'      | 1
@@ -372,7 +372,7 @@ class GormDatasourceServiceSpec extends IntegrationSpec {
         owners[0].name == name
 
         where:
-        paramVal | name
+        paramVal  | name
         'NJ'      | 'Mary'
         'Bonkers' | 'John'
     }
@@ -522,7 +522,7 @@ class GormDatasourceServiceSpec extends IntegrationSpec {
         given:
         populatePets()
 
-        when:
+        and:
         def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
             'petsGridConfig' {
                 domainClass PetTest
@@ -564,14 +564,105 @@ class GormDatasourceServiceSpec extends IntegrationSpec {
                 ])
         ])
 
-        and:
+        when:
         def pets = service.list(petsGridConfig, [:], filters)
 
         then:
         3 == pets.size()
         ['Bonkers', 'pandora', 'tommy',] == pets.collect { it.name }.sort()
 
+        when:
+        def cnt = service.countRows(petsGridConfig)
+
+        then:
+        5 == cnt
+
+        when:
+        cnt = service.countRows(petsGridConfig, filters)
+
+        then:
+        3 == cnt
+
     }
+
+
+    def "test count distinct"() {
+        given:
+        populatePets()
+
+        and:
+        def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
+            'petsGridConfig' {
+                domainClass PetTest
+                initialCriteria {
+                    projections {
+                        owner {
+                            distinct('name')
+                            property('city')
+                        }
+                    }
+                }
+                transformData { row ->
+                    def result = [:]
+                    result['owner.name'] = row[0]
+                    result['owner.city'] = row[1]
+                    result
+                }
+                columns {
+                    'owner.name' {}
+                    'owner.city' {
+                    }
+                }
+            }
+        }.petsGridConfig
+
+
+        when:
+        def pets = service.list(petsGridConfig, [:])
+
+        then:
+        3 == pets.size()
+
+        when:
+        def cnt = service.countRows(petsGridConfig)
+
+        then:
+        3 == cnt
+
+        when: "set the countDistinct property"
+        petsGridConfig.countDistinct = 'owner.name'
+        and:
+        cnt = service.countRows(petsGridConfig)
+
+
+        then:
+        3 == cnt
+
+    }
+/*
+
+    def "test named queries"() {
+        given:
+        populatePets()
+
+        when:
+        def ownersGridConfig = generateConfigForGrid(grailsApplication, service) {
+            'ownersGridConfig' {
+                query OwnerTest.namedJohn
+                columns {
+                    id
+                    name
+                    address
+                }
+
+            }
+        }.ownersGridConfig
+
+        then:
+        1==1
+
+    }
+*/
 
     //utility
     private void populatePets() {
