@@ -51,7 +51,6 @@ class ListDatasourceService {
             def maxRows = listParams.maxRows ?: tempList.size()
             def end = (offset + maxRows > tempList.size()) ? tempList.size() - 1 : offset + maxRows - 1
             if (end >= offset) {
-                tempList = tempList[offset..end]
                 def orderBy = []
                 if (listParams.multiSort) {
                     orderBy = listParams.multiSort
@@ -64,14 +63,6 @@ class ListDatasourceService {
                     }
                 }
 
-/*
-                return orderBy.inject(tempList) { acc, val ->
-                    acc.sort { a, b ->
-                        def comp = a[val.sort] <=> b[val.sort]
-                        (val.order == 'asc') ? comp : -comp
-                    }
-                }
-*/
                 orderBy.each { val ->
                     def sortCol = gridConfig.columns[val.sort]
                     assert sortCol
@@ -87,7 +78,7 @@ class ListDatasourceService {
                         }
                     }
                 }
-                return tempList
+                return tempList[offset..end]
             }
         }
 
@@ -101,7 +92,7 @@ class ListDatasourceService {
     }
 
     /**
-     * traverses the filters structure and creates a criteria closure that will be applied to the Detached Criteria
+     * traverses the filters structure and creates a criteria closure that will be applied to the
      * @param filters
      * @return
      */

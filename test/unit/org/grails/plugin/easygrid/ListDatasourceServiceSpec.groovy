@@ -53,7 +53,7 @@ class ListDatasourceServiceSpec extends Specification {
         result.size() == size
 
         where:
-        list | size
+        list                                              | size
         [[name: 'john', age: 5], [name: 'mary', age: 10]] | 2
         [[name: 'john', age: 5]]                          | 1
     }
@@ -85,7 +85,7 @@ class ListDatasourceServiceSpec extends Specification {
 
         then:
         result.size == 20
-        result[0].age == 50
+        result[0].age == 70
     }
 
     def "test filtering"() {
@@ -135,6 +135,27 @@ class ListDatasourceServiceSpec extends Specification {
         10 == result.size()
         10 == result[0].age
     }
+
+
+    def "test sort"() {
+        given:
+        mockEasyGridContextHolder()[3].people = (1..100).collect { [name: "John", age: it] }
+
+        when:
+        def result = service.list(peopleGridConfig, [maxRows: 10, rowOffset: 10, sort: 'age', order: 'desc'])
+
+        then:
+        10 == result.size()
+        (90..81) == result.collect { it.age }
+
+        when:
+        result = service.list(peopleGridConfig, [maxRows: 10, rowOffset: 10, sort: 'age', order: 'asc'])
+
+        then:
+        10 == result.size()
+        (11..20) == result.collect { it.age }
+    }
+
 
     def "test complex filter"() {
         given:
