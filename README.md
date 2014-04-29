@@ -437,6 +437,7 @@ Version History
 ### 1.6.0
     Improvements:
        - inline editing was improved, so that it is able to display messages on each invalid field
+       - added a new property: _listClass_ , used for the 'list' datasource
 
     Bugs:
        - various bugs related to inline editing & list datasource
