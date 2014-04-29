@@ -389,17 +389,19 @@ class GormDatasourceService {
      * return - should return null or an empty string on succes, or a short error message
      */
     @Transactional
-    def updateRow(gridConfig) {
+    def updateRow(gridConfig, InlineResponse response) {
 
         def instance = gridConfig.domainClass.get(params.id)
         if (!instance) {
-            return 'default.not.found.message'
+            response.message = 'default.not.found.message'
+            return
         }
 
         if (params.version) {
             def version = params.version.toLong()
             if (instance.version > version) {
-                return 'default.optimistic.locking.failure'
+                response.message = 'default.optimistic.locking.failure'
+                return
             }
         }
 
@@ -407,9 +409,8 @@ class GormDatasourceService {
         instance.properties = gridConfig.beforeSave params
         log.debug "instance = $instance"
 
-        if (!instance.save()) {
-            return instance.errors
-        }
+        instance.save()
+        response.instance = instance
     }
 
     /**
@@ -418,12 +419,11 @@ class GormDatasourceService {
      * return - should return null or an empty string on succes, or a short error message
      */
     @Transactional
-    def saveRow(gridConfig) {
+    def saveRow(gridConfig, InlineResponse response) {
         def instance = gridConfig.domainClass.newInstance()
         instance.properties = gridConfig.beforeSave(params)
-        if (!instance.save(flush: true)) {
-            return instance.errors
-        }
+        instance.save()
+        response.instance = instance
     }
 
     /**
@@ -432,19 +432,19 @@ class GormDatasourceService {
      * return - should return null or an empty string on succes, or a short error message
      */
     @Transactional
-    def delRow(gridConfig) {
+    def delRow(gridConfig, InlineResponse response) {
         def instance = gridConfig.domainClass.get(params.id)
 
         if (!instance) {
-//            Errors errors = new
-            return 'default.not.found.message'
+            response.message = 'default.not.found.message'
+            return
         }
 
         try {
             instance.delete(flush: true)
         }
         catch (DataIntegrityViolationException e) {
-            return 'default.not.deleted.message'
+            response.message = 'default.not.deleted.message'
         }
     }
 }

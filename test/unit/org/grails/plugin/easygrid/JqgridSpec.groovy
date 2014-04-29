@@ -4,6 +4,7 @@ import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.grails.plugin.easygrid.grids.JqGridMultiSearchService
 import org.grails.plugin.easygrid.grids.JqueryGridService
+import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
 /**
@@ -17,24 +18,6 @@ class JqgridSpec extends Specification {
 
     def setup() {
         service.filterService = new FilterService()
-    }
-
-    def "Edit row"() {
-        when:
-        def domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication, {
-            testDomainGrid {
-                dataSourceType 'gorm'
-                domainClass TestDomain
-                updateRowClosure {
-                    'default.not.found.message'
-                }
-            }
-        }).testDomainGrid
-        def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
-        params.oper = 'edit'
-
-        then:
-        service.inlineEdit(domainGridConfig) == 'default.not.found.message'
     }
 
     /**
@@ -241,5 +224,31 @@ class JqgridSpec extends Specification {
         'title' == someGrid.columns.testStringProperty.jqgrid.searchoptions.attr.title
     }
 
+
+    def "inline edit"() {
+        when:
+        TestUtils.mockEasyGridContextHolder()
+        def domainGridConfig = TestUtils.generateConfigForGrid(grailsApplication, {
+            testDomainGrid {
+                dataSourceType 'gorm'
+                domainClass TestDomain
+                columns {
+                    testStringProperty
+                    testIntProperty
+                }
+            }
+        }).testDomainGrid
+        def instance = new TestDomain(testIntProperty: 'blabla')
+        instance.save(true)
+        def response = service.transformInlineError(domainGridConfig, [message: 'invalid', instance: instance] as InlineResponse)
+
+        then:
+        HttpStatus.BAD_REQUEST == response.status
+        'invalid' == response.text.target.message
+        response.text.target.fields['testStringProperty'].contains('cannot be null')
+        response.text.target.fields['testIntProperty'].contains('blabla')
+
+
+    }
 
 }

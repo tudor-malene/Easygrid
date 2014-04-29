@@ -1,8 +1,11 @@
 package org.grails.plugin.easygrid.datasource
 
 import groovy.util.logging.Slf4j
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
+import org.codehaus.groovy.grails.web.binding.DataBindingUtils
 import org.codehaus.groovy.runtime.DefaultGroovyMethods
 import org.grails.plugin.easygrid.*
+import org.springframework.beans.BeanUtils
 import org.springframework.web.context.request.RequestContextHolder
 
 import static org.grails.plugin.easygrid.EasygridContextHolder.*
@@ -10,12 +13,13 @@ import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
 import static org.grails.plugin.easygrid.FilterUtils.getOperatorMapKey
 import static org.grails.plugin.easygrid.FiltersEnum.and
 import static org.grails.plugin.easygrid.FiltersEnum.or
+import static org.grails.plugin.easygrid.GridUtils.getDomainProperty
 import static org.grails.plugin.easygrid.GridUtils.getNestedPropertyValue
 import static org.grails.plugin.easygrid.GridUtils.valueOfSortColumn
 
 /**
  * Datasource implementation
- * the rows are stored in a context ( by default 'session')
+ * the rows are stored as a list in a context ( by default 'session')
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
@@ -47,12 +51,28 @@ class ListDatasourceService {
         (gridConfig.columns.elementList + gridConfig.filterForm?.fields?.elementList).findAll {
             it?.enableFilter
         }.each { FilterableConfig filterable ->
-            //by default - if no other config -
-            if (!filterable.filterDataType) {
-                filterable.filterDataType = String
-            }
-            if (!filterable.filterType) {
-                filterable.filterType = getOperatorMapKey(filterable.filterDataType)
+            def property = filterable.filterProperty
+            if (property && gridConfig.listClass) {
+                if (!filterable.filterDataType) {
+                    Class columnPropertyType = BeanUtils.findPropertyType(property, gridConfig.listClass)
+                    filterable.filterDataType = columnPropertyType
+                    if (!columnPropertyType) {
+                        log.warn("Property '${property}' for grid: ${gridConfig.id} does not exist in domain class ${gridConfig.domainClass}")
+                    }
+                }
+                if (!filterable.filterType) {
+                    filterable.filterType = getOperatorMapKey(filterable.filterDataType)
+                }
+
+            } else {
+
+                //by default - if no other config -
+                if (!filterable.filterDataType) {
+                    filterable.filterDataType = String
+                }
+                if (!filterable.filterType) {
+                    filterable.filterType = getOperatorMapKey(filterable.filterDataType)
+                }
             }
         }
     }
@@ -181,54 +201,80 @@ class ListDatasourceService {
     /**
      * default method called on updating a grid element
      */
-    def updateRow(gridConfig) {
+    def updateRow(gridConfig, InlineResponse response) {
 
-        def instance = getList(gridConfig)[params.id as int]
+        def instance = findById(gridConfig, params.id)
+//        def clone = instance.properties
+
         if (!instance) {
-            return 'default.not.found.message'
+            response.message = 'default.not.found.message'
+            return
         }
 
-/*
-        if (params.version) {
-            def version = params.version.toLong()
-            if (instance.version > version) {
-                return 'default.optimistic.locking.failure'
-            }
-        }
-*/
+        def parameters = gridConfig.beforeSave(params)
+        DataBindingUtils.bindObjectToInstance(instance, parameters)
 
-        //default returns params
-        gridConfig.beforeSave(params).each { k, v ->
-            instance[k] = v
+        //for validateable classes
+        if (instance.respondsTo('validate')) {
+            instance.validate()
         }
-/*
+//        if (instance.hasProperty('errors') && instance.errors.hasErrors()) {
+//            //restore
+//            DataBindingUtils.bindObjectToInstance(instance, clone)
+//        }
 
-        if (!instance.save(flush: true)) {
-            return instance.errors
-        }
-*/
+        response.instance = instance
     }
 
     /**
      * default method  called on saving a new grid element
      */
-    def saveRow(gridConfig) {
-        getList(gridConfig).add gridConfig.beforeSave params
+    def saveRow(gridConfig, InlineResponse response) {
+        def instance
+        def parameters = gridConfig.beforeSave(params)
+        def list = getList(gridConfig)
+
+        if (gridConfig.listClass) {
+            instance = gridConfig.listClass.newInstance()
+            DataBindingUtils.bindObjectToInstance(instance, parameters)
+            //for validateable classes
+            if (instance.respondsTo('validate')) {
+                instance.validate()
+            }
+            response.instance = instance
+            if (!instance.hasProperty('errors') || !instance.errors.hasErrors()) {
+                //todo
+                list.add(instance)
+            }
+        } else {
+            list.add(parameters)
+        }
     }
 
     /**
      * default method  called on deleting a grid element
      */
-    def delRow(gridConfig) {
-        def instance = getList(gridConfig)[params.id as int]
+    def delRow(gridConfig, InlineResponse response) {
+        def instance = findById(gridConfig, params.id)
 
         if (!instance) {
-//            Errors errors = new
-            return 'default.not.found.message'
+            response.message = 'default.not.found.message'
+            return
         }
-        getList(gridConfig).remove(params.id as int)
+
+        getList(gridConfig).remove(instance)
     }
 
+    def findById(GridConfig gridConfig, String idString) {
+        if (gridConfig.findById) {
+            return gridConfig.findById(params.id)
+        }
+
+        def list = getList(gridConfig)
+        def id = idString.asType(gridConfig.idColType)
+
+        list.find { it[gridConfig.idColName] == id }
+    }
 
     def getList(gridConfig) {
         def ctx

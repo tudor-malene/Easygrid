@@ -39,8 +39,7 @@ class AutocompleteSpec extends Specification {
         }.autocompleteGridConfig
 
         def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
-        def easygridDispatchService = Mock(EasygridDispatchService)
-        service.easygridDispatchService = easygridDispatchService
+        service.easygridDispatchService = new Expando()
 
         expect:
         'testStringProperty' == autocompleteGridConfig.autocomplete.labelProp
@@ -49,12 +48,7 @@ class AutocompleteSpec extends Specification {
 
         when:
         params.id = TestDomain.findByTestIntProperty(10).id
-//        TestUtils.mockGridConfigMethods { property, methodName, id ->
-//            if (property == 'dataSourceService' && methodName == 'getById') {
-//                TestDomain.get(id)
-//            }
-//        }
-        easygridDispatchService.callDSGetById(_, _) >> TestDomain.get(params.id as long)
+        service.easygridDispatchService.callDSGetById = { grid, id -> TestDomain.get(id) }
         def label = service.label(autocompleteGridConfig)
 
         then:
@@ -63,14 +57,11 @@ class AutocompleteSpec extends Specification {
 
         when:
         params.term = term
-//        TestUtils.mockGridConfigMethods { property, methodName, listParams, filters ->
-//            if (property == 'dataSourceService' && methodName == 'list') {
-//                TestDomain.where { testStringProperty ==~ "%${term}%" }.list(max: listParams.maxRows)
-//            }
-//        }
-        easygridDispatchService.callDSList(_, _, _) >> TestDomain.where {
-            testStringProperty ==~ "%${term}%"
-        }.list(max: 10)
+        service.easygridDispatchService.callDSList = { grid, listParams, filters ->
+            TestDomain.where {
+                testStringProperty ==~ "%${term}%"
+            }.list(max: 10)
+        }
         def result = service.searchedElementsJSON(autocompleteGridConfig)
 
         then:
@@ -78,9 +69,9 @@ class AutocompleteSpec extends Specification {
         firstLabel == result.target[0].label
 
         where:
-        term | size | firstLabel
-        '1' | 10  | '1'
-        '100' | 1 | '100'
+        term  | size | firstLabel
+        '1'   | 10   | '1'
+        '100' | 1    | '100'
 
 
     }

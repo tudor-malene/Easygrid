@@ -1,6 +1,7 @@
 package org.grails.plugin.easygrid
 
 import grails.test.mixin.TestFor
+import grails.validation.Validateable
 import org.grails.plugin.easygrid.datasource.ListDatasourceService
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -216,4 +217,118 @@ class ListDatasourceServiceSpec extends Specification {
 
     }
 
+    def "test inline edit"() {
+        given:
+        def (params, request, response, session) = mockEasyGridContextHolder()
+        session.people = (1..100).collect { [id: it, name: "John ${it}", age: it] as Person }
+
+        and:
+        def grid = generateConfigForGrid(grailsApplication, service) {
+            'peopleGridConfig' {
+                dataSourceType 'list'
+                attributeName 'people'
+                listClass Person
+                columns {
+                    id
+                    name
+                    age
+                }
+            }
+        }.peopleGridConfig
+
+
+        when: "update an existing row with valid values"
+        params.name = "Paul"
+        params.id = '1'
+        params.oper = 'edit'
+        def resp = new InlineResponse()
+        service.updateRow(grid, resp)
+
+        then:
+        !resp.message
+        !resp.errors
+        'Paul' == service.findById(grid, params.id).name
+
+
+        when: "update an existing row with invalid values"
+        params.name = ""
+        params.id = '1'
+        params.oper = 'edit'
+        resp = new InlineResponse()
+        service.updateRow(grid, resp)
+
+        then:
+        !resp.message
+        resp.instance.errors.hasFieldErrors('name')
+
+        when: "update an inexisting row"
+        params.name = ""
+        params.id = '103'
+        params.oper = 'edit'
+        resp = new InlineResponse()
+        service.updateRow(grid, resp)
+
+        then:
+        resp.message.contains('not')
+
+
+        when: "add a new row"
+        params.name = "x"
+        params.age = "30"
+        params.id = '101'
+        params.oper = 'add'
+        resp = new InlineResponse()
+        service.saveRow(grid, resp)
+
+        then:
+        !resp.message
+        'x' == service.findById(grid, params.id).name
+
+
+        when: "add a new row with invalid values"
+        params.name = "y"
+        params.age = ""
+        params.id = '102'
+        params.oper = 'add'
+        resp = new InlineResponse()
+        service.saveRow(grid, resp)
+
+        then:
+        resp.instance.errors.hasFieldErrors('age')
+        !service.findById(grid, params.id)
+
+
+        when: "delete an existing row"
+        params.oper = 'del'
+        params.id = '101'
+        resp = new InlineResponse()
+        service.delRow(grid, resp)
+
+        then:
+        !resp.message
+        !service.findById(grid, params.id)
+
+
+        when: "delete a non existing row"
+        params.oper = 'del'
+        params.id = '101'
+        resp = new InlineResponse()
+        service.delRow(grid, resp)
+
+        then:
+        resp.message.contains('not')
+
+    }
+
+}
+
+@Validateable
+class Person {
+    long id
+    String name
+    int age
+
+    static constraints = {
+        name nullable: false, blank: false, unique: true
+    }
 }

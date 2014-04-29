@@ -83,13 +83,9 @@ class EasygridInitService {
         if (grailsApplication.config?.easygrid?.gridImplementations[gridConfig.gridImpl]?.inlineEdit) {
             closureMap.inlineEdit = {
                 easyGridLogger.debug("entering ${gridName}InlineEdit")
-                def result = easygridDispatchService.callGridImplInlineEdit(gridConfig)
-                def response = [status: HttpStatus.OK]
-                if (result) {
-                    response.status = HttpStatus.INTERNAL_SERVER_ERROR
-                    response.text = result
-                }
-                render response
+
+                def response = easygridService.inlineEdit(gridConfig)
+                render easygridDispatchService.callGridImplTransformInlineError(gridConfig, response)
             }
         }
 

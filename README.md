@@ -13,7 +13,7 @@ It also provides a powerful selection widget ( a direct replacement for drop-box
 Installation
 -----------------------------
 
-    compile ":easygrid:1.5.2"
+    compile ":easygrid:1.6.0"
 
     - For minimum functionality you need: jquery-ui and the export plugins.
     - For google visualization you also need: google-visualization
@@ -434,6 +434,13 @@ A: You can raise a github ticket , drop me an email to: tudor.malene at gmail.co
 Version History
 ------------------------
 
+### 1.6.0
+    Improvements:
+       - inline editing was improved, so that it is able to display messages on each invalid field
+
+    Bugs:
+       - various bugs related to inline editing & list datasource
+
 ### 1.5.2
     Bugs:
        - the sortClosure for the 'list' datasource will receive 3 arguments ( first one will be the sort order )
@@ -575,6 +582,12 @@ Version History
 Upgrade
 ------------------------
 
+#### Upgrading to 1.6.0
+ This version will break only custom inline edit closures.
+ To upgrade you need to add a second parameter to saveRowClosure, updateRowClosure or delRowClosure. This parameter will be of type InlineResponse. In order to send messages to the UI you will need to use this object instead of the return values.
+ Checkout the reference implementation: GormDatasourceService.updateRow
+
+
 #### Upgrading to 1.5.0
  This is a major update and it will break existing grids. Please let me know ASAP if you have problems upgrading
  First of all check the [petclinic example:](https://github.com/tudor-malene/grails-petclinic) and the [example](https://github.com/tudor-malene/Easygrid_example) repositories.
@@ -582,8 +595,6 @@ Upgrade
 - the renderers were rewritten . Any change should be ported to default properties.
 - there is no longer necessary to define filterClosures in most of the cases. Easygrid generates them for you. Check the petclinic example for some examples.
 - taglibs: there are nicer ways of customizing the view in 1.5.0 using grid:set - check the example
-
-
 
 
 #### Upgrading to 1.4.2

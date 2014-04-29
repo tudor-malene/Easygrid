@@ -187,7 +187,8 @@ class GormDatasourceServiceSpec extends IntegrationSpec {
 
         when: "delete"
         c.params.id = TestDomain.findByTestIntProperty(1).id
-        service.delRow(domainGridConfig)
+        def resp = new InlineResponse()
+        service.delRow(domainGridConfig, resp)
         then:
         N - 1 == service.countRows(domainGridConfig)
 
@@ -201,10 +202,13 @@ class GormDatasourceServiceSpec extends IntegrationSpec {
         c.params.id = TestDomain.findByTestIntProperty(2).id
         c.params.testIntProperty = -2
         c.params.testStringProperty = 'two'
-        service.updateRow(domainGridConfig)
+        resp = new InlineResponse()
+        service.updateRow(domainGridConfig, resp)
         def instance = TestDomain.get(c.params.id)
 
         then:
+        !resp.message
+        !resp.instance.errors.hasErrors()
         -2 == instance.testIntProperty
         'two' == instance.testStringProperty
 
@@ -214,7 +218,8 @@ class GormDatasourceServiceSpec extends IntegrationSpec {
         when: "add"
         c.params.testIntProperty = 101
         c.params.testStringProperty = '101'
-        def errors = service.saveRow(domainGridConfig)
+        resp = new InlineResponse()
+        service.saveRow(domainGridConfig, resp)
         instance = TestDomain.findByTestIntProperty(101)
 
         then:
@@ -239,7 +244,8 @@ class GormDatasourceServiceSpec extends IntegrationSpec {
         when: "update"
         c.params.id = "${PetTest.findByName('Bonkers').id}"
         c.params.name = "Bonkers the Great"
-        service.updateRow(petsConfig)
+        def resp = new InlineResponse()
+        service.updateRow(petsConfig, resp)
         def instance = PetTest.get(c.params.id)
 
         then:

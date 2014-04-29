@@ -5,11 +5,13 @@ import groovy.util.logging.Slf4j
 import org.grails.plugin.easygrid.ColumnConfig
 import org.grails.plugin.easygrid.GridConfig
 import org.grails.plugin.easygrid.GridUtils
+import org.grails.plugin.easygrid.InlineResponse
 import org.grails.plugin.easygrid.JsUtils
-import org.springframework.validation.Errors
+import org.springframework.http.HttpStatus
 
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
 import static org.grails.plugin.easygrid.EasygridContextHolder.messageLabel
+import static org.grails.plugin.easygrid.EasygridContextHolder.errorLabel
 
 @Slf4j
 class JqueryGridService {
@@ -24,7 +26,7 @@ class JqueryGridService {
 
 
     def addDefaultValues(GridConfig gridConfig, defaultValues) {
-        if(gridConfig.enableFilter) {
+        if (gridConfig.enableFilter) {
             gridConfig.columns.each { ColumnConfig columnConfig ->
                 if (columnConfig.enableFilter && columnConfig?.filterType) {
                     List operators = grailsApplication.config.easygrid.columns.defaults.filterOperators[columnConfig.filterType]
@@ -110,43 +112,38 @@ class JqueryGridService {
         [rows: results, page: 1 + (listParams.rowOffset / listParams.maxRows as int), records: nrRecords, total: Math.ceil(nrRecords / listParams.maxRows) as int] as JSON
     }
 
-    ///////////////////////////// INLINE EDIT /////////////////
 
-    /**
-     * dispatches the Edit operation
-     * @param gridConfig
-     */
-    def inlineEdit(GridConfig gridConfig) {
+    def transformInlineError(GridConfig gridConfig, InlineResponse response) {
+        def httpResponse = [status: HttpStatus.OK]
+//        response.message - a global error message
+//        response.instance - the object instance  ( the instance.errors object will be used to render the errors)
+//        response.errors - send the errors directly
 
-        def result
-
-        // the closure returns null if success and an error message or an instance of errors in case of failure
-        switch (params.oper) {
-            case 'add':
-                result = gridConfig.saveRowClosure ? gridConfig.saveRowClosure(gridConfig) : easygridDispatchService.callDSSaveRow(gridConfig)
-                break
-            case 'edit':
-                result = gridConfig.updateRowClosure ? gridConfig.updateRowClosure(gridConfig) : easygridDispatchService.callDSUpdateRow(gridConfig)
-                break
-            case 'del':
-                result = gridConfig.delRowClosure ? gridConfig.delRowClosure(gridConfig) : easygridDispatchService.callDSDelRow(gridConfig)
-                break
-            default:
-                throw new RuntimeException("unknown oper: ${params.oper}")
+        def errorStruct = [:]
+        if (response.message) {
+            errorStruct.message = messageLabel(response.message)
         }
-
-        //should return an instance of Errors
-
-        if (result) {
-            if (Errors.isAssignableFrom(result.getClass())) {
-                //return only the first error
-                return messageLabel(error: result.allErrors.first())
-            } else {
-                return messageLabel(result)
+        def errors = response.errors ?: response.instance?.errors
+        if (errors && errors.hasErrors()) {
+            errorStruct.fields = [:]
+            errors.fieldErrors.each { err ->
+                //determine the column based on the field
+                ColumnConfig col = gridConfig.columns.find { it.property == err.field }
+                errorStruct.fields[col.name] = errorLabel(err)
             }
         }
 
-        null
+        if (errorStruct) {
+            httpResponse.status = HttpStatus.BAD_REQUEST
+            httpResponse.text = errorStruct as JSON
+        } else {
+            if (response.instance?.version != null) {
+                //send the version
+                httpResponse.text = [version: response.instance?.version] as JSON
+            }
+        }
+
+        httpResponse
     }
 
 }

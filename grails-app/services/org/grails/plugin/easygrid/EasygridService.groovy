@@ -119,6 +119,34 @@ class EasygridService {
         easygridDispatchService.callExport(gridConfig, easygridDispatchService.callDSList(gridConfig, [:], filters(gridConfig)), format, extension)
     }
 
+    ///////////////////////////// INLINE EDIT /////////////////
+
+    /**
+     * dispatches the Edit operation
+     * @param gridConfig
+     */
+    def inlineEdit(GridConfig gridConfig) {
+
+        def oper = params.oper
+
+        def response = new InlineResponse()
+
+        switch (oper) {
+            case 'add':
+                gridConfig.saveRowClosure ? gridConfig.saveRowClosure(gridConfig, response) : easygridDispatchService.callDSSaveRow(gridConfig, response)
+                break
+            case 'edit':
+                gridConfig.updateRowClosure ? gridConfig.updateRowClosure(gridConfig, response) : easygridDispatchService.callDSUpdateRow(gridConfig, response)
+                break
+            case 'del':
+                gridConfig.delRowClosure ? gridConfig.delRowClosure(gridConfig, response) : easygridDispatchService.callDSDelRow(gridConfig, response)
+                break
+            default:
+                throw new RuntimeException("unknown oper: ${oper}")
+        }
+        response
+    }
+
     /**
      * returns the grid from the specified controller  ( by default the current )
      * @param attrs

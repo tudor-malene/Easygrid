@@ -28,7 +28,10 @@ easygrid {
         labelFormat = '#{labelPrefix}.#{column.name}.label'
 
         //called before inline editing : transforms the parameters into the actual object to be stored
-        beforeSave = { params -> params }
+        beforeSave = { params ->
+            params.remove('oper')
+            params
+        }
 
         gridImpl = 'jqgrid' // the default grid implementation
 
@@ -38,6 +41,7 @@ easygrid {
 
         //the id column
         idColName = 'id'
+        idColType = Long
 
         //default export settings for various formats
         export {

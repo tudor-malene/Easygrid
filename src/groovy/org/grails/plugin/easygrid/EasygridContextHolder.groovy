@@ -61,8 +61,8 @@ class EasygridContextHolder {
         new ValidationTagLib().message(code: code, default: code)
     }
 
-    static messageLabel(Map args) {
-        new ValidationTagLib().message args
+    static errorLabel(error) {
+        new ValidationTagLib().message([error: error])
     }
 
 

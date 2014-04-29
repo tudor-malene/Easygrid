@@ -1,3 +1,5 @@
+$.extend($.jgrid.inlineEdit, { restoreAfterError: false });
+
 var easygrid = {
 
     /**
@@ -30,10 +32,12 @@ var easygrid = {
 
     subGridRowExpanded: function (baseUrl) {
         return function (subgrid_id, row_id) {
-            var url = baseUrl + "?id=" + row_id + "&gridId=row" + row_id;
-            console.log(url);
             $.ajax({
-                url: url,
+                url: baseUrl,
+                data: {
+                    id: row_id,
+                    gridId: subgrid_id + "_row" + row_id
+                },
                 dataType: "html",
                 success: function (data) {
                     jQuery("#" + subgrid_id).html(data);
@@ -44,14 +48,30 @@ var easygrid = {
 
     onSelectRowInlineEdit: function (gridName) {
         return function (id) {
-            jQuery("#" + gridName).jqGrid('editRow', id //, true
+            var myGrid = jQuery("#" + gridName);
+            myGrid.jqGrid('editRow', id //, true
                 , {
                     keys: true,
+                    aftersavefunc: function (id, xhr) {
+                        var response = jQuery.parseJSON(xhr.responseText);
+                        if (response.hasOwnProperty('version')) {
+                            var rowData = myGrid.jqGrid('getRowData', id);
+                            rowData.version = response.version;
+                            myGrid.jqGrid('setRowData', id, rowData);
+                        }
+                        return true;
+                    },
                     errorfunc: function (rowid, xhr) {
-                        try {
-                            jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div class="ui-state-error">' + xhr.responseText + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
-                        } catch (e) {
-                            alert(xhr.responseText);
+                        var response = jQuery.parseJSON(xhr.responseText);
+                        if (response.message != undefined) {
+                            jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div class="ui-state-error">' + response.message + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
+                        }
+                        var row = $(myGrid.jqGrid('getRowData', id));
+                        console.log(row);
+                        for (var key in response.fields) {
+                            var element = $('#' + id + '_' + key);
+                            element.parent().attr("title", response.fields[key]);
+                            element.addClass("ui-state-error");
                         }
                     }
                 }

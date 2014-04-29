@@ -4,6 +4,9 @@ import grails.util.Environment
 import org.codehaus.groovy.grails.plugins.testing.GrailsMockHttpServletRequest
 import org.codehaus.groovy.grails.plugins.testing.GrailsMockHttpServletResponse
 import org.codehaus.groovy.grails.plugins.testing.GrailsMockHttpSession
+import org.springframework.validation.ObjectError
+
+import java.beans.Introspector
 
 /**
  * utility methods used in unit tests
@@ -18,19 +21,9 @@ class TestUtils {
      * @return
      */
     static generateConfigForGrid(grailsApplication, dataSourceService = null, Closure gridConfigClosure) {
-//        mockGridConfigMethods(action)
         grailsApplication.config.merge(new ConfigSlurper(Environment.current.name).parse(this.classLoader.loadClass('DefaultEasygridConfig')))
         def service = new EasygridInitService()
-        service.easygridDispatchService = [
-                invokeMethod: { String name, Object args ->
-                    //if a datasource provided - dispatch correctly
-                    if (dataSourceService && name.startsWith('callDS')) {
-                        def disp = new EasygridDispatchService()
-                        disp.metaClass.getDSService = { gridConfig -> dataSourceService }
-                        disp."${name}"(* args)
-                    }
-                }
-        ] as GroovyInterceptable
+        service.easygridDispatchService = new MockEasygridDispatchService(dataSourceService)
         service.grailsApplication = grailsApplication
         service.initializeFromClosure gridConfigClosure
     }
@@ -44,20 +37,53 @@ class TestUtils {
     }
 
 
-
-
     static List mockEasyGridContextHolder() {
         def response = new GrailsMockHttpServletResponse()
         def request = new GrailsMockHttpServletRequest()
         def session = new GrailsMockHttpSession()
         def params = [:]
-        EasygridContextHolder.metaClass.static.getResponse = {-> response }
-        EasygridContextHolder.metaClass.static.getRequest = {-> request }
-        EasygridContextHolder.metaClass.static.getSession = {-> session }
-        EasygridContextHolder.metaClass.static.getParams = {-> params }
+        EasygridContextHolder.metaClass.static.getResponse = { -> response }
+        EasygridContextHolder.metaClass.static.getRequest = { -> request }
+        EasygridContextHolder.metaClass.static.getSession = { -> session }
+        EasygridContextHolder.metaClass.static.getParams = { -> params }
         EasygridContextHolder.metaClass.static.messageLabel = { String code -> code }
-        EasygridContextHolder.metaClass.static.messageLabel = { Map map -> map.error }
+        EasygridContextHolder.metaClass.static.errorLabel = { ObjectError err -> err.defaultMessage }
         [params, request, response, session]
     }
 
+}
+
+//calls only the datasource
+class MockEasygridDispatchService {
+
+    def dataSourceService
+
+    MockEasygridDispatchService(dataSourceService) {
+        this.dataSourceService = dataSourceService
+    }
+    MockEasygridDispatchService() {
+    }
+
+    /**
+     * calls methods of the form: call{GridService}{capitalizedMethod}(arguments)
+     * @param name
+     * @param args
+     * @return
+     */
+    def methodMissing(String name, args) {
+        if (!dataSourceService) {
+            return
+        }
+        assert name.startsWith('call')
+        assert args //at least 1 argument
+
+        def root = name[4..-1]
+        if (root.startsWith('DS')) {
+            def methodName = Introspector.decapitalize(root[2..-1])
+            if (dataSourceService.respondsTo(methodName)) {
+                dataSourceService."${methodName}"(*args)
+            }
+
+        }
+    }
 }

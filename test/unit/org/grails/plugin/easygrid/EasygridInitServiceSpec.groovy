@@ -238,12 +238,14 @@ class EasygridInitServiceSpec extends Specification {
     def "Controller grid initialized properly"() {
 
         given: "mock the dispatch service"
-        service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
+        service.easygridDispatchService = Mock(EasygridDispatchService)
 
         when:
         def grids = service.initControllerGrids(new DefaultGrailsControllerClass(TestDomainController), new TestDomainController())
 
         then:
+        4 * service.easygridDispatchService.methodMissing('callDSGenerateDynamicColumns', _)
+        4 * service.easygridDispatchService.methodMissing('callDSVerifyGridConstraints', _)
         4 == grids.size()
 
     }
@@ -251,12 +253,14 @@ class EasygridInitServiceSpec extends Specification {
     def "External grid initialized properly"() {
 
         given: "mock the dispatch service"
-        service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
+        service.easygridDispatchService = Mock(EasygridDispatchService)
 
         when:
         def grids = service.initControllerGrids(new DefaultGrailsControllerClass(TestController), new TestController())
 
         then:
+        1 * service.easygridDispatchService.methodMissing('callDSGenerateDynamicColumns', _)
+        1 * service.easygridDispatchService.methodMissing('callDSVerifyGridConstraints', _)
         1 == grids.size()
         'testDomainGrid' == grids.testDomainGrid.id
 
@@ -265,12 +269,14 @@ class EasygridInitServiceSpec extends Specification {
     def "Closure grids initialized properly"() {
 
         given: "mock the dispatch service"
-        service.easygridDispatchService = [invokeMethod: { String name, Object args -> }] as GroovyInterceptable
+        service.easygridDispatchService = Mock(EasygridDispatchService)
 
         when:
         def grids = service.initControllerGrids(new DefaultGrailsControllerClass(Test1Controller), new Test1Controller())
 
         then:
+        1 * service.easygridDispatchService.methodMissing('callDSGenerateDynamicColumns', _)
+        1 * service.easygridDispatchService.methodMissing('callDSVerifyGridConstraints', _)
         1 == grids.size()
         'test1Domain' == grids.test1Domain.id
 
