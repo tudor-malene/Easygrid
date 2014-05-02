@@ -112,8 +112,7 @@ class JqueryGridService {
         [rows: results, page: 1 + (listParams.rowOffset / listParams.maxRows as int), records: nrRecords, total: Math.ceil(nrRecords / listParams.maxRows) as int] as JSON
     }
 
-
-    def transformInlineError(GridConfig gridConfig, InlineResponse response) {
+    def transformInlineResponse(GridConfig gridConfig, InlineResponse response) {
         def httpResponse = [status: HttpStatus.OK]
 //        response.message - a global error message
 //        response.instance - the object instance  ( the instance.errors object will be used to render the errors)
@@ -137,10 +136,16 @@ class JqueryGridService {
             httpResponse.status = HttpStatus.BAD_REQUEST
             httpResponse.text = errorStruct as JSON
         } else {
+            def success = [:]
+            //todo - send the id
             if (response.instance?.version != null) {
                 //send the version
-                httpResponse.text = [version: response.instance?.version] as JSON
+                success.version = response.instance?.version
             }
+            if (response.instance[gridConfig.idColName] != null) {
+                success.id = response.instance[gridConfig.idColName]
+            }
+            httpResponse.text = success as JSON
         }
 
         httpResponse

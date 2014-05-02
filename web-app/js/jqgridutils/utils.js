@@ -52,28 +52,8 @@ var easygrid = {
             myGrid.jqGrid('editRow', id //, true
                 , {
                     keys: true,
-                    aftersavefunc: function (id, xhr) {
-                        var response = jQuery.parseJSON(xhr.responseText);
-                        if (response.hasOwnProperty('version')) {
-                            var rowData = myGrid.jqGrid('getRowData', id);
-                            rowData.version = response.version;
-                            myGrid.jqGrid('setRowData', id, rowData);
-                        }
-                        return true;
-                    },
-                    errorfunc: function (rowid, xhr) {
-                        var response = jQuery.parseJSON(xhr.responseText);
-                        if (response.message != undefined) {
-                            jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div class="ui-state-error">' + response.message + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
-                        }
-                        var row = $(myGrid.jqGrid('getRowData', id));
-                        console.log(row);
-                        for (var key in response.fields) {
-                            var element = $('#' + id + '_' + key);
-                            element.parent().attr("title", response.fields[key]);
-                            element.addClass("ui-state-error");
-                        }
-                    }
+                    aftersavefunc: easygrid.afterSave(gridName),
+                    errorfunc: easygrid.onError(gridName)
                 }
             );
         }
@@ -85,6 +65,83 @@ var easygrid = {
         } catch (e) {
             alert(xhr.responseText);
         }
+    },
+
+    afterSave: function (gridName) {
+        var myGrid = jQuery("#" + gridName);
+        return function (id, xhr) {
+            var response = jQuery.parseJSON(xhr.responseText);
+            if (response.hasOwnProperty('version')) {
+                var rowData = myGrid.jqGrid('getRowData', id);
+                rowData.version = response.version;
+                myGrid.jqGrid('setRowData', id, rowData);
+            }
+            return true;
+        }
+    },
+
+    onError: function (gridName) {
+        var myGrid = jQuery("#" + gridName);
+        return function (rowid, xhr) {
+            var response = jQuery.parseJSON(xhr.responseText);
+            if (response.message != undefined) {
+                jQuery.jgrid.info_dialog(jQuery.jgrid.errors.errcap, '<div class="ui-state-error">' + response.message + '</div>', jQuery.jgrid.edit.bClose, {buttonalign: 'right'});
+            }
+            var row = $(myGrid.jqGrid('getRowData', rowid));
+            var columns = myGrid.jqGrid('getGridParam', 'colModel');
+            for (var i = 0; i < columns.length; i++) {
+                var col = columns[i];
+                var element = $('#' + rowid + '_' + col.name);
+                element.removeClass("ui-state-error");
+            }
+
+            for (var key in response.fields) {
+                var element = $('#' + rowid + '_' + key);
+                element.parent().attr("title", response.fields[key]);
+                element.addClass("ui-state-error");
+            }
+        }
+    },
+    /*
+     onEdit: function (gridName) {
+     },
+     onSuccess: function (gridName) {
+     },
+     */
+
+    afterSubmit: function (gridName) {
+        var myGrid = jQuery("#" + gridName);
+        return function (xhr, postdata) {
+            var id = null;
+            var response = jQuery.parseJSON(xhr.responseText);
+            if (response.hasOwnProperty('id')) {
+                id = response.id;
+            }
+
+            return [true, '', id ];
+        }
+    },
+    errorTextFormat: function (gridName) {
+        var myGrid = jQuery("#" + gridName);
+        return function (xhr) {
+            var response = jQuery.parseJSON(xhr.responseText);
+            console.log(response);
+            var columns = myGrid.jqGrid('getGridParam', 'colModel');
+            for (var i = 0; i < columns.length; i++) {
+                var col = columns[i];
+                var element = $('#' + col.name);
+                element.removeClass("ui-state-error");
+            }
+            for (var key in response.fields) {
+                var element = $('#' + key);
+                element.parent().attr("title", response.fields[key]);
+                element.addClass("ui-state-error");
+            }
+            if (response.message == undefined) {
+                return 'Invalid values';
+            }
+            return response.message;
+        }
     }
 
-}
+};

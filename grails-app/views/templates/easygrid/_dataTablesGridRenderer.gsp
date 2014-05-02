@@ -1,16 +1,16 @@
 <%@ page import="org.grails.plugin.easygrid.JsUtils" defaultCodec="none" %>
-
+<g:set var="gridId" value="${attrs.id}_datatable"/>
 <jq:jquery>
-    var oTable = $('#${attrs.id}_datatable').dataTable({
-    ${JsUtils.convertToJs(gridConfig.dataTables, true)},
+    var oTable = $('#${gridId}').dataTable({
+    ${JsUtils.convertToJs(gridConfig.dataTables, gridId, true)},
     "sAjaxSource": '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}Rows", params: params)}',
-        "fnInitComplete":easygrid.initComplete('${attrs.id}',${gridConfig.fixedColumns == true}, ${gridConfig.noFixedColumns?:-1}),
+        "fnInitComplete":easygrid.initComplete('${attrs.id}',${gridConfig.fixedColumns == true}, ${gridConfig.noFixedColumns ?: -1}),
         "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) { },
         "fnServerParams": easygrid.serverParams('${attrs.id}'),
         "aoColumns": [
     <grid:eachColumn gridConfig="${gridConfig}">
         <g:if test="${col.render}">
-            {${JsUtils.convertToJs(col.dataTables + [sName: col.name, bSearchable: col.enableFilter, bSortable: col.sortable], true)}
+            {${JsUtils.convertToJs(col.dataTables + [sName: col.name, bSearchable: col.enableFilter, bSortable: col.sortable], gridId, true)}
             <g:if test="${col.otherProperties}">
                 ,${col.otherProperties}
             </g:if>
@@ -50,7 +50,7 @@ $("tfoot input").blur(function (i) {
 </jq:jquery>
 
 
-<table id="${attrs.id}_datatable" cellpadding="0" cellspacing="0" border="0"
+<table id="${gridId}" cellpadding="0" cellspacing="0" border="0"
        class="display">%{--width="${gridConfig.datatable.width}">--}%
     <thead>
     <tr>

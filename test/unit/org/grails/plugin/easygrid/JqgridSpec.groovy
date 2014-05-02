@@ -240,7 +240,7 @@ class JqgridSpec extends Specification {
         }).testDomainGrid
         def instance = new TestDomain(testIntProperty: 'blabla')
         instance.save(true)
-        def response = service.transformInlineError(domainGridConfig, [message: 'invalid', instance: instance] as InlineResponse)
+        def response = service.transformInlineResponse(domainGridConfig, [message: 'invalid', instance: instance] as InlineResponse)
 
         then:
         HttpStatus.BAD_REQUEST == response.status

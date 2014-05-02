@@ -85,7 +85,7 @@ class EasygridInitService {
                 easyGridLogger.debug("entering ${gridName}InlineEdit")
 
                 def response = easygridService.inlineEdit(gridConfig)
-                render easygridDispatchService.callGridImplTransformInlineError(gridConfig, response)
+                render easygridDispatchService.callGridImplTransformInlineResponse(gridConfig, response)
             }
         }
 

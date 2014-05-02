@@ -434,6 +434,10 @@ A: You can raise a github ticket , drop me an email to: tudor.malene at gmail.co
 Version History
 ------------------------
 
+### 1.6.1
+    Improvements:
+       - small improvements on inline editing.
+
 ### 1.6.0
     Improvements:
        - inline editing was improved, so that it is able to display messages on each invalid field

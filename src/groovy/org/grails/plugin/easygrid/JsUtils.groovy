@@ -33,7 +33,11 @@ class JsUtils {
                 try {
                     converter.getWriter().value(new JSONElement() {
                         Writer writeTo(Writer out) throws IOException {
-                            out.write(object.functionName)
+                            if (object.addGridName) {
+                                out.write("${object.functionName}('${object.gridId}')")
+                            } else {
+                                out.write(object.functionName)
+                            }
                         }
                     }
                     )
@@ -53,9 +57,17 @@ class JsUtils {
 
     static class JSFunction {
         String functionName
+        String gridId
+        boolean addGridName = false
 
         JSFunction(String functionName) {
             this.functionName = functionName[2..-1]
+        }
+
+        JSFunction(String functionName, gridId) {
+            this.functionName = functionName[2..-1]
+            this.addGridName = true
+            this.gridId = gridId
         }
     }
 
@@ -73,9 +85,10 @@ class JsUtils {
         }
     }
 
-    static String convertToJs(Map values, boolean include = false) {
+    static String convertToJs(Map values, String gridId, boolean include = false) {
         def newValues = traverseValues(values) { k, v -> v instanceof CharSequence && v.startsWith('f:') } { k, v -> [(k): new JSFunction(v)] }
-        newValues = traverseValues(newValues) { k, v -> v instanceof CharSequence && (v == 'true' || v == 'false') } { k, v -> [(k): v as boolean] }
+        newValues = traverseValues(newValues) { k, v -> v instanceof CharSequence && v.startsWith('g:') } { k, v -> [(k): new JSFunction(v, gridId)] }
+        newValues = traverseValues(newValues) { k, v -> v instanceof CharSequence && (v == 'true' || v == 'false') } { k, v -> [(k): Boolean.valueOf(v)] }
 
         JSON json = newValues as JSON
 

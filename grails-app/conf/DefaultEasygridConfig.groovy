@@ -125,7 +125,10 @@ easygrid {
 
                 }
                 addOpts {
-
+                    afterSubmit = "g:easygrid.afterSubmit"
+                    errorTextFormat = "g:easygrid.errorTextFormat"
+                    reloadAfterSubmit = false
+                    closeAfterAdd = true
                 }
                 delOpts {
 
@@ -347,6 +350,10 @@ easygrid {
                     search = false
                     formatoptions {
                         keys = true
+//                        onEdit = 'g:easygrid.onEdit'
+//                        onSuccess = 'g:easygrid.onSuccess'
+                        afterSave = 'g:easygrid.afterSave'
+                        onError = 'g:easygrid.onError'
                     }
                 }
                 export {

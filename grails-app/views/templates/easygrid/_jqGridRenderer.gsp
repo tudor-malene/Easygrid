@@ -13,7 +13,7 @@
     url: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}Rows", params: params)}',
     loadError: easygrid.loadError,
     pager: '#${pagerId}',
-    ${JsUtils.convertToJs(conf - [navGrid: conf.navGrid] - [filterToolbar: conf.filterToolbar], true)},
+    ${JsUtils.convertToJs(conf - [navGrid: conf.navGrid] - [filterToolbar: conf.filterToolbar], gridId, true)},
     <g:if test="${gridConfig.subGrid}">
         subGrid: true,
         subGridRowExpanded: easygrid.subGridRowExpanded('${g.createLink(controller: attrs.controller, action: "${gridConfig.subGrid}Html")}'),
@@ -29,7 +29,7 @@
     colModel: [
     <grid:eachColumn gridConfig="${gridConfig}">
         <g:if test="${col.render}">
-            {${JsUtils.convertToJs(col.jqgrid + [name: col.name, search: col.enableFilter, sortable:col.sortable , label: g.message(code: col.label, default: col.label)], true)}
+            {${JsUtils.convertToJs(col.jqgrid + [name: col.name, search: col.enableFilter, sortable: col.sortable, label: g.message(code: col.label, default: col.label)], gridId, true)}
             <g:if test="${col.otherProperties}">
                 ,${col.otherProperties}
             </g:if>
@@ -45,17 +45,17 @@
         jQuery('#${gridConfig.masterGrid}_table').jqGrid('setGridParam',{ "onSelectRow" : easygrid.onSelectGridRowReloadGrid('${attrs.id}_table','${gridConfig.childParamName}')});
     </g:if>
     <g:if test="${gridConfig.enableFilter}">
-        jQuery('#${gridId}').jqGrid('filterToolbar', ${JsUtils.convertToJs(conf.filterToolbar)});
+        jQuery('#${gridId}').jqGrid('filterToolbar', ${JsUtils.convertToJs(conf.filterToolbar, gridId)});
     </g:if>
 
     <g:if test="${gridConfig.addNavGrid}">
         jQuery('#${gridId}').jqGrid('navGrid','#${pagerId}',
-        ${JsUtils.convertToJs(conf.navGrid.generalOpts)},
-        ${JsUtils.convertToJs(conf.navGrid.editOpts)},     //edit
-        ${JsUtils.convertToJs(conf.navGrid.addOpts)},     //add
-        ${JsUtils.convertToJs(conf.navGrid.delOpts)},     //delete
-        ${JsUtils.convertToJs(conf.navGrid.searchOpts)},     //search
-        ${JsUtils.convertToJs(conf.navGrid.viewOpts)}     //view
+        ${JsUtils.convertToJs(conf.navGrid.generalOpts, gridId)},
+        ${JsUtils.convertToJs(conf.navGrid.editOpts, gridId)},     //edit
+        ${JsUtils.convertToJs(conf.navGrid.addOpts, gridId)},     //add
+        ${JsUtils.convertToJs(conf.navGrid.delOpts, gridId)},     //delete
+        ${JsUtils.convertToJs(conf.navGrid.searchOpts, gridId)},     //search
+        ${JsUtils.convertToJs(conf.navGrid.viewOpts, gridId)}     //view
         )
         <g:if test="${gridConfig.addUrl}">
             .jqGrid('navButtonAdd','#${pagerId}',{caption:"", buttonicon:"ui-icon-plus", onClickButton:function(){
