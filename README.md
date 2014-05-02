@@ -587,6 +587,9 @@ Version History
 Upgrade
 ------------------------
 
+#### Upgrading to 1.6.1
+ Merge _jqGridRenderer.gsp and/or _dataTablesGridRenderer.gsp
+
 #### Upgrading to 1.6.0
  This version will break only custom inline edit closures.
  To upgrade you need to add a second parameter to saveRowClosure, updateRowClosure or delRowClosure. This parameter will be of type InlineResponse. In order to send messages to the UI you will need to use this object instead of the return values.
