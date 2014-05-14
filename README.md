@@ -321,13 +321,12 @@ Easygrid provies the following tags:
 
 ### Testing:
 In each annotated controller, for each grid defined in "grids" , the plugin injects multiple methods:
-       * `def ${gridName}Html()`
-       * `def ${gridName}Rows()`
-       * `def ${gridName}Export()`
-       * `def ${gridName}InlineEdit()`
-       * `def ${gridName}AutocompleteResult()`
-       * `def ${gridName}SelectionLabel()`
-
+* `def ${gridName}Html()`
+* `def ${gridName}Rows()`
+* `def ${gridName}Export()`
+* `def ${gridName}InlineEdit()`
+* `def ${gridName}AutocompleteResult()`
+* `def ${gridName}SelectionLabel()`
 
 
 ### Guide on extending the default functionality:
