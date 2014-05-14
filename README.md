@@ -1,5 +1,4 @@
-# Easygrid
-
+# EasyGrid
 Provides a declarative way of defining Data Grids.
 
 It works currently with jqGrid, google visualization and jQuery dataTables.
@@ -36,9 +35,7 @@ After installation you need to run `grails easygrid-setup` command
 
 
 ## Overview
-
 The issues that Easygrid tackles are:
-
 * steep learning curve for most ajax Grid framework
 * once integrated into a grails project the business logic for each ajax Grid resides in multiple places (Controller, gsp). Usually, in the controller, there's a different method for each aspect ( search, export, security, etc)
 * a lot of concerns are addressed programmatically, instead of declaratively (like search, formats)
@@ -54,7 +51,6 @@ Easygrid solves these problems by proposing a solution based on declarations & c
 
 
 ### Features:
-
 - custom builder - for defining the grid
 - very easy to setup:  able to generate a Grid from a domain class without any custom configuration
 - reloads the grid(s) when the source code is changed
@@ -67,13 +63,10 @@ Easygrid solves these problems by proposing a solution based on declarations & c
 - configurable dynamic filtering form -
 - possibility to define master-slave grids or subgrids ( see the petclinic example )
 - easy to mock and test
-
 - Jquery-ui widget and custom tag for a powerful selection widget featuring a jquery autocomplete textbox and a selection dialog built with Easygrid ( with filtering, sorting,etc)
 
 
-Concepts
---------------------
-
+## Concepts
 The entire grid logic is defined in the Controller (or in an outside file) using the provided custom builder. ( some particular view aspects can be defined in the gsp , using the provided taglibs)
 
 For each grid you can configure the following aspects:
