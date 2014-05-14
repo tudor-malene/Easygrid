@@ -46,7 +46,7 @@ Easygrid solves these problems by proposing a solution based on declarations & c
 
 ### Demo
 - [Easygrid example project](https://github.com/tudor-malene/Easygrid_example)
-- [Pet Clinic - Easygrid style](http://199.231.186.169:8080/petclinic/)
+- [Pet Clinic - Easygrid style](http://199.231.186.169:8080/petclinic/) sourece code [grails-petclinic](https://github.com/tudor-malene/grails-petclinic)
 - [Basic demo ](http://199.231.186.169:8080/easygrid)
 
 
@@ -208,7 +208,7 @@ If you want to create your own datasource (skip this as a beginner):
 
 
 
-#### Columns section [see] (https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/ColumnConfig.groovy)
+#### Columns section [see](/src/groovy/org/grails/plugin/easygrid/ColumnConfig.groovy)
 
 The _name_ of each column will be the actual name of the closure. Beside the actual column name, from the _name_ property other properties can be inferred, like:
     * the label ( the column header ) can be automatically generated ( see below)
@@ -346,10 +346,10 @@ In the gsp (if it belongs to that controller), all you have to do is:
   2) <grid:grid name="gridName"/>
 
 ### I need to customize the grid template. What are the properties of the gridConfig variable from the various templates?
-A: Check out [GridConfig](https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/GridConfig.groovy)
+A: Check out [GridConfig.groovy](/src/groovy/org/grails/plugin/easygrid/GridConfig.groovy)
 
 ### What is the role of the Filter parameter passed to  the filterClosures?
-A: Check out [Filter](https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/Filter.groovy) . 
+A: Check out [Filter.groovy](/src/groovy/org/grails/plugin/easygrid/Filter.groovy).
 
 ### Why does the filterClosure of the _list_ implementation have 2 parameters?
 A: Because on this implementation you also get the current row so that you can apply the filter on it, as opposed to the _gorm_ implementation where the filter closure is a gorm criteria.
@@ -500,7 +500,7 @@ Bugs:
 - the gorm datasource also works with non Long ids
 
 ### 1.4.1
-- added possibility to declare grids in normal Controller closures - ending with "Grid". - see (https://github.com/tudor-malene/Easygrid_example/blob/master/grails-app/controllers/example/AuthorController.groovy)
+- added possibility to declare grids in normal Controller closures - ending with "Grid". See [AuthorController.groovy](/grails-app/controllers/example/AuthorController.groovy)
 - removed the dynamic-controller dependency  ( to fix a couple of bugs )
 - removed mvel dependency
 
@@ -595,7 +595,7 @@ First of all check the [petclinic example:](https://github.com/tudor-malene/grai
 
 #### Upgrading to 1.3.0
  - merge the rendering templates to benefit from the latest features
- - some new default configs in [Config.groovy](https://github.com/tudor-malene/Easygrid/blob/master/grails-app/conf/Config.groovy)
+ - some new default configs in [Config.groovy](/grails-app/conf/Config.groovy)
  - the autocomplete 'constraintsFilterClosure' has only the 'params' parameter instead of filter
 
 
@@ -605,7 +605,7 @@ First of all check the [petclinic example:](https://github.com/tudor-malene/grai
 
 #### Upgrading to 1.1.0
  - on install, templates are copied to the /templates/easygrid folder ( & the default configuration was updated too )
- - filter closures now have 1 parameter which is a [Filter class](https://github.com/tudor-malene/Easygrid/blob/master/src/groovy/org/grails/plugin/easygrid/Filter.groovy)
+ - filter closures now have 1 parameter which is a [Filter class](/src/groovy/org/grails/plugin/easygrid/Filter.groovy)
  - the labelFormat has a slightly different format (for compatibility reasons with groovy 2.0 - see the comments )
  - 'domain' datasource has been replaced with 'gorm' - for consistency
  - _maxRows_ - has been added to the autocomplete settings
@@ -621,7 +621,6 @@ First of all check the [petclinic example:](https://github.com/tudor-malene/grai
     - the labelFormat is now a plain string:  labelFormat = '${labelPrefix}.${column.name}.label'
     - replace EasyGridExportService with EasygridExportService
     - replace DatatableGridService with DataTablesGridService and datatableGridRenderer with dataTablesGridRenderer
-
 - configure the label format for grids
 - in the taglib - replace id with name
 
