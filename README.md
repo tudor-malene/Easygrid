@@ -410,169 +410,163 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 ## Version History
 
 ### 1.6.1
-    Improvements:
-       - small improvements on inline editing.
+Improvements:
+- small improvements on inline editing.
 
 ### 1.6.0
-    Improvements:
-       - inline editing was improved, so that it is able to display messages on each invalid field
-       - added a new property: _listClass_ , used for the 'list' datasource
+Improvements:
+- inline editing was improved, so that it is able to display messages on each invalid field
+- added a new property: _listClass_ , used for the 'list' datasource
 
-    Bugs:
-       - various bugs related to inline editing & list datasource
+Bugs:
+- various bugs related to inline editing & list datasource
 
 ### 1.5.2
-    Bugs:
-       - the sortClosure for the 'list' datasource will receive 3 arguments ( first one will be the sort order )
-       - the list datasource is able to access a nested property from a context
+Bugs:
+- the sortClosure for the 'list' datasource will receive 3 arguments ( first one will be the sort order )
+- the list datasource is able to access a nested property from a context
 
 ### 1.5.1
-    Improvements:
-       - added some default values to the list datasource ( by default the filterDataType is String )
+Improvements:
+- added some default values to the list datasource ( by default the filterDataType is String )
 
-    Bugs:
-       - added a countDistinct property to the GridConfig ( and also a smart default for handling count & the distinct projection )
-       - fixed a filtering bug for jqgrid
-       - fixed a stylesheet bug for datatables
-
+Bugs:
+- added a countDistinct property to the GridConfig ( and also a smart default for handling count & the distinct projection )
+- fixed a filtering bug for jqgrid
+- fixed a stylesheet bug for datatables
 
 ### 1.5.0
-    Improvements:
-       - enhanced the filtering capabilities
-           - default filtering for nested properties like: 'pet.owner'
-           - filtering with operators ( equals, contains, greater than )
-       - enhanced the sorting capabilities
-           - sorting nested properties
-           - customize sorting with closures
-       - switched from DetachedCriteria to Criteria
-           - ability to use projections
-       - new taglibs for customizing the view
-       - use grails Databinding for filter parameter conversion
-       - ability to use nested view parameters like
-            jqgrid{
-               searchoptions{
-                 sopt (['eq'])
-               }
-            }
-       - cleaned up grid implementation renderers
-       - Jqgrid support
-            - support for subgrids
-            - support for advanced searching ( thanks Ken Doig )
-            - support for toolbar search with operators
-            - more easy to configure searchoptions, editoptions, etc
-
+Improvements:
+- enhanced the filtering capabilities
+- default filtering for nested properties like: 'pet.owner'
+- filtering with operators ( equals, contains, greater than )
+- enhanced the sorting capabilities
+    - sorting nested properties
+    - customize sorting with closures
+- switched from DetachedCriteria to Criteria
+   - ability to use projections
+- new taglibs for customizing the view
+- use grails Databinding for filter parameter conversion
+- ability to use nested view parameters like
+    jqgrid{
+       searchoptions{
+         sopt (['eq'])
+       }
+    }
+- cleaned up grid implementation renderers
+- Jqgrid support
+    - support for subgrids
+    - support for advanced searching ( thanks Ken Doig )
+    - support for toolbar search with operators
+    - more easy to configure searchoptions, editoptions, etc
 
 ### 1.4.6
-    Bugs:
-    - fixed https://github.com/tudor-malene/Easygrid/issues/44
-    - fixed small jqgrid multiple sort
+Bugs:
+- fixed https://github.com/tudor-malene/Easygrid/issues/44
+- fixed small jqgrid multiple sort
 
-    Improvements:
-     - moved the securityProvider to EasygridConfig
+Improvements:
+- moved the securityProvider to EasygridConfig
 
 ### 1.4.5
-    Improvements:
-     - Added default column types for float, double, BigDecimal, long and int
-     - Added support for multiSort ( sorting on multiple columns )
+Improvements:
+- Added default column types for float, double, BigDecimal, long and int
+- Added support for multiSort ( sorting on multiple columns )
 
 ### 1.4.4
-    Improvements:
-     - Added installation script: easygrid-setup. Thanks [sbglasius](https://github.com/sbglasius)
+Improvements:
+- Added installation script: easygrid-setup. Thanks [sbglasius](https://github.com/sbglasius)
 
-    Bugs:
-     - fixed security bug on inline editing
-     - added hack to fix incompatibility between grails and the export plugin ( the 'format' parameter clashes )
+Bugs:
+- fixed security bug on inline editing
+- added hack to fix incompatibility between grails and the export plugin ( the 'format' parameter clashes )
 
 ### 1.4.3
-    Improvements:
-     - Added grid initialization lifecycle closures
+Improvements:
+- Added grid initialization lifecycle closures
 
-    Bugs:
-     - the 'scaffolding' dependency is not exported any more
+Bugs:
+- the 'scaffolding' dependency is not exported any more
 
 
 ### 1.4.2
-    Improvements:
-     - Cleaned up the configuration. The defaults are in the DefaultEasygridConfig.groovy class. The custom project settings will be in /grails-app/conf/EasygridConfig
-     - in development mode you can define a grid directly in the gsp ( works just for gorm ).
-     - the custom inline edit closures ( updateRowClosure, etc ) will be passed the gridConfig object
-     
-    Bugs:
-     - fixed  ListDatasourceService 
-     - fixed externalGrids startup issue  on older grails versions
-     - the gorm datasource also works with non Long ids
+Improvements:
+- Cleaned up the configuration. The defaults are in the DefaultEasygridConfig.groovy class. The custom project settings will be in `/grails-app/conf/EasygridConfig`
+- in development mode you can define a grid directly in the gsp ( works just for gorm ).
+- the custom inline edit closures ( updateRowClosure, etc ) will be passed the gridConfig object
 
+Bugs:
+- fixed  ListDatasourceService 
+- fixed externalGrids startup issue  on older grails versions
+- the gorm datasource also works with non Long ids
 
 ### 1.4.1
-    - added possibility to declare grids in normal Controller closures - ending with "Grid". - see (https://github.com/tudor-malene/Easygrid_example/blob/master/grails-app/controllers/example/AuthorController.groovy)
-    - removed the dynamic-controller dependency  ( to fix a couple of bugs )
-    - removed mvel dependency
-
+- added possibility to declare grids in normal Controller closures - ending with "Grid". - see (https://github.com/tudor-malene/Easygrid_example/blob/master/grails-app/controllers/example/AuthorController.groovy)
+- removed the dynamic-controller dependency  ( to fix a couple of bugs )
+- removed mvel dependency
 
 ### 1.4.0
-    - improved export ( support for additional filtering closure, and for custom export values -per column )
-    - removed the AST transformation that was injecting the grid methods in the controller and used the dynamic-controller plugin for this
-     ( this opens up the possibility of defining grids at runtime - in the next versions )
-    - added first draft of a dynamic filter form definition ( it may be subject to change in the next versions )
-    - added possibilty to define grids in other files
-    - the autocomplete widget can be configured to display the label in the textbox ( instead of in the adjacent div )
-    - changed the delegate of all the closures defined in the grid to the instance of the parent controller - so you can use any injected service or params, request, etc
-    - improved error reporting on inline editing
-    - upgraded jqgrid version to 4.5.4
-    - cleaned up tests
-    - improved performance
-    - fixed bugs
-
+- improved export ( support for additional filtering closure, and for custom export values -per column )
+- removed the AST transformation that was injecting the grid methods in the controller and used the dynamic-controller plugin for this
+ ( this opens up the possibility of defining grids at runtime - in the next versions )
+- added first draft of a dynamic filter form definition ( it may be subject to change in the next versions )
+- added possibilty to define grids in other files
+- the autocomplete widget can be configured to display the label in the textbox ( instead of in the adjacent div )
+- changed the delegate of all the closures defined in the grid to the instance of the parent controller - so you can use any injected service or params, request, etc
+- improved error reporting on inline editing
+- upgraded jqgrid version to 4.5.4
+- cleaned up tests
+- improved performance
+- fixed bugs
 
 ### 1.3.0
-    - upgraded jqgrid version to 4.4.4
-    - added master-slave feature for jqgrid grids
-    - support for fixed columns for datatables
-    - added 'globalFilterClosure' - a filter closure that can be used independently of any column
-    - upgraded rendering templates
-    - improved performance
-    - fixed bugs
+- upgraded jqgrid version to 4.4.4
+- added master-slave feature for jqgrid grids
+- support for fixed columns for datatables
+- added 'globalFilterClosure' - a filter closure that can be used independently of any column
+- upgraded rendering templates
+- improved performance
+- fixed bugs
 
 ### 1.2.0
-    - refactored exporting so that to take full advantage over the export plugin
+- refactored exporting so that to take full advantage over the export plugin
 
 ### 1.1.0
-    - upgraded to grails 2.2.0
-    - upgraded jqgrid & visualization javascript libraries
-    - added support for default ( implicit ) filter Closures
-    - added support for 'where queries' when defining initial criterias
-    - added default values for the autocomplete section
-    - the selection widget is now customizable
-    - improved documentation
+- upgraded to grails 2.2.0
+- upgraded jqgrid & visualization javascript libraries
+- added support for default ( implicit ) filter Closures
+- added support for 'where queries' when defining initial criterias
+- added default values for the autocomplete section
+- the selection widget is now customizable
+- improved documentation
 
 
 #### 1.0.0
-    - changed the column definition ( instead of the label, the column will be defined by the name)
-    - resolved some name inconsistencies ( @Easygrid instead of @EasyGrid, etc )
-    - grids are customizable from the taglib
-    - columns are accessible by index and by name
-    - rezolved some taglib inconsistencies
-    - replaced log4j with sl4j
-
+- changed the column definition ( instead of the label, the column will be defined by the name)
+- resolved some name inconsistencies ( @Easygrid instead of @EasyGrid, etc )
+- grids are customizable from the taglib
+- columns are accessible by index and by name
+- rezolved some taglib inconsistencies
+- replaced log4j with sl4j
 
 #### 0.9.9
-    - first version
+- first version
 
 
 ## Upgrade
 
 #### Upgrading to 1.6.1
- Merge _jqGridRenderer.gsp and/or _dataTablesGridRenderer.gsp
+ Merge `_jqGridRenderer.gsp` and/or `_dataTablesGridRenderer.gsp`
 
 #### Upgrading to 1.6.0
- This version will break only custom inline edit closures.
- To upgrade you need to add a second parameter to saveRowClosure, updateRowClosure or delRowClosure. This parameter will be of type InlineResponse. In order to send messages to the UI you will need to use this object instead of the return values.
- Checkout the reference implementation: GormDatasourceService.updateRow
+This version will break only custom inline edit closures.
+To upgrade you need to add a second parameter to saveRowClosure, updateRowClosure or delRowClosure. This parameter will be of type InlineResponse. In order to send messages to the UI you will need to use this object instead of the return values.
+Checkout the reference implementation: GormDatasourceService.updateRow
 
 
 #### Upgrading to 1.5.0
- This is a major update and it will break existing grids. Please let me know ASAP if you have problems upgrading
- First of all check the [petclinic example:](https://github.com/tudor-malene/grails-petclinic) and the [example](https://github.com/tudor-malene/Easygrid_example) repositories.
+This is a major update and it will break existing grids. Please let me know ASAP if you have problems upgrading
+First of all check the [petclinic example:](https://github.com/tudor-malene/grails-petclinic) and the [example](https://github.com/tudor-malene/Easygrid_example) repositories.
 
 - the renderers were rewritten . Any change should be ported to default properties.
 - there is no longer necessary to define filterClosures in most of the cases. Easygrid generates them for you. Check the petclinic example for some examples.
@@ -586,8 +580,7 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 
 #### Upgrading to 1.4.0
- - merge the rendering templates to benefit from the latest features
- in Config.groovy :
+- Merge the rendering templates to benefit from the latest features in `Config.groovy` :
  - add a default.export.maxRows value
  - add default.autocomplete.autocompleteService = org.grails.plugin.easygrid.AutocompleteService
  - add default.idColName = 'id'
@@ -598,7 +591,7 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
              filterFormTemplate =  '/templates/filterFormRenderer'
          }
      }
-  - replace filter.column with filter.filterable where the default search closures are defines
+ - replace filter.column with filter.filterable where the default search closures are defines
 
 
 #### Upgrading to 1.3.0
@@ -621,13 +614,11 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 
 #### Upgrading to 1.0.0
-
-- change the annotation to @Easygrid
+- change the annotation to `@Easygrid`
 - change the columns ( the column name/property in the head now instead of label)
 - replace datatable to dataTables
 - overwrite or merge the renderers
-
-- In Config.groovy
+- In `Config.groovy`
     - the labelFormat is now a plain string:  labelFormat = '${labelPrefix}.${column.name}.label'
     - replace EasyGridExportService with EasygridExportService
     - replace DatatableGridService with DataTablesGridService and datatableGridRenderer with dataTablesGridRenderer
