@@ -92,12 +92,12 @@ and 4 grid implementations ( _JqGrid_, _GoogleVisualization_, _Datatables_, _sta
 
 All grids will be defined in controllers - which must be annotated with [@Easygrid](/src/groovy/org/grails/plugin/easygrid/Easygrid.groovy) . 
 
-In each annotated controller ( @Easygrid ) you can define a static closure called "grids" where you define the grids which will be made available by this controller.
-Starting with version 1.4.1, the preferred way of defining grids is by using plain closures ending with the 'Grid' suffix ( similar to flows in Spring WebFlow )
+In each controller annotated with `@Easygrid` you can define a static closure called `grids` where you define the grids which will be made available by this controller.
+Starting with version 1.4.1, the preferred way of defining grids is by using plain closures ending with the `Grid` suffix (similar to flows in Spring WebFlow)
 
 The plugin provides a custom Builder for making the configuration very straight forward.
 
-Ex:  (from the  petclinic sample)
+Example from the petclinic sample:
 ```groovy
 def ownersGrid = {
     domainClass Owner
@@ -335,10 +335,10 @@ In each annotated controller, for each grid defined in "grids" , the plugin inje
 
 ## FAQ:
 ### I want to implement my first grid. What are the steps?
-A: First you need to annotate a controller with @Easygrid, and define the desired grid ( def gridNameGrid = {..}  )
+A: First you need to annotate a controller with `@Easygrid`, and define the desired grid `def gridNameGrid = {..}`
 In the gsp (if it belongs to that controller), all you have to do is:
-  1) add <r:require modules="easygrid-jqgrid-dev,export"/> ( or whatever impelementation you're using )
-  2) <grid:grid name="gridName"/>
+  1) add `<r:require modules="easygrid-jqgrid-dev,export"/>` (or whatever impelementation you're using)
+  2) `<grid:grid name="gridName"/>`
 
 ### I need to customize the grid template. What are the properties of the gridConfig variable from the various templates?
 A: Check out [GridConfig.groovy](/src/groovy/org/grails/plugin/easygrid/GridConfig.groovy)
@@ -537,7 +537,7 @@ Bugs:
 
 #### 1.0.0
 - changed the column definition ( instead of the label, the column will be defined by the name)
-- resolved some name inconsistencies ( @Easygrid instead of @EasyGrid, etc )
+- resolved some name inconsistencies (`@Easygrid` instead of `@EasyGrid`, etc.)
 - grids are customizable from the taglib
 - columns are accessible by index and by name
 - rezolved some taglib inconsistencies
@@ -568,9 +568,9 @@ First of all check the [petclinic example:](https://github.com/tudor-malene/grai
 
 
 #### Upgrading to 1.4.2
-- isolate all the changes you did to the easygrid section of the Config file and move them to /conf/EasygridConfig.groovy
+- isolate all the changes you did to the easygrid section of the Config file and move them to `/conf/EasygridConfig.groovy`
 - after that remove the entire easygrid section from Config
-- if you use the custom inline edit closures ( updateRowClosure, etc ) - the fist parameter of the closure will be the actual gridConfig object 
+- if you use the custom inline edit closures (`updateRowClosure`, etc.) - the fist parameter of the closure will be the actual gridConfig object 
 
 
 #### Upgrading to 1.4.0
