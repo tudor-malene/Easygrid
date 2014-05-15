@@ -208,9 +208,9 @@ If you want to create your own datasource (skip this as a beginner):
 
 The _name_ of each column will be the actual name of the closure. Beside the actual column name, from the _name_ property other properties can be inferred, like:
     * the label (the column header) can be automatically generated (see below)
-    * in case there is no property or value setting (see below), _name_ will be used as the column property (see below)
-    * also you can access the columns using this _name_ (in case you want to override some properties in the taglib - see below)
-    * _name_ is also used as the name of the http parameter when filtering or sorting on a column
+    * in case there is no property or value setting (see below), `name` will be used as the column property (see below)
+    * also you can access the columns using this `name` (in case you want to override some properties in the taglib - see below)
+    * `name` is also used as the name of the http parameter when filtering or sorting on a column
 
 1. Column Label:
 The _label_ can be defined , but in case it's missing it will be composed automatically using the 'labelFormat' template - defined in `Config.groovy`. ( see comments in `Config.groovy`)
