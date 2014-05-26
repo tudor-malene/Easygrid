@@ -4,6 +4,7 @@ var easygrid = {
 
     /**
      * function to be called when on selection of a row in a grid
+     * todo -should be renamed to: onSelectRowReloadChildGrid
      * @param childGridName - the child grid to be reloaded
      * @param childParamName - the child param name
      */
@@ -75,6 +76,10 @@ var easygrid = {
                 var rowData = myGrid.jqGrid('getRowData', id);
                 rowData.version = response.version;
                 myGrid.jqGrid('setRowData', id, rowData);
+            }
+            if (response.hasOwnProperty('id')) {
+                var element = $('#' + id)
+                element.attr('id', response.id)
             }
             return true;
         }

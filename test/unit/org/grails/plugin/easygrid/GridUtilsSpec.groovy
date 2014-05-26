@@ -109,10 +109,10 @@ class GridUtilsSpec extends Specification {
         dest == val
 
         where:
-        source | type | dest
-        '1'   | Integer    | 1
-        '1'   | String     | '1'
-        '1.1' | BigDecimal | 1.1
+        source | type       | dest
+        '1'    | Integer    | 1
+        '1'    | String     | '1'
+        '1.1'  | BigDecimal | 1.1
 //        '2010-01-01 00:00:00.000' | Date       | new Date(2010 - 1900, 1 - 1, 1)
 
     }
@@ -124,6 +124,18 @@ class GridUtilsSpec extends Specification {
 
         then:
         '{"a":1,"b":{"ba":2,"bc":3,"bb":{"bbb":1}}}' == result.toString()
+    }
+
+    def "json rendering of complex structures"() {
+        given:
+        JsUtils.registerMarshallers()
+
+        when:
+        def result = JsUtils.convertToJs([a: 'true', b: [ba: '2', bc: 3, bb: [bbb: 'f:funcName()', ccc: 'g:funcName']]], 'grid')
+
+        then:
+        /{"a":true,"b":{"ba":"2","bc":3,"bb":{"bbb":funcName(),"ccc":funcName('grid')}}}/ == result.toString()
+
     }
 
 }

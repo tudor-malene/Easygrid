@@ -16,7 +16,7 @@ grails.project.dependency.resolution = {
     plugins {
         ...
         // EasyGrid plugin http://grails.org/plugin/easygrid
-        compile ":easygrid:1.6.1"
+        compile ":easygrid:1.6.2"
         // For minimum functionality you need: jquery-ui and the export plugins.
         // Export Plugin http://grails.org/plugin/export
         compile ":export:1.5"
@@ -404,6 +404,13 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 ## Version History
 
+### 1.6.2
+Improvements:
+- small json rendering improvements.
+
+Bugs:
+- export was not working.
+
 ### 1.6.1
 Improvements:
 - small improvements on inline editing.
@@ -623,14 +630,4 @@ First of all check the [petclinic example:](https://github.com/tudor-malene/grai
 
 ## License
 
-Permission to use, copy, modify, and distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+Apache v2

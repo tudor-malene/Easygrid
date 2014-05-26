@@ -18,14 +18,11 @@ class JsUtils {
 
     static def registerMarshallers() {
 
-        JSON.registerObjectMarshaller(LazyString, 1) {
-            it.call()
-        }
-        //register custom json marshaller form rendering
+        //register custom json marshaller - will handle special conventions like 'f:funcName' and 'g:funcName'
         JSON.registerObjectMarshaller(new ObjectMarshaller<JSON>() {
             @Override
             boolean supports(Object object) {
-                object instanceof JSFunction
+                JSFunction.isAssignableFrom(object.getClass())
             }
 
             @Override
@@ -46,8 +43,12 @@ class JsUtils {
                     throw new ConverterException(e);
                 }
             }
-        }, 2)
+        }, 1)
 
+
+        JSON.registerObjectMarshaller(LazyString, 2) {
+            it.call()
+        }
     }
 
 
@@ -55,40 +56,32 @@ class JsUtils {
         op.toString().toLowerCase()
     }
 
-    static class JSFunction {
-        String functionName
-        String gridId
-        boolean addGridName = false
-
-        JSFunction(String functionName) {
-            this.functionName = functionName[2..-1]
+    static traverseValues(values, Map actions) {
+        if (values instanceof Map) {
+            return values.collectEntries { k, v ->
+                Closure action = actions.find { cond, act -> cond(k, v) }?.value
+                def val
+                if (action) {
+                    val = action(k, v)
+                } else {
+                    val = traverseValues(v, actions)
+                }
+                [(k): val]
+            }
         }
-
-        JSFunction(String functionName, gridId) {
-            this.functionName = functionName[2..-1]
-            this.addGridName = true
-            this.gridId = gridId
-        }
+        values
     }
 
-    static traverseValues(values, Closure condition, Closure action) {
-        if (values instanceof Map) {
-            values.collectEntries { k, v ->
-                if (condition(k, v)) {
-                    action(k, v)
-                } else {
-                    [(k): traverseValues(v, condition, action)]
-                }
-            }
-        } else {
-            values
-        }
+    static boolean isString(val) {
+        val instanceof CharSequence
     }
 
     static String convertToJs(Map values, String gridId, boolean include = false) {
-        def newValues = traverseValues(values) { k, v -> v instanceof CharSequence && v.startsWith('f:') } { k, v -> [(k): new JSFunction(v)] }
-        newValues = traverseValues(newValues) { k, v -> v instanceof CharSequence && v.startsWith('g:') } { k, v -> [(k): new JSFunction(v, gridId)] }
-        newValues = traverseValues(newValues) { k, v -> v instanceof CharSequence && (v == 'true' || v == 'false') } { k, v -> [(k): Boolean.valueOf(v)] }
+        def newValues = traverseValues(values, [
+                ({ k, v -> isString(v) && v.startsWith('f:') })                    : { k, v -> new JSFunction(v) },
+                ({ k, v -> isString(v) && v.startsWith('g:') })                    : { k, v -> new JSFunction(v, gridId) },
+                ({ k, v -> isString(v) && (v.toLowerCase() in ['true', 'false']) }): { k, v -> Boolean.valueOf(v) }
+        ])
 
         JSON json = newValues as JSON
 
@@ -112,18 +105,6 @@ class JsUtils {
             (
                     [[(property): 'All', id: '']] + listClosure()).collect { "${it.id}:${it[property]}" }.join(';')
         })
-    }
-
-    static class LazyString {
-        def lazyStringClosure
-
-        LazyString(lazyString) {
-            this.lazyStringClosure = lazyString
-        }
-
-        def call() {
-            lazyStringClosure.call()
-        }
     }
 
 /*
@@ -450,4 +431,34 @@ class JsUtils {
 
     // see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:form_editing
 
+}
+
+//used for json marshalling
+class JSFunction {
+    String functionName
+    String gridId
+    boolean addGridName = false
+
+    JSFunction(String functionName) {
+        this.functionName = functionName[2..-1]
+    }
+
+    JSFunction(String functionName, gridId) {
+        this.functionName = functionName[2..-1]
+        this.addGridName = true
+        this.gridId = gridId
+    }
+}
+
+//used for json marshalling
+class LazyString {
+    def lazyStringClosure
+
+    LazyString(lazyString) {
+        this.lazyStringClosure = lazyString
+    }
+
+    def call() {
+        lazyStringClosure.call()
+    }
 }

@@ -5,7 +5,7 @@ import org.grails.plugin.easygrid.JsUtils
 
 class EasygridGrailsPlugin {
 
-    def version = "1.6.1"
+    def version = "1.6.2"
 
     def grailsVersion = "2.0 > *"
 
@@ -46,7 +46,6 @@ class EasygridGrailsPlugin {
     def scm = [url: "https://github.com/tudor-malene/Easygrid"]
 
     def doWithDynamicMethods = { ctx ->
-        JsUtils.registerMarshallers()
     }
 
     def doWithSpring = {
@@ -58,6 +57,7 @@ class EasygridGrailsPlugin {
     }
 
     def doWithApplicationContext = { appCtx ->
+        JsUtils.registerMarshallers()
         appCtx.getBean(EasygridInitService).initializeGrids()
     }
 

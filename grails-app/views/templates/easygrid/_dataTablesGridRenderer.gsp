@@ -1,9 +1,9 @@
-<%@ page import="org.grails.plugin.easygrid.JsUtils" defaultCodec="none" %>
+<%@ page import="org.grails.plugin.easygrid.GridUtils; org.grails.plugin.easygrid.JsUtils" defaultCodec="none" %>
 <g:set var="gridId" value="${attrs.id}_datatable"/>
 <jq:jquery>
     var oTable = $('#${gridId}').dataTable({
     ${JsUtils.convertToJs(gridConfig.dataTables, gridId, true)},
-    "sAjaxSource": '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}Rows", params: params)}',
+    "sAjaxSource": '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}Rows", params: GridUtils.externalParams(gridConfig))}',
         "fnInitComplete":easygrid.initComplete('${attrs.id}',${gridConfig.fixedColumns == true}, ${gridConfig.noFixedColumns ?: -1}),
         "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) { },
         "fnServerParams": easygrid.serverParams('${attrs.id}'),

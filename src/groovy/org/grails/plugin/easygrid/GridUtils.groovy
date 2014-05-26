@@ -309,4 +309,7 @@ class GridUtils {
         controllerName && grailsApplication.getArtefactByLogicalPropertyName(ControllerArtefactHandler.TYPE, controllerName)?.clazz?.isAnnotationPresent(Easygrid)
     }
 
+    static def externalParams(gridConfig) {
+        params.findAll { k, v ->k in gridConfig.externalParams }
+    }
 }

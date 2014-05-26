@@ -1,4 +1,4 @@
-<%@ page import="org.grails.plugin.easygrid.JsUtils" defaultCodec="none" %>
+<%@ page import="org.grails.plugin.easygrid.GridUtils; org.grails.plugin.easygrid.JsUtils" defaultCodec="none" %>
 
 <g:set var="gridId" value="${attrs.id}_table"/>
 <g:set var="pagerId" value="${attrs.id}Pager"/>
@@ -10,7 +10,7 @@
 
 <jq:jquery>
     jQuery("#${gridId}").jqGrid({
-    url: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}Rows", params: params)}',
+    url: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}Rows", params: GridUtils.externalParams(gridConfig))}',
     loadError: easygrid.loadError,
     pager: '#${pagerId}',
     ${JsUtils.convertToJs(conf - [navGrid: conf.navGrid] - [filterToolbar: conf.filterToolbar], gridId, true)},
@@ -24,7 +24,7 @@
     <g:if test="${gridConfig.inlineEdit}">
         editurl: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}InlineEdit")}',
         cellurl: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}InlineEdit")}',
-        onSelectRow: easygrid.onSelectRowInlineEdit('${attrs.id}_table'),
+        onSelectRow: easygrid.onSelectRowInlineEdit('${gridId}'),
     </g:if>
     colModel: [
     <grid:eachColumn gridConfig="${gridConfig}">
@@ -42,7 +42,7 @@
     </g:if>
     });
     <g:if test="${gridConfig.masterGrid}">%{--set the on select row of the master grid--}%
-        jQuery('#${gridConfig.masterGrid}_table').jqGrid('setGridParam',{ "onSelectRow" : easygrid.onSelectGridRowReloadGrid('${attrs.id}_table','${gridConfig.childParamName}')});
+        jQuery('#${gridConfig.masterGrid}_table').jqGrid('setGridParam',{ "onSelectRow" : easygrid.onSelectGridRowReloadGrid('${gridId}', '${gridConfig.childParamName}')});
     </g:if>
     <g:if test="${gridConfig.enableFilter}">
         jQuery('#${gridId}').jqGrid('filterToolbar', ${JsUtils.convertToJs(conf.filterToolbar, gridId)});

@@ -58,7 +58,6 @@ class GridConfig {
     // the filter form
     FilterFormConfig filterForm
 
-
     // lifecycle closures- called during the initialization phase - will receive the gridConfig
     // useful for applying different rules
 
@@ -68,6 +67,8 @@ class GridConfig {
     Closure beforeApplyingColumnRules
     Closure afterInitialization
 
+    //list of params that are passed to the grid for the Rows call
+    List<String> externalParams = []
 
     @Override
     public String toString() {

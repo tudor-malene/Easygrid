@@ -4,7 +4,7 @@
 %{--// attach the gid data to the element--}%
     $.data(document.getElementById("${attrs.id}_div"), 'grid',
     {
-        options:${JsUtils.convertToJs(gridConfig.visualization)},
+        options:${JsUtils.convertToJs(gridConfig.visualization, "${attrs.id}_div")},
         url:'${g.createLink(action: "${gridConfig.id}Rows")}',
         loadAll: ${gridConfig.visualization.loadAllData ? 'true' : 'false'}
     });

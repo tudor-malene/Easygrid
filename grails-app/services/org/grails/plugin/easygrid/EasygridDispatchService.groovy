@@ -13,8 +13,6 @@ class EasygridDispatchService {
 
     def grailsApplication
 
-    def services = ['GridImpl': 'gridImplService', 'DS': 'dataSourceService', 'AC': 'autocomplete.autocompleteService', 'Export': 'export.exportService', 'FFF': 'filterForm.filterFormService']
-
     /**
      * calls methods of the form: call{GridService}{capitalizedMethod}(arguments)
      * @param name
@@ -22,18 +20,38 @@ class EasygridDispatchService {
      * @return
      */
     def methodMissing(String name, args) {
-        assert name.startsWith('call')
         assert args //at least 1 argument
+        def gridConfig = args[0]
+
+        def (service, methodName) = retreiveServiceAndMethod(name)
+        def serviceInstance = grailsApplication.mainContext.getBean(getNestedPropertyValue(service, gridConfig))
+        assert serviceInstance
+
+        if (serviceInstance.respondsTo(methodName)) {
+            serviceInstance."${methodName}"(*args)
+        } else {
+            log.warn("No service method for: ${name}")
+        }
+    }
+
+    //todo - add the mandatory methods & throw exception if not implemented
+    static def services = [
+            GridImpl: 'gridImplService',
+            DS      : 'dataSourceService',
+            AC      : 'autocomplete.autocompleteService',
+            Export  : 'export.exportService',
+            FFF     : 'filterForm.filterFormService'
+    ]
+
+    //optimization - parse the method call
+    static def retreiveServiceAndMethod = { String name ->
+        assert name.startsWith('call')
 
         def root = name[4..-1]
         def service = services.find { root.startsWith(it.key) }
         assert service
         def methodName = Introspector.decapitalize(root[service.key.length()..-1])
+        [service.value, methodName]
+    }.memoize()
 
-        def gridConfig = args[0]
-        def serviceInstance = grailsApplication.mainContext.getBean(getNestedPropertyValue(service.value, gridConfig))
-        if (serviceInstance.respondsTo(methodName)) {
-            serviceInstance."${methodName}"(*args)
-        }
-    }
 }

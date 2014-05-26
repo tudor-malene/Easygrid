@@ -116,7 +116,7 @@ class EasygridService {
         assert gridConfig.export.maxRows: "You must define maxRows"
         listParams.maxRows = gridConfig.export.maxRows
         listParams.rowOffset = 0
-        easygridDispatchService.callExport(gridConfig, easygridDispatchService.callDSList(gridConfig, [:], filters(gridConfig)), format, extension)
+        easygridDispatchService.callExportExport(gridConfig, easygridDispatchService.callDSList(gridConfig, [:], filters(gridConfig)), format, extension)
     }
 
     ///////////////////////////// INLINE EDIT /////////////////
