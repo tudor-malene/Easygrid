@@ -168,9 +168,7 @@ class GridUtils {
         }
 */
 
-        Map paramsMap = new HashMap()
-        params.each { key, value -> paramsMap.put(key, value)}
-        session.setAttribute("searchParams_${gridConfig.id}", paramsMap)
+        session.setAttribute("searchParams_${gridConfig.id}", params as java.util.HashMap)
     }
 
     static def retreiveLastSearch(gridConfig) {
