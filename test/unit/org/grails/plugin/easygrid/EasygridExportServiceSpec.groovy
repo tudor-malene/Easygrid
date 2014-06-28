@@ -121,7 +121,7 @@ class EasygridExportServiceSpec extends Specification {
         def (params, request, response, session) = TestUtils.mockEasyGridContextHolder()
 
         when: "export to csv"
-        service.export(testGrid,TestDomain.list(), 'csv', 'csv')
+        service.export(testGrid, TestDomain.list(), 'csv', 'csv')
 
         then:
         1 * exportService.export(
@@ -134,7 +134,6 @@ class EasygridExportServiceSpec extends Specification {
                 _ //parameters
         )
 
-
 /*
         def responseLines = ((String) response.contentAsString).readLines()
 
@@ -145,5 +144,58 @@ class EasygridExportServiceSpec extends Specification {
         and: " the first row has a int value of 1"
         responseLines[1].split(',')[1] == '"1"'
 */
+    }
+
+
+    def "dynamic hidden property"() {
+
+        given:
+        GridConfig testHiddenColGrid = generateConfigForGrid(grailsApplication) {
+            testGrid {
+                dataSourceType 'gorm'
+                domainClass TestDomain
+                gridRenderer '/templates/easygrid/testGridRenderer'
+                export {
+                    'column.width' 100
+                }
+                columns {
+                    id {
+                        type id
+                    }
+                    testStringProperty {
+                        property 'testStringProperty'
+                    }
+                    testIntProperty {
+                        property 'testIntProperty'
+                        export {
+                            hiddenClosure { col, grid ->
+                                1 == 1
+                            }
+                        }
+                    }
+                }
+            }
+        }.testGrid
+
+        TestUtils.mockEasyGridContextHolder()
+        populateTestDomain(100)
+
+        when:
+        service.export(testHiddenColGrid, TestDomain.list(), 'excel', 'xls')
+
+        then:
+        1 * exportService.export(
+                'excel', //type
+                _, //
+                {
+                    it.size() == 100
+                }, //objects
+                ['id', 'testStringProperty'], //fields
+                ['id': 'testDomain.id.label', 'testStringProperty': 'testDomain.testStringProperty.label'], //labels
+                [:], //formatters
+                {
+                    it['column.widths']
+                } //parameters
+        )
     }
 }

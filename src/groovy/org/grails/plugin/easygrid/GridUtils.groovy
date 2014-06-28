@@ -234,7 +234,7 @@ class GridUtils {
      */
     static eachColumn(GridConfig grid, boolean export = false, Closure closure) {
         grid.columns.findAll { col -> (params.selectionComp) ? col.showInSelection : true }
-                .findAll { col -> !(export && col.export.hidden) }
+                .findAll { col -> !(export && isHiddenColumn(grid, col, 'export')) }
                 .eachWithIndex { col, idx ->
             switch (closure?.parameterTypes?.size()) {
                 case 1:
@@ -244,6 +244,28 @@ class GridUtils {
             }
         }
     }
+
+    /**
+     * If there is a hiddenClosure defined, that will be used first, otherwise it falls back to the hidden attribute
+     * @return - if the column should be hidden in that context
+     */
+    static boolean isHiddenColumn(GridConfig grid, ColumnConfig col, String attribute) {
+        if (col[attribute]) {
+            Closure hiddenClosure = col[attribute].hiddenClosure
+            if (hiddenClosure) {
+                switch (hiddenClosure?.parameterTypes?.size()) {
+                    case 1:
+                        return hiddenClosure.call(col)
+                    case 2:
+                        return hiddenClosure.call(col, grid)
+                }
+            } else {
+                return col[attribute].hidden
+            }
+        }
+        false
+    }
+
 
     /**
      * returns the property type of a gorm domain class
@@ -310,6 +332,6 @@ class GridUtils {
     }
 
     static def externalParams(gridConfig) {
-        params.findAll { k, v ->k in gridConfig.externalParams }
+        params.findAll { k, v -> k in gridConfig.externalParams }
     }
 }

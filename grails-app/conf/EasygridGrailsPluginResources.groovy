@@ -1,6 +1,6 @@
 def jqgridVer = "4.6.0"
-def dataTablesVer = "1.9.4"
-//def ngGridVer = "2.0.7"
+def dataTablesVer = "1.10.0"
+def jqver="1.11.0"
 
 modules = {
     'easygrid-jqgrid-theme' {
@@ -11,7 +11,7 @@ modules = {
     }
 
     'easygrid-jqgrid' {
-        dependsOn 'jquery-ui', 'easygrid-jqgrid-theme'
+        dependsOn 'easygrid-jquery-ui', 'easygrid-jqgrid-theme'
 
         resource id: 'js-jqgrid-dev', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js", file: "jquery.jqGrid.min.js"],
                 nominify: true, disposition: 'head'
@@ -26,7 +26,7 @@ modules = {
     }
 
     'easygrid-datatables' {
-        dependsOn 'jquery-ui'
+        dependsOn 'easygrid-jquery-ui'
 
         resource id: 'js-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/js", file: "jquery.dataTables.min.js"],
                 nominify: true, disposition: 'head'
@@ -34,24 +34,15 @@ modules = {
         resource id: 'css-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/css", file: "jquery.dataTables.css"],
                 nominify: true, disposition: 'head'
 
-        resource id: 'js-fixedColumns', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/extras/FixedColumns/media/js", file: "FixedColumns.js"],
+        resource id: 'js-fixedColumns', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/extensions/FixedColumns/js", file: "dataTables.fixedColumns.min.js"],
                 nominify: true, disposition: 'head'
         resource id: 'utils', url: [plugin: 'easygrid', dir: "js/datatables", file: "utils.js"],
                 nominify: true, disposition: 'head'
     }
 
-/*
-   'easygrid-ng-grid' {
-        dependsOn 'jquery', 'angular'
-
-        resource id: 'js-ng-grid', url: [plugin: 'easygrid', dir: "ng-grid-${ngGridVer}/", file: "ng-grid-${ngGridVer}.min.js"],
-                nominify: true, disposition: 'head'
-    }
-*/
-
 
     'easygrid-jqgrid-dev' {
-        dependsOn 'jquery-ui-dev', 'easygrid-jqgrid-theme'
+        dependsOn  'easygrid-jquery-ui-dev','easygrid-jqgrid-theme'
 
         //JQGRID
         resource id: 'js-jqgrid', url: [plugin: 'easygrid', dir: "jquery.jqGrid-${jqgridVer}/js", file: "jquery.jqGrid.src.js"],
@@ -66,7 +57,7 @@ modules = {
     }
 
     'easygrid-datatables-dev' {
-        dependsOn 'jquery-ui'
+        dependsOn 'easygrid-jquery-ui-dev'
 
         resource id: 'js-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/js", file: "jquery.dataTables.js"],
                 nominify: true, disposition: 'head'
@@ -74,8 +65,9 @@ modules = {
         resource id: 'css-datatable', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/media/css", file: "jquery.dataTables.css"],
                 nominify: true, disposition: 'head'
 
-        resource id: 'js-fixedColumns', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/extras/FixedColumns/media/js", file: "FixedColumns.js"],
+        resource id: 'js-fixedColumns', url: [plugin: 'easygrid', dir: "DataTables-${dataTablesVer}/extensions/FixedColumns/js", file: "dataTables.fixedColumns.js"],
                 nominify: true, disposition: 'head'
+
         resource id: 'utils', url: [plugin: 'easygrid', dir: "js/datatables", file: "utils.js"],
                 nominify: true, disposition: 'head'
     }
@@ -103,5 +95,24 @@ modules = {
                 nominify: true, disposition: 'head'
     }
 
+    def jqueryUiDir = "jquery-ui-${jqver}"
+
+    //// jquery-ui resources
+    'easygrid-jquery-theme' {
+        resource id: 'theme',
+                url: [plugin: 'easygrid', dir: jqueryUiDir, file: 'jquery-ui.css'],
+                attrs: [media: 'screen, projection']
+    }
+
+    'easygrid-jquery-ui' {
+        dependsOn 'jquery', 'easygrid-jquery-theme'
+        resource id: 'js', url: [plugin: 'easygrid', dir: jqueryUiDir, file: "jquery-ui.min.js"],
+                nominify: true, disposition: 'head'
+    }
+
+    'easygrid-jquery-ui-dev' {
+        dependsOn 'jquery', 'easygrid-jquery-theme'
+        resource id: 'js', url:[plugin: 'easygrid', dir:jqueryUiDir, file:"jquery-ui.js"]
+    }
 
 }

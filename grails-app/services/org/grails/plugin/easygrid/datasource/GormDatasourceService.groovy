@@ -269,7 +269,15 @@ class GormDatasourceService {
                             c()
                         } else {
                             //try to determine the count distinct property from the criteria
-                            def proj = distinct.@projection
+                            def proj
+                            if (distinct.hasProperty('wrappedProjection')) {
+                                //hibernate 4
+                                proj = distinct.wrappedProjection
+                            } else {
+                                //hibernate 3
+                                proj = distinct.@projection
+                            }
+
                             if (proj && proj instanceof PropertyProjection) {
                                 propertyName = proj.propertyName
                             }

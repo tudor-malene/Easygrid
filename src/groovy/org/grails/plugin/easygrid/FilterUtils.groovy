@@ -1,8 +1,5 @@
 package org.grails.plugin.easygrid
 
-import org.joda.time.base.AbstractInstant
-import org.joda.time.base.AbstractPartial
-
 /**
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
@@ -63,7 +60,7 @@ class FilterUtils {
                 || opType == Double || opType == double || opType == Float || opType == float
                 || opType == Short || opType == short || opType == BigDecimal || opType == BigInteger) {
             type = 'numeric'
-        } else if (Date.isAssignableFrom(opType) || AbstractInstant.isAssignableFrom(opType) || AbstractPartial.isAssignableFrom(opType)) {
+        } else if (Date.isAssignableFrom(opType) || isJodaDate(opType)) {
             type = 'date'
         } else if (opType.isEnum()) {
             type = 'enum'
@@ -72,6 +69,15 @@ class FilterUtils {
         } else if (opType == Class)
             type = 'class'
         type
+    }
+
+    static isJodaDate(type) {
+        try {
+            Class.forName('org.joda.time.base.AbstractInstant').isAssignableFrom(type) || Class.forName('org.joda.time.base.AbstractPartial').isAssignableFrom(type)
+        } catch (ClassNotFoundException ex) {
+            //no joda defined
+            return false
+        }
     }
 
 }

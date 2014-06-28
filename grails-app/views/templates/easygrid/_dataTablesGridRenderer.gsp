@@ -4,7 +4,7 @@
     var oTable = $('#${gridId}').dataTable({
     ${JsUtils.convertToJs(gridConfig.dataTables, gridId, true)},
     "sAjaxSource": '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}Rows", params: GridUtils.externalParams(gridConfig))}',
-        "fnInitComplete":easygrid.initComplete('${attrs.id}',${gridConfig.fixedColumns == true}, ${gridConfig.noFixedColumns ?: -1}),
+        "fnInitComplete":easygrid.initComplete('${attrs.id}',${gridConfig.fixedColumns == true}, ${gridConfig.noFixedColumns ?: -1}, ${gridConfig.hideSearch}),
         "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) { },
         "fnServerParams": easygrid.serverParams('${attrs.id}'),
         "aoColumns": [
@@ -65,19 +65,21 @@ $("tfoot input").blur(function (i) {
     </tr>
     </tbody>
     <tfoot>
-    <tr>
-        <grid:eachColumn gridConfig="${gridConfig}">
-            <td>
-                <g:if test="${(gridConfig.fixedColumns != 'true') && gridConfig.enableFilter && col.enableFilter}">
-                %{--todo - add variables--}%
-                    <input type="text" name="search_${col.name}" class="search_init" size="10"/>
-                </g:if>
-                <g:else>
-                    &nbsp;
-                </g:else>
-            </td>
-        </grid:eachColumn>
-    </tr>
+    <g:if test="${gridConfig.hideSearch}">
+        <tr>
+            <grid:eachColumn gridConfig="${gridConfig}">
+                <td>
+                    <g:if test="${(gridConfig.fixedColumns != 'true') && gridConfig.enableFilter && col.enableFilter}">
+                    %{--todo - add variables--}%
+                        <input type="text" name="search_${col.name}" class="search_init" size="10"/>
+                    </g:if>
+                    <g:else>
+                        &nbsp;
+                    </g:else>
+                </td>
+            </grid:eachColumn>
+        </tr>
+    </g:if>
     </tfoot>
 </table>
 

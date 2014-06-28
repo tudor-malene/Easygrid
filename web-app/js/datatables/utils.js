@@ -7,16 +7,18 @@ var easygrid = {
         return false;
     },
 
-    initComplete: function (gridName, fixedColumns, noFixedColumns) {
+    initComplete: function (gridName, fixedColumns, noFixedColumns, hideSearch) {
         return function () {
-            //hack - removes the filter div
-            $('#' + gridName + '_datatable_filter').remove();
-            var oSettings = $('#' + gridName + '_datatable').dataTable().fnSettings();
-            for (var i = 0; i < oSettings.aoPreSearchCols.length; i++) {
-                if (oSettings.aoPreSearchCols[i].sSearch.length > 0) {
-                    console.log(oSettings.aoPreSearchCols[i].sSearch);
-                    $("tfoot input")[i].value = oSettings.aoPreSearchCols[i].sSearch;
-                    $("tfoot input")[i].className = "";
+            if(hideSearch){
+                //hack - removes the filter div
+                $('#' + gridName + '_datatable_filter').remove();
+                var oSettings = $('#' + gridName + '_datatable').dataTable().fnSettings();
+                for (var i = 0; i < oSettings.aoPreSearchCols.length; i++) {
+                    if (oSettings.aoPreSearchCols[i].sSearch.length > 0) {
+                        console.log(oSettings.aoPreSearchCols[i].sSearch);
+                        $("tfoot input")[i].value = oSettings.aoPreSearchCols[i].sSearch;
+                        $("tfoot input")[i].className = "";
+                    }
                 }
             }
             if (fixedColumns) {

@@ -10,42 +10,37 @@ grails.project.dependency.resolution = {
 
     repositories {
         grailsCentral()
-//		mavenLocal()
         mavenCentral()
+        mavenRepo "http://repo.grails.org/grails/core"
     }
-
 
     dependencies {
         compile('com.google.visualization:visualization-datasource:1.1.1') {
             exclude(group: 'commons-logging', name: 'commons-logging')
             exclude(group: 'commons-lang', name: 'commons-lang')
         }
+        compile 'commons-beanutils:commons-beanutils:1.9.2'
+        test 'cglib:cglib-nodep:3.1'
     }
 
+
     plugins {
-        compile ":jquery-ui:1.10.3"
-        runtime ":jquery:1.10.2.2"
 
-        runtime (":resources:1.2.1"){
-            export = false
-        }
+        //plugins used for the actual functionalty
+        runtime ":jquery:1.11.1"
+        compile ':export:1.6'
+        runtime ':google-visualization:0.7'
 
-        compile ':export:1.5'
+        //local plugins
+        runtime(":resources:1.2.8") { export = false }
+        compile(":scaffolding:2.1.2") { export = false }
+        build(":release:3.0.1") { export = false }
+        compile(':hibernate4:4.3.5.4') { export = false }
+//        compile(":hibernate:3.6.10.16") { export = false }
 
-        runtime ':google-visualization:0.6.2'
+//        plugins incompatible with grails version >= 2.4
+//        compile ":joda-time:1.4"
+//        compile ":jquery-ui:1.10.3"
 
-        compile (":scaffolding:2.0.1"){
-            export = false
-        }
-//        compile ":filterpane:2.3.2"
-//        compile ":plugin-config:0.1.8"
-        compile ":joda-time:1.4"
-
-        build(":release:3.0.1") {
-            export = false
-        }
-        runtime(':hibernate:3.6.10.10') {
-            export = false
-        }
     }
 }

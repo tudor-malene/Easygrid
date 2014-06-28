@@ -20,6 +20,14 @@ class DataTablesGridService {
     def easygridService
     def grailsApplication
 
+
+    def addDefaultValues( gridConfig, defaultValues) {
+        if (gridConfig.hideSearch == null) {
+            //by default hide the search field
+            gridConfig.hideSearch = true
+        }
+    }
+
 /*
 int	iDisplayStart	Display start point in the current data set.
 int	iDisplayLength	Number of records that the table can display in the current draw. It is expected that the number of records returned will be equal to this number, unless the server has fewer records to return.

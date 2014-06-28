@@ -5,9 +5,9 @@ import org.grails.plugin.easygrid.JsUtils
 
 class EasygridGrailsPlugin {
 
-    def version = "1.6.2"
+    def version = "1.6.3"
 
-    def grailsVersion = "2.0 > *"
+    def grailsVersion = "2.2 > *"
 
     def loadAfter = ['services', 'controllers']
 
