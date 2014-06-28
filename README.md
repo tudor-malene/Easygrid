@@ -404,6 +404,15 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 ## Version History
 
+### 1.6.3
+Improvements:
+- compatible with grails 2.4
+- easier to enable default datatables search behavior ( by setting the hideSearch=false)  
+- added export.hiddenClosure - to enable hiding export columns at runtime
+
+Bugs:
+- https://github.com/tudor-malene/Easygrid/issues/92 ( Thanks to Truong Ngoc Tuan )
+
 ### 1.6.2
 Improvements:
 - small json rendering improvements.
@@ -555,6 +564,9 @@ Bugs:
 
 
 ## Upgrade
+
+#### Upgrading to 1.6.3
+ Merge `_dataTablesGridRenderer.gsp`
 
 #### Upgrading to 1.6.1
  Merge `_jqGridRenderer.gsp` and/or `_dataTablesGridRenderer.gsp`
