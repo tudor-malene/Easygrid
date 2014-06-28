@@ -156,37 +156,17 @@ class GridUtils {
      * @param id
      */
     static void storeLastSearch(gridConfig) {
-
-/*
-        if (EasygridContextHolder.session.getAttribute(lastSearchAttr(gridConfig))) {
-            def localParams = EasygridContextHolder.session.getAttribute(searchParamsAttrName) ?: EasygridContextHolder.params
-            EasygridContextHolder.storeParams(localParams)
-            EasygridContextHolder.session.removeAttribute(lastSearchAttr(gridConfig))
-        } else {
-            //save the current search param
-            EasygridContextHolder.session.setAttribute(searchParamsAttrName, EasygridContextHolder.params)
-        }
-*/
-
-        session.setAttribute("searchParams_${gridConfig.id}", params as java.util.HashMap)
+        session.setAttribute(getLastSearchAttributeName(gridConfig), params as HashMap)
     }
 
     static def retreiveLastSearch(gridConfig) {
-        session.getAttribute("searchParams_${gridConfig.id}")
+        session.getAttribute(getLastSearchAttributeName(gridConfig))
     }
 
-    /**
-     * when exporting a table or returning from an add/update screen and you want to save the old search use this
-     */
-/*
-    static void markRestorePreviousSearch(GridConfig gridConfig) {
-        session.setAttribute(lastSearchAttr(gridConfig), true)
+    static String getLastSearchAttributeName(gridConfig){
+        "searchParams_${gridConfig.id}".toString()
     }
 
-    private static String lastSearchAttr(gridConfig) {
-        "restoreLastSearch${gridConfig.id}".toString()
-    }
-*/
 
     /**
      * hack to navigate nested objects
