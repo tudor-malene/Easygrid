@@ -168,11 +168,11 @@ class GridUtils {
         }
 */
 
-        session.setAttribute("searchParams_${gridConfig.id}".toString(), params)
+        session.setAttribute("searchParams_${gridConfig.id}", params as java.util.HashMap)
     }
 
     static def retreiveLastSearch(gridConfig) {
-        session.getAttribute("searchParams_${gridConfig.id}".toString())
+        session.getAttribute("searchParams_${gridConfig.id}")
     }
 
     /**
