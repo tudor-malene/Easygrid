@@ -16,10 +16,10 @@ grails.project.dependency.resolution = {
     plugins {
         ...
         // EasyGrid plugin http://grails.org/plugin/easygrid
-        compile ":easygrid:1.6.2"
+        compile ":easygrid:1.6.4"
         // For minimum functionality you need: jquery-ui and the export plugins.
         // Export Plugin http://grails.org/plugin/export
-        compile ":export:1.5"
+        compile ":export:1.6"
         // jQuery UI Plugin http://grails.org/plugin/jquery-ui
         compile ":jquery-ui:1.10.3"
         // For google visualization you also need google-visualization
@@ -404,6 +404,13 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 ## Version History
 
+### 1.6.4
+Bugs:
+- https://github.com/tudor-malene/Easygrid/issues/111
+- https://github.com/tudor-malene/Easygrid/issues/109
+- https://github.com/tudor-malene/Easygrid/issues/107
+- https://github.com/tudor-malene/Easygrid/issues/106
+
 ### 1.6.3
 Improvements:
 - compatible with grails 2.4
@@ -564,6 +571,9 @@ Bugs:
 
 
 ## Upgrade
+
+#### Upgrading to 1.6.4
+ Merge `_jqGridRenderer.gsp` and/or `_dataTablesGridRenderer.gsp`
 
 #### Upgrading to 1.6.3
  Merge `_dataTablesGridRenderer.gsp`
