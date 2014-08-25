@@ -10,7 +10,7 @@
         "aoColumns": [
     <grid:eachColumn gridConfig="${gridConfig}">
         <g:if test="${col.render}">
-            {${JsUtils.convertToJs(col.dataTables + [sName: col.name, bSearchable: col.enableFilter, bSortable: col.sortable], gridId, true)}
+            {${JsUtils.convertToJs(col.dataTables + [sName: col.name, bSearchable: col.enableFilter], gridId, true)}
             <g:if test="${col.otherProperties}">
                 ,${col.otherProperties}
             </g:if>

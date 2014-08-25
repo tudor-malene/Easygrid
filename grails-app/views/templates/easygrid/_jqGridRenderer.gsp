@@ -29,7 +29,7 @@
     colModel: [
     <grid:eachColumn gridConfig="${gridConfig}">
         <g:if test="${col.render}">
-            {${JsUtils.convertToJs(col.jqgrid + [name: col.name, search: col.enableFilter, sortable: col.sortable, label: g.message(code: col.label, default: col.label)], gridId, true)}
+            {${JsUtils.convertToJs(col.jqgrid + [name: col.name, search: col.enableFilter, label: g.message(code: col.label, default: col.label)], gridId, true)}
             <g:if test="${col.otherProperties}">
                 ,${col.otherProperties}
             </g:if>
