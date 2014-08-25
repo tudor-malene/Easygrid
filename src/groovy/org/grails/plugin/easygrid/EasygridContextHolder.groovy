@@ -2,7 +2,6 @@ package org.grails.plugin.easygrid
 
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.springframework.core.NamedThreadLocal
 import org.springframework.web.context.request.RequestContextHolder
 

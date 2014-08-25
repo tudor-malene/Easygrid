@@ -1,7 +1,6 @@
 package org.grails.plugin.easygrid
 
-import groovy.transform.AutoClone
-import org.grails.plugin.easygrid.ast.DynamicConfig
+import groovy.transform.Canonical
 
 /**
  * configurations for the selection - autocomplete widget
@@ -10,9 +9,8 @@ import org.grails.plugin.easygrid.ast.DynamicConfig
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@DynamicConfig
-@AutoClone
-class AutocompleteConfig {
+@Canonical
+class AutocompleteConfig extends AbstractDynamicConfig{
 
     String idProp     // the name of the property of the id of the selected element (optionKey - in the replaced select tag)
 
@@ -27,4 +25,7 @@ class AutocompleteConfig {
     Boolean showSeparateLabel // flag that indicates if the selection widget should be rendered with a seperate label
 
     Class autocompleteService // the service
+
+    AutocompleteConfig() {
+    }
 }

@@ -17,6 +17,7 @@ import java.lang.reflect.Modifier
 
 import static org.codehaus.groovy.grails.commons.GrailsClassUtils.getStaticFieldValue
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
+import static org.grails.plugin.easygrid.GridUtils.cloneGrid
 
 /**
  * handles the initialization of the grid
@@ -228,7 +229,7 @@ class EasygridInitService {
         log.debug "start adding default values: $originalGridConfig"
 
         Map defaultValues = grailsApplication?.config?.easygrid
-        GridConfig gridConfig = originalGridConfig.deepClone()
+        GridConfig gridConfig = cloneGrid originalGridConfig
 
         assert gridConfig.id
 

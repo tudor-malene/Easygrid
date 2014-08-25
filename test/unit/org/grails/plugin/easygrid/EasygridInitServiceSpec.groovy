@@ -7,6 +7,8 @@ import org.codehaus.groovy.grails.commons.DefaultGrailsControllerClass
 import spock.lang.Ignore
 import spock.lang.Specification
 
+import static org.grails.plugin.easygrid.GridUtils.cloneGrid
+
 
 /**
  * tests the building of grids
@@ -120,39 +122,36 @@ class EasygridInitServiceSpec extends Specification {
 
         when: "clone"
         GridConfig gridCfg1 = gridConfigs.authorGrid
-        GridConfig gridCfg2 = gridCfg1.deepClone()
-        then:
+        GridConfig gridCfg2 = cloneGrid gridCfg1
+
+        then: "the 2 grids are different"
         gridCfg1 != gridCfg2
+        !(gridCfg1.columns.is(gridCfg2.columns))
+        !(gridCfg1.columns.birthDate.is(gridCfg2.columns.birthDate))
+        !(gridCfg1.columns.birthDate.jqgrid.is(gridCfg2.columns.birthDate.jqgrid))
+//        !(gridCfg1.dynamicProperties.is(gridCfg2.dynamicProperties))
+
+        and: "the other properties are still the same"
+        gridCfg1.columns.birthDate.jqgrid.width == gridCfg2.columns.birthDate.jqgrid.width
+        gridCfg1.columns.birthDate.name == gridCfg2.columns.birthDate.name
 
 
         when: "set some property on the original"
         gridCfg1.jqgrid.height = 200
-
         then: "test that the cloned version does not 'see' it"
         150 == gridCfg2.jqgrid.height
-        gridCfg1.columns.birthDate.jqgrid.width == gridCfg2.columns.birthDate.jqgrid.width
-        gridCfg1.columns.birthDate.name == gridCfg2.columns.birthDate.name
-        gridCfg1.columns != gridCfg2.columns
-        gridCfg1.columns.birthDate != gridCfg2.columns.birthDate
-        !(gridCfg1.columns.birthDate.jqgrid.is(gridCfg2.columns.birthDate.jqgrid))
-        !(gridCfg1.dynamicProperties.is(gridCfg2.dynamicProperties))
 
 
         when:
         gridCfg1.xx = 0
-
         then:
         gridCfg2.xx == null
-        gridCfg1.columns[0] != gridCfg2.columns[0]
-
-
+        !(gridCfg1.columns[0].is(gridCfg2.columns[0]))
 
         when:
         gridCfg1.columns[0].xx = 0
-
         then:
         gridCfg2.columns[0].xx == null
-
 
     }
 

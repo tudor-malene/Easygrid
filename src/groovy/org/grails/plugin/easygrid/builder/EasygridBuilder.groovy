@@ -1,14 +1,7 @@
 package org.grails.plugin.easygrid.builder
 
 import grails.util.ClosureToMapPopulator
-import org.grails.plugin.easygrid.AutocompleteConfig
-import org.grails.plugin.easygrid.ColumnConfig
-import org.grails.plugin.easygrid.ExportConfig
-import org.grails.plugin.easygrid.FilterFieldConfig
-import org.grails.plugin.easygrid.FilterFormConfig
-import org.grails.plugin.easygrid.GridConfig
-import org.grails.plugin.easygrid.GridUtils
-import org.grails.plugin.easygrid.ListMapWrapper
+import org.grails.plugin.easygrid.*
 
 /**
  * implementation for the EasyGrid DSL

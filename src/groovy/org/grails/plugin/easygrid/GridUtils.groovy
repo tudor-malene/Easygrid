@@ -1,5 +1,9 @@
 package org.grails.plugin.easygrid
 
+import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.Serializer
+import com.esotericsoftware.kryo.io.Input
+import com.esotericsoftware.kryo.io.Output
 import grails.validation.ValidationErrors
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -9,6 +13,8 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.codehaus.groovy.grails.web.binding.DataBindingUtils
+
+import java.awt.*
 
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
 import static org.grails.plugin.easygrid.EasygridContextHolder.getSession
@@ -163,10 +169,9 @@ class GridUtils {
         session.getAttribute(getLastSearchAttributeName(gridConfig))
     }
 
-    static String getLastSearchAttributeName(gridConfig){
+    static String getLastSearchAttributeName(gridConfig) {
         "searchParams_${gridConfig.id}".toString()
     }
-
 
     /**
      * hack to navigate nested objects
@@ -246,7 +251,6 @@ class GridUtils {
         false
     }
 
-
     /**
      * returns the property type of a gorm domain class
      * @param grailsApplication
@@ -314,4 +318,42 @@ class GridUtils {
     static def externalParams(gridConfig) {
         params.findAll { k, v -> k in gridConfig.externalParams }
     }
+
+
+    static GridConfig cloneGrid(GridConfig grid) {
+        //clones the grid via Kryo
+        Kryo kryo = new Kryo();
+        kryo.addDefaultSerializer(Color, new CloneSerializer() {
+            public copy(Kryo kryo1, original) {
+                original
+            }
+        });
+        kryo.addDefaultSerializer(Closure, new CloneSerializer())
+        kryo.addDefaultSerializer(ExpandoMetaClass, new CloneSerializer() {
+            public copy(Kryo kryo1, original) {
+                original
+            }
+        })
+        kryo.copy(grid);
+    }
+
+}
+
+//utility
+class CloneSerializer extends Serializer {
+
+    @Override
+    void write(Kryo kryo, Output output, Object object) {
+        throw new RuntimeException("not implemented")
+    }
+
+    @Override
+    Object read(Kryo kryo, Input input, Class type) {
+        throw new RuntimeException("not implemented")
+    }
+
+    public copy(Kryo kryo1, original) {
+        original.clone()
+    }
+
 }

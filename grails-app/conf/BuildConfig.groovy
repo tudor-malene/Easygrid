@@ -12,6 +12,7 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenCentral()
         mavenRepo "http://repo.grails.org/grails/core"
+        mavenRepo "http://repo.grails.org/grails/core"
     }
 
     dependencies {
@@ -20,6 +21,7 @@ grails.project.dependency.resolution = {
             exclude(group: 'commons-lang', name: 'commons-lang')
         }
         compile 'commons-beanutils:commons-beanutils:1.9.2'
+        compile 'com.esotericsoftware.kryo:kryo:2.24.0'
         test 'cglib:cglib-nodep:3.1'
     }
 

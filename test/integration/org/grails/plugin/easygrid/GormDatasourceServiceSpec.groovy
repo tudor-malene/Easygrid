@@ -600,6 +600,7 @@ class GormDatasourceServiceSpec extends IntegrationSpec {
         def petsGridConfig = generateConfigForGrid(grailsApplication, service) {
             'petsGridConfig' {
                 domainClass PetTest
+                externalParams(['id'])
                 initialCriteria {
                     projections {
                         owner {

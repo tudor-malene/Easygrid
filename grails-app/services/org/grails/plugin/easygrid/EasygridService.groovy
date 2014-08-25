@@ -5,6 +5,7 @@ import org.springframework.web.context.request.RequestContextHolder
 
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
 import static org.grails.plugin.easygrid.EasygridContextHolder.storeParams
+import static org.grails.plugin.easygrid.GridUtils.cloneGrid
 import static org.grails.plugin.easygrid.GridUtils.retreiveLastSearch
 
 /**
@@ -178,7 +179,7 @@ class EasygridService {
 
     GridConfig overwriteGridProperties(GridConfig gridConfig, attrs, ignoreProps = []) {
 
-        def gridClone = gridConfig.deepClone()
+        def gridClone = cloneGrid gridConfig
         //overwrite grid properties
         attrs.findAll { !(it.key in (['name', 'id', 'controller'] + ignoreProps)) }.each { property, value ->
             try {

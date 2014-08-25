@@ -1,13 +1,13 @@
 package org.grails.plugin.easygrid
 
-import groovy.transform.AutoClone
+import groovy.transform.Canonical
 
 /**
  * Utility class that allows accessing elements either by name or by index
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@AutoClone
+@Canonical
 class ListMapWrapper<T> {
 
     //list of elements by index
@@ -86,15 +86,6 @@ class ListMapWrapper<T> {
         size()
     }
 
-    def deepClone() {
-        ListMapWrapper<ColumnConfig> clone = this.clone()
-        clone.elementList = []
-        clone.elementMap = [:]
-        this.elementMap.each { key, value ->
-            def v = value.deepClone()
-            clone.elementList.add(v)
-            clone.elementMap.put(key, v)
-        }
-        clone
+    ListMapWrapper() {
     }
 }

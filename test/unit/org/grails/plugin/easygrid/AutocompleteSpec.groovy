@@ -60,6 +60,7 @@ class AutocompleteSpec extends Specification {
         service.easygridDispatchService.callDSList = { grid, listParams, filters ->
             TestDomain.where {
                 testStringProperty ==~ "%${term}%"
+                order('id')
             }.list(max: 10)
         }
         def result = service.searchedElementsJSON(autocompleteGridConfig)

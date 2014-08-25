@@ -2,20 +2,7 @@ package org.grails.plugin.easygrid
 
 import org.grails.datastore.mapping.query.api.Criteria
 
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.BN
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.BW
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.CN
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.EN
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.EQ
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.EW
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.GE
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.GT
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.IN
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.LE
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.LT
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.NC
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.NE
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.NI
+import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
 
 /**
  * Created by Tudor on 20.03.2014.

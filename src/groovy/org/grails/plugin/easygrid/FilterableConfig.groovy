@@ -5,7 +5,7 @@ package org.grails.plugin.easygrid
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-class FilterableConfig {
+class FilterableConfig extends AbstractDynamicConfig{
     String name   // the name of the filter field
 
     Boolean enableFilter   // flag that specifies if filtering should be enabled on this column

@@ -1,23 +1,16 @@
 package org.grails.plugin.easygrid
 
-import groovy.transform.AutoClone
 import groovy.transform.Canonical
-import org.grails.plugin.easygrid.ast.DynamicConfig
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
 
 /**
  * Defines the configuration for a grid
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@DynamicConfig
-@AutoClone
 @Canonical
-class GridConfig {
+class GridConfig extends AbstractDynamicConfig{
 
     String id
-
     // the columns
     ListMapWrapper<ColumnConfig> columns = new ListMapWrapper<ColumnConfig>('name')
 
@@ -61,14 +54,16 @@ class GridConfig {
     // lifecycle closures- called during the initialization phase - will receive the gridConfig
     // useful for applying different rules
 
-    // will be called before applying the default values - must be set in the builder
-//    Closure beforeApplyingGridDefaults
     // useful for adding new columns, etc
     Closure beforeApplyingColumnRules
     Closure afterInitialization
 
     //list of params that are passed to the grid for the Rows call
     List<String> externalParams = []
+
+    GridConfig() {
+    }
+
 
     @Override
     public String toString() {

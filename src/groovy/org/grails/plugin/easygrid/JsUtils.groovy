@@ -439,6 +439,9 @@ class JSFunction {
     String gridId
     boolean addGridName = false
 
+    JSFunction() {
+    }
+
     JSFunction(String functionName) {
         this.functionName = functionName[2..-1]
     }
@@ -453,6 +456,9 @@ class JSFunction {
 //used for json marshalling
 class LazyString {
     def lazyStringClosure
+
+    LazyString() {
+    }
 
     LazyString(lazyString) {
         this.lazyStringClosure = lazyString

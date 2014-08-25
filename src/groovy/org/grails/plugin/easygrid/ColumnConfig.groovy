@@ -1,15 +1,13 @@
 package org.grails.plugin.easygrid
 
-import groovy.transform.AutoClone
-import org.grails.plugin.easygrid.ast.DynamicConfig
+import groovy.transform.Canonical
 
 /**
  * defines a grid column
  *
  * @author <a href='mailto:tudor.malene@gmail.com'>Tudor Malene</a>
  */
-@DynamicConfig
-@AutoClone
+@Canonical
 class ColumnConfig extends FilterableConfig{
 
 //    String name   // the name of the column - used for accessing the column in th grid or for other configurations ( like property or label)
@@ -33,4 +31,7 @@ class ColumnConfig extends FilterableConfig{
     Boolean showInSelection // if selection is enabled for the grid - this flag decides if this column will be shown in the dialog
 
 //    Map view //will contain the view properties
+
+    ColumnConfig() {
+    }
 }
