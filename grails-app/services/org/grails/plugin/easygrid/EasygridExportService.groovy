@@ -45,7 +45,7 @@ class EasygridExportService {
             data.each { element ->
                 def resultRow = [:]
                 GridUtils.eachColumn(gridConfig, true) { column, row ->
-                    resultRow[column.name] = GridUtils.valueOfExportColumn(gridConfig, column, element, row + 1)
+                    resultRow[getColName(column)] = GridUtils.valueOfExportColumn(gridConfig, column, element, row + 1)
                 }
                 exportData.add resultRow
             }
@@ -54,8 +54,9 @@ class EasygridExportService {
             def fields = []
             def labels = [:]
             GridUtils.eachColumn(gridConfig, true) { ColumnConfig column ->
-                fields << column.name
-                labels[column.name] = grailsApplication.mainContext.getMessage(column.label, new Object[0], column.label, RequestContextUtils.getLocale(request))
+                def colName=getColName(column)
+                fields << colName
+                labels[colName] = grailsApplication.mainContext.getMessage(column.label, new Object[0], column.label, RequestContextUtils.getLocale(request))
             }
             log.debug("export fields: $fields")
             log.debug("export labels: $labels")
@@ -74,4 +75,13 @@ class EasygridExportService {
             exportService.export(format, response.outputStream, exportData, fields, labels, [:], parameters)
         }
     }
+
+    /**
+     * the export plugin ignores columns with '.'
+     */
+    static def getColName(column){
+        String name = column.name
+        name.replaceAll('\\.','_')
+    }
+
 }
