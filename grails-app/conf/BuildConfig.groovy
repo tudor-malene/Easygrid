@@ -12,7 +12,6 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenCentral()
         mavenRepo "http://repo.grails.org/grails/core"
-        mavenRepo "http://repo.grails.org/grails/core"
     }
 
     dependencies {
@@ -28,21 +27,16 @@ grails.project.dependency.resolution = {
 
     plugins {
 
-        //plugins used for the actual functionalty
+        //plugins used for the actual functionality
         runtime ":jquery:1.11.1"
         compile ':export:1.6'
         runtime ':google-visualization:0.7'
 
         //local plugins
-        runtime(":resources:1.2.8") { export = false }
+//        runtime(":resources:1.2.8") { export = false }
         compile(":scaffolding:2.1.2") { export = false }
         build(":release:3.0.1") { export = false }
         compile(':hibernate4:4.3.5.4') { export = false }
-//        compile(":hibernate:3.6.10.16") { export = false }
-
-//        plugins incompatible with grails version >= 2.4
-//        compile ":joda-time:1.4"
-//        compile ":jquery-ui:1.10.3"
 
     }
 }

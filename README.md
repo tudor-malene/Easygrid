@@ -12,6 +12,12 @@ It also provides a powerful selection widget (a direct replacement for drop-boxe
 ## Installation
 Add the following plugin dependencies to your `BuildConfig.groovy`
 ```groovy
+repositories {
+...
+      // required by a dependency of the export plugin 
+      mavenRepo "http://repo.grails.org/grails/core"
+}
+...
 grails.project.dependency.resolution = {
     plugins {
         ...
@@ -31,7 +37,8 @@ grails.project.dependency.resolution = {
 ```
 Check latest published version on [Grails plugin portal](http://grails.org/plugin/easygrid).
 
-After installation you need to run `grails easygrid-setup` command
+After installation you need to run `grails easygrid-setup` command. 
+This will append the grid templates in the /templates/easygrid folder, where you can customize them. And it will also add the '/conf/EasygridConfig.groovy' file - where you can add general settings.
 
 
 ## Overview
@@ -404,6 +411,10 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 ## Version History
 
+### 1.6.5
+Improvements:
+- integration with the assets-pipeline plugin
+
 ### 1.6.4
 Bugs:
 - https://github.com/tudor-malene/Easygrid/issues/111
@@ -571,6 +582,17 @@ Bugs:
 
 
 ## Upgrade
+
+#### Upgrading to 1.6.5
+ You can add the resources via the resources plugin like this: ```<r:require modules="easygrid-jqgrid-dev,export"/>``` , 
+ or via the assets-pipeline plugin like:
+ ```
+     <asset:javascript src="easygrid.jqgrid.js"/>
+     <asset:stylesheet src="easygrid.jqgrid.css"/>
+     <asset:stylesheet src="export.css"/>
+ ```
+The convention is: 'easygrid.${implementation}.[js/css]'
+For the selection widget you have to add: 'easygrid.selection.js' together with jqgrid
 
 #### Upgrading to 1.6.4
  Merge `_jqGridRenderer.gsp` and/or `_dataTablesGridRenderer.gsp`
