@@ -415,6 +415,9 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 Improvements:
 - integration with the assets-pipeline plugin
 
+Bugs:
+- fixed export bug: https://github.com/tudor-malene/Easygrid/issues/102
+
 ### 1.6.4
 Bugs:
 - https://github.com/tudor-malene/Easygrid/issues/111
