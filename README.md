@@ -22,7 +22,7 @@ grails.project.dependency.resolution = {
     plugins {
         ...
         // EasyGrid plugin http://grails.org/plugin/easygrid
-        compile ":easygrid:1.6.4"
+        compile ":easygrid:1.6.6"
         // For minimum functionality you need: jquery-ui and the export plugins.
         // Export Plugin http://grails.org/plugin/export
         compile ":export:1.6"
