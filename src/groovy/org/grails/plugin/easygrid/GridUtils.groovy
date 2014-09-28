@@ -319,28 +319,36 @@ class GridUtils {
         params.findAll { k, v -> k in gridConfig.externalParams }
     }
 
+    // Setup ThreadLocal of Kryo
+    private static ThreadLocal<Kryo> kryos = new ThreadLocal<Kryo>() {
+        protected Kryo initialValue() {
+            Kryo kryo = new Kryo();
+            kryo.addDefaultSerializer(Closure, new CloneSerializer())
+            kryo.addDefaultSerializer(Color, new OriginalSerializer() );
+            kryo.addDefaultSerializer(ExpandoMetaClass, new OriginalSerializer() )
+            kryo.addDefaultSerializer(MetaClass, new OriginalSerializer())
+            //todo - add posibility to add other serializers
+            return kryo;
+        };
+    };
+
 
     static GridConfig cloneGrid(GridConfig grid) {
         //clones the grid via Kryo
-        Kryo kryo = new Kryo();
-        kryo.addDefaultSerializer(Color, new CloneSerializer() {
-            public copy(Kryo kryo1, original) {
-                original
-            }
-        });
-        kryo.addDefaultSerializer(Closure, new CloneSerializer())
-        kryo.addDefaultSerializer(ExpandoMetaClass, new CloneSerializer() {
-            public copy(Kryo kryo1, original) {
-                original
-            }
-        })
+        Kryo kryo = kryos.get();
         kryo.copy(grid);
     }
 
 }
 
 //utility
-class CloneSerializer extends Serializer {
+class CloneSerializer extends OriginalSerializer {
+    public copy(Kryo kryo1, original) {
+        original.clone()
+    }
+}
+
+class OriginalSerializer extends Serializer {
 
     @Override
     void write(Kryo kryo, Output output, Object object) {
@@ -353,7 +361,6 @@ class CloneSerializer extends Serializer {
     }
 
     public copy(Kryo kryo1, original) {
-        original.clone()
+        original
     }
-
 }
