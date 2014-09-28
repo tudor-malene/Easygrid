@@ -411,6 +411,12 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 ## Version History
 
+### 1.6.6
+Bugs:
+- https://github.com/tudor-malene/Easygrid/issues/116
+- https://github.com/tudor-malene/Easygrid/pull/119 ( Thanks to jonnybot0 )
+- https://github.com/tudor-malene/Easygrid/issues/120  ( Thanks to Ken Doig )
+
 ### 1.6.5
 Improvements:
 - integration with the assets-pipeline plugin
