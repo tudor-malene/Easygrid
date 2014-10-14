@@ -33,6 +33,8 @@ class EasygridTagLib {
      * @attr domain - the domain class to scaffold the grid
      * @attr id - the javascript id of the component ( by default the grid name)
      * @attr controller - the controller where the grid is defined ( by default the current controller)
+     * @attr masterGrid -(only for subgrids) the id of the master grid
+     * @attr childParamName -(only for subgrids) the parameter name which can be used in the globalFilterClosure to retrieve the id of the selected master row
      */
     def grid = { attrs, body ->
 
@@ -178,6 +180,8 @@ class EasygridTagLib {
         //ignore the attributes of the export tag
         def gridConfig = easygridService.overwriteGridProperties(easygridService.getGridConfig(retrieveController(attrs), attrs.name), attrs, ['formats', 'params'])
         attrs.action = "${gridConfig.id}Export"
+        attrs.params = GridUtils.externalParams(gridConfig)
+
         out << export.formats(attrs)
     }
 

@@ -413,6 +413,11 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 ### 1.6.6
 Bugs:
+- https://github.com/tudor-malene/Easygrid/issues/123 ( json rendering on grails <= 2.2 )
+- https://github.com/tudor-malene/Easygrid/issues/121
+
+### 1.6.6
+Bugs:
 - https://github.com/tudor-malene/Easygrid/issues/116
 - https://github.com/tudor-malene/Easygrid/pull/119 ( Thanks to jonnybot0 )
 - https://github.com/tudor-malene/Easygrid/issues/120  ( Thanks to Ken Doig )

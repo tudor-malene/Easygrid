@@ -4,6 +4,7 @@ import grails.converters.JSON
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
 import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
 import org.codehaus.groovy.grails.web.json.JSONElement
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONException
 
 //import static org.grails.plugin.easygrid.JqGridUtils.JqgridType.*
@@ -18,7 +19,6 @@ class JsUtils {
 
     static def registerMarshallers() {
 
-        //register custom json marshaller - will handle special conventions like 'f:funcName' and 'g:funcName'
         JSON.registerObjectMarshaller(new ObjectMarshaller<JSON>() {
             @Override
             boolean supports(Object object) {
@@ -28,16 +28,16 @@ class JsUtils {
             @Override
             void marshalObject(Object object, JSON converter) throws ConverterException {
                 try {
-                    converter.getWriter().value(new JSONElement() {
-                        Writer writeTo(Writer out) throws IOException {
-                            if (object.addGridName) {
-                                out.write("${object.functionName}('${object.gridId}')")
-                            } else {
-                                out.write(object.functionName)
-                            }
+                    converter.getWriter().value(new JSONObject() {
+                        //used by older grails
+                        String toString() {
+                            object.toString()
                         }
-                    }
-                    )
+
+                        Writer writeTo(Writer out) throws IOException {
+                            out.write(object.toString())
+                        }
+                    })
                 }
                 catch (JSONException e) {
                     throw new ConverterException(e);
@@ -434,7 +434,7 @@ class JsUtils {
 }
 
 //used for json marshalling
-class JSFunction {
+class JSFunction implements JSONElement {
     String functionName
     String gridId
     boolean addGridName = false
@@ -450,6 +450,21 @@ class JSFunction {
         this.functionName = functionName[2..-1]
         this.addGridName = true
         this.gridId = gridId
+    }
+
+
+    @Override
+    public String toString() {
+        if (addGridName) {
+            "${functionName}('${gridId}')"
+        } else {
+            functionName
+        }
+    }
+
+    @Override
+    Writer writeTo(Writer out) throws IOException {
+        out.append(this.toString())
     }
 }
 

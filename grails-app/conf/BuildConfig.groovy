@@ -37,6 +37,6 @@ grails.project.dependency.resolution = {
         compile(":scaffolding:2.1.2") { export = false }
         build(":release:3.0.1") { export = false }
         compile(':hibernate4:4.3.5.4') { export = false }
-
+//        compile(":asset-pipeline:1.9.9") { export = false }
     }
 }

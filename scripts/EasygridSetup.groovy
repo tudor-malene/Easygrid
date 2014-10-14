@@ -1,7 +1,7 @@
 includeTargets << grailsScript("_GrailsInit")
 
 target(easygridSetup: "The description of the script goes here!") {
-    //todo - create EasygridConfig file
+    // create EasygridConfig file
     File configFile = new File(basedir, 'grails-app/conf/EasygridConfig.groovy')
     Boolean writeConfig = (!configFile.exists()) ?: promptForOverwrite(configFile.name)
     if (writeConfig) {
