@@ -411,7 +411,11 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 ## Version History
 
-### 1.6.6
+### 1.6.8
+Bugs:
+- Fixed builder issue. 
+
+### 1.6.7
 Bugs:
 - https://github.com/tudor-malene/Easygrid/issues/123 ( json rendering on grails <= 2.2 )
 - https://github.com/tudor-malene/Easygrid/issues/121

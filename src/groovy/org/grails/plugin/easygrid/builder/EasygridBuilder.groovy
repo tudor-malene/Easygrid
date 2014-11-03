@@ -43,8 +43,7 @@ class EasygridBuilder {
             switch (name) {
 
                 case (GridUtils.findImplementations(defaultValues)):    //handle simple key-value properties for the different implementations
-                    gridConfig[name] = new ClosureToMapPopulator().populate(args[0])
-
+                    gridConfig[name] = new RecursiveClosureToMap().populate(args[0])
                     break;
 
 

@@ -132,7 +132,7 @@ class GridUtils {
                         to[prop] = [:]
                     }
                     if (!(to[prop] instanceof Map)) {
-                        throw new ConfigurationException("Trying to copy properties from ${val} to ${to[prop]}. ${to[prop]} should be a map")
+                        throw new ConfigurationException("Trying to copy properties from ${val} to ${to[prop]}. ${to[prop]} should be a map. Property is: ${prop}")
                     }
                     copyProperties(val, to[prop], level - 1)
                 }

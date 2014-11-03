@@ -35,6 +35,13 @@ class JqgridSpec extends Specification {
                 dataSourceType 'list'
                 context 'session'
                 attributeName 'listData'
+                jqgrid {
+                    navGrid {
+                        generalOpts {
+                            add true
+                        }
+                    }
+                }
                 columns {
                     col1 {
                         filterDataType String
