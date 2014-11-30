@@ -33,7 +33,7 @@ class Filters {
     def leftShift(filter) {
         if (filter) {
             if (filter instanceof Collection) {
-                filters.addAll(filter)
+                filters.addAll(filter.findAll{it})
             } else {
                 filters << filter
             }
