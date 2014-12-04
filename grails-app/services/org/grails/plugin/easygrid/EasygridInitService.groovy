@@ -10,7 +10,6 @@ import org.codehaus.groovy.grails.commons.GrailsControllerClass
 import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -29,6 +28,7 @@ class EasygridInitService {
 
     public static final String GRID_SUFFIX = 'Grid'
     public static final String GRIDS_FIELD = 'grids'
+    public static final String GRIDS_MAP_SUFFIX = 'GridMap'
 
     static transactional = false
 
@@ -178,12 +178,22 @@ class EasygridInitService {
             }
         }
 
-        //add all the grids defined in closures ending with 'Grid'
-        controllerClass.declaredFields.findAll { Field field -> field.name.endsWith(GRID_SUFFIX) && !Modifier.isStatic(field.modifiers) && (controllerBean[field.name] instanceof Closure) }.each { Field field ->
-            def name = field.name[0..-GRID_SUFFIX.length() - 1]
-            controllerGridsMap[name] = initializeFromClosureMethod(name, controllerBean[field.name])
-            //remove the action
-            //todo
+        //add all the grids defined in closures ending with 'Grid' or in maps that end with 'GridMap'
+        controllerClass.declaredFields.findAll { Field field -> ((field.name.endsWith(GRID_SUFFIX) && (controllerBean[field.name] instanceof Closure)) ||
+                field.name.endsWith(GRIDS_MAP_SUFFIX)) && !Modifier.isStatic(field.modifiers) }.each { Field field ->
+            if (field.name.endsWith(GRIDS_MAP_SUFFIX)) {
+                Map map = controllerBean[field.name]
+
+                map.findAll { it.key.endsWith(GRID_SUFFIX) && (it.value instanceof Closure) }.each { name, closure ->
+                    def gridName = name[0..-GRID_SUFFIX.length() - 1]
+                    controllerGridsMap[gridName] = initializeFromClosureMethod(gridName, closure)
+                }
+            } else {
+                def name = field.name[0..-GRID_SUFFIX.length() - 1]
+                controllerGridsMap[name] = initializeFromClosureMethod(name, controllerBean[field.name])
+                //remove the action
+                //todo
+            }
         }
 
         controllerGridsMap
