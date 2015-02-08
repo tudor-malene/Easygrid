@@ -340,6 +340,7 @@ easygrid {
             actions {
                 value = { '' }
                 enableFilter = false
+                sortable = false
                 jqgrid {
                     formatter = 'actions'
                     editable = false

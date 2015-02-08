@@ -214,15 +214,16 @@ class EasygridTagLib {
         if (attrs.id == null) {
             attrs.id = attrs.name
         }
-        out << "<form name='${attrs.id}' onsubmit='"
+        out << "<form name='${attrs.id}' onsubmit=\""
         if (attrs.function) {
             out << "${attrs.function};"
         }
-        out << "return easygrid.filterForm('${attrs.name}',this)"
-        out << "'>"
+        out << "return easygrid.filterForm('${attrs.name}_table',this)"
+        out << "\">"
         out << body()
         out << "</form> "
     }
+
 
     /**
      * Generates a selection widget -

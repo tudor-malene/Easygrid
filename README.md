@@ -411,9 +411,23 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 ## Version History
 
+### 1.6.9.1
+Improvements:
+- integration with the assets-pipeline 2 plugin
+- added support for 'inlineNav' in the jqgridRenderer template
+
+Bugs:
+- various errors on the filterForm ( thanks to https://github.com/sebDK )
+- sortable on jqgrid was not in sync with 'sortable' of the column
+
+
+### 1.6.9
+Bugs:
+- Fixed filter issue.
+
 ### 1.6.8
 Bugs:
-- Fixed builder issue. 
+- Fixed builder issue.
 
 ### 1.6.7
 Bugs:
@@ -600,6 +614,10 @@ Bugs:
 
 
 ## Upgrade
+
+#### Upgrading to 1.6.9.1
+ - Merge `_jqGridRenderer.gsp`
+ - when using inline editing with jqgrid, by default rows will enter editing mode on doubleclick
 
 #### Upgrading to 1.6.5
  You can add the resources via the resources plugin like this: ```<r:require modules="easygrid-jqgrid-dev,export"/>``` , 

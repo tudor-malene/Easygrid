@@ -41,6 +41,11 @@ class JqueryGridService {
                 }
             }
         }
+
+        //disable sorting in the UI if the column is not sortable
+        gridConfig.columns.each { ColumnConfig columnConfig ->
+            columnConfig.jqgrid.sortable = columnConfig.sortable
+        }
     }
 
     def filters(GridConfig gridConfig) {
@@ -142,7 +147,7 @@ class JqueryGridService {
                 //send the version
                 success.version = response.instance?.version
             }
-            if (response.instance[gridConfig.idColName] != null) {
+            if (response.instance?."${gridConfig.idColName}" != null) {
                 success.id = response.instance[gridConfig.idColName]
             }
             httpResponse.text = success as JSON

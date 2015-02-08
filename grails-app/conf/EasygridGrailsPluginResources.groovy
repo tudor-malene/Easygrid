@@ -75,9 +75,9 @@ modules = {
     'easygrid-visualization-dev' {
 //        dependsOn 'jquery-ui', 'easygrid-theme'
 
-        resource id: 'js-visualization-api', url: [plugin: 'easygrid', dir: "visualization", file: "jsapi.js"],
+        resource id: 'js-visualization-api', url: [plugin: 'easygrid', dir: "js/visualization", file: "jsapi.js"],
                 nominify: true, disposition: 'head'
-        resource id: 'js-visualization-util', url: [plugin: 'easygrid', dir: "visualization", file: "visualizationUtils.js"],
+        resource id: 'js-visualization-util', url: [plugin: 'easygrid', dir: "js/visualization", file: "visualizationUtils.js"],
                 nominify: true, disposition: 'head'
     }
 

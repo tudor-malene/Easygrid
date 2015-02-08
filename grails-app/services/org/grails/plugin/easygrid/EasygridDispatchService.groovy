@@ -40,7 +40,7 @@ class EasygridDispatchService {
             DS      : 'dataSourceService',
             AC      : 'autocomplete.autocompleteService',
             Export  : 'export.exportService',
-            FFF     : 'filterForm.filterFormService'
+            FF      : 'filterForm.filterFormService'
     ]
 
     //optimization - parse the method call

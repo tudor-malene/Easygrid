@@ -5,7 +5,6 @@
 <g:set var="conf" value="${gridConfig.jqgrid}"/>
 
 <table id="${gridId}"></table>
-
 <div id="${pagerId}"></div>
 
 <jq:jquery>
@@ -24,7 +23,7 @@
     <g:if test="${gridConfig.inlineEdit}">
         editurl: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}InlineEdit")}',
         cellurl: '${g.createLink(controller: attrs.controller, action: "${gridConfig.id}InlineEdit")}',
-        onSelectRow: easygrid.onSelectRowInlineEdit('${gridId}'),
+        ondblClickRow: easygrid.onSelectRowInlineEdit('${gridId}'),
     </g:if>
     colModel: [
     <grid:eachColumn gridConfig="${gridConfig}">
@@ -65,6 +64,12 @@
         <g:if test="${gridConfig.addFunction}">
             .jqGrid('navButtonAdd','#${pagerId}',{caption:"", buttonicon:"ui-icon-plus", onClickButton:${gridConfig.addFunction}});
         </g:if>
+    </g:if>
+
+    <g:if test="${conf.inlineNav}">
+        jQuery('#${gridId}').jqGrid('inlineNav','#${pagerId}',
+        ${JsUtils.convertToJs(conf.inlineNav, gridId)}
+        )
     </g:if>
 </jq:jquery>
 
