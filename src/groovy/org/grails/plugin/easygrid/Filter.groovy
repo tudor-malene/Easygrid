@@ -7,6 +7,8 @@ package org.grails.plugin.easygrid
  */
 class Filter {
 
+    public static final Object FAILED_CONVERSION = new Object()
+
     // the column on which the filter was applied
     FilterableConfig filterable
 
@@ -62,6 +64,11 @@ class Filter {
         this.params = EasygridContextHolder.params
     }
 
+    static Closure v(value, Closure c){
+        (value == Filter.FAILED_CONVERSION)?null:c
+    }
+
+
 }
 
 enum FilterOperatorsEnum {
@@ -78,9 +85,9 @@ enum FilterOperatorsEnum {
     EW('ends with'),
     EN('does not end with'),
     CN('contains'),
-    NC('does not contain')
-//    nu,
-//    nn,
+    NC('does not contain'),
+    NU('is null'),
+    NN('is not null')
 
     FilterOperatorsEnum(String name) {
         this.name = name

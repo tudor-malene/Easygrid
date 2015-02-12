@@ -16,6 +16,7 @@ import static org.grails.plugin.easygrid.FiltersEnum.or
 import static org.grails.plugin.easygrid.GridUtils.getDomainProperty
 import static org.grails.plugin.easygrid.GridUtils.getNestedPropertyValue
 import static org.grails.plugin.easygrid.GridUtils.valueOfSortColumn
+import static org.grails.plugin.easygrid.Filter.v
 
 /**
  * Datasource implementation
@@ -144,10 +145,12 @@ class ListDatasourceService {
                         return { row ->
                             boolean result = node.type == and  // true - for 'and' , and false for 'or'
                             for (Closure criteria : siblings) {
-                                result = DefaultGroovyMethods."${node.type}"(result, criteria(row))
-                                //optimization - if result=0 for 'and' or 1 for 'or' then stop and return
-                                if (result == (node.type == or)) {
-                                    break
+                                if(criteria) {
+                                    result = DefaultGroovyMethods."${node.type}"(result, criteria(row))
+                                    //optimization - if result=0 for 'and' or 1 for 'or' then stop and return
+                                    if (result == (node.type == or)) {
+                                        break
+                                    }
                                 }
                             }
                             result
@@ -168,20 +171,22 @@ class ListDatasourceService {
 //thanks to doig ken
     private Closure createFilterClosure(FilterOperatorsEnum operator, String property, Object value) {
         switch (operator) {
-            case EQ: return { row -> row[property] == value }
-            case NE: return { row -> row[property] != value }
-            case LT: return { row -> row[property] < value }
-            case LE: return { row -> row[property] <= value }
-            case GT: return { row -> row[property] > value }
-            case GE: return { row -> row[property] >= value }
-            case BW: return { row -> row[property].startsWith(value) }
-            case BN: return { row -> !(row[property].startsWith(value)) }
-            case IN: return { row -> row[property] in value }
-            case NI: return { row -> !(row[property] in value) }
-            case EW: return { row -> row[property].endsWith(value) }
-            case EN: return { row -> !(row[property].endsWith(value)) }
-            case CN: return { row -> row[property].contains(value) }
-            case NC: return { row -> !(row[property].contains(value)) }
+            case EQ: return v(value){ row -> row[property] == value }
+            case NE: return v(value){ row -> row[property] != value }
+            case LT: return v(value){ row -> row[property] < value }
+            case LE: return v(value){ row -> row[property] <= value }
+            case GT: return v(value){ row -> row[property] > value }
+            case GE: return v(value){ row -> row[property] >= value }
+            case BW: return v(value){ row -> row[property].startsWith(value) }
+            case BN: return v(value){ row -> !(row[property].startsWith(value)) }
+            case IN: return v(value){ row -> row[property] in value }
+            case NI: return v(value){ row -> !(row[property] in value) }
+            case EW: return v(value){ row -> row[property].endsWith(value) }
+            case EN: return v(value){ row -> !(row[property].endsWith(value)) }
+            case CN: return v(value){ row -> row[property].contains(value) }
+            case NC: return v(value){ row -> !(row[property].contains(value)) }
+            case NU: return { row -> row[property] == null }
+            case NN: return { row -> row[property] != null }
             default: log.warn("Operation not supported [${op}]")
         }
     }

@@ -177,6 +177,18 @@ class GormDatasourceServiceSpec extends IntegrationSpec {
 
         then:
         [100] == val.collect { it.testIntProperty }
+
+        when:
+        val = service.list(domainGridConfig,
+                [maxRows: 5, sort: 'testIntProperty'],
+                new Filters(filters:
+                        [
+                                filterService.createFilterFromColumn(domainGridConfig, domainGridConfig.columns.testStringProperty, NN, ''),
+                        ])
+        )
+
+        then:
+        [1,2,3,4,5] == val.collect { it.testIntProperty }
     }
 
     def "test Gorm operations"() {

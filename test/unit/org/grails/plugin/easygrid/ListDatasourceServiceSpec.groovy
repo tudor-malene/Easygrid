@@ -6,9 +6,7 @@ import org.grails.plugin.easygrid.datasource.ListDatasourceService
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.EW
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.GT
-import static org.grails.plugin.easygrid.FilterOperatorsEnum.LT
+import static org.grails.plugin.easygrid.FilterOperatorsEnum.*
 import static org.grails.plugin.easygrid.FiltersEnum.or
 import static org.grails.plugin.easygrid.TestUtils.generateConfigForGrid
 import static org.grails.plugin.easygrid.TestUtils.mockEasyGridContextHolder
@@ -165,6 +163,7 @@ class ListDatasourceServiceSpec extends Specification {
         when:
         def filters = new Filters(filters: [
                 filterService.createFilterFromColumn(peopleGridConfig, peopleGridConfig.columns.name, EW, '1'),
+                filterService.createFilterFromColumn(peopleGridConfig, peopleGridConfig.columns.name, NN, null),
                 new Filters(type: or, filters: [
                         filterService.createFilterFromColumn(peopleGridConfig, peopleGridConfig.columns.age, GT, '90'),
                         filterService.createFilterFromColumn(peopleGridConfig, peopleGridConfig.columns.age, LT, '10'),

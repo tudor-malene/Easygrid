@@ -411,6 +411,11 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 
 ## Version History
 
+### 1.7.0
+Improvements:
+- https://github.com/tudor-malene/Easygrid/issues/139 - added "is null" and "is not null" operators
+
+
 ### 1.6.9.1
 Improvements:
 - integration with the assets-pipeline 2 plugin

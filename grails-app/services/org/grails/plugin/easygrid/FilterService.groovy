@@ -28,16 +28,12 @@ class FilterService {
         //if a filterConverter is defined use it , otherwise use the standard binding
         def val = filterableConfig.filterConverter ? filterableConfig.filterConverter(value) : convertValueUsingBinding(value, filterableConfig.filterDataType)
 
-        // by default - if the conversion fails - ignore the filter
-        if (val == null) {
-            return null
-        }
-
         def f = new Filter()
+
         f.filterable = filterableConfig
         f.paramName = filterableConfig.name
         f.paramValue = value
-        f.value = val
+        f.value = (val==null) ? Filter.FAILED_CONVERSION : val
         f.operator = (operator ?: filterableConfig.defaultFilterOperator) ?: grailsApplication.config.easygrid.defaults.filterType[filterableConfig.filterType]?.defaultOperator
         log.warn("operator is null for filter: ${filterableConfig.name}")
 

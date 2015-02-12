@@ -306,12 +306,12 @@ easygrid {
                 width = 25
             }
             //the operators supported for different types of columns
-            filterOperators.text = [CN, NC, EQ, NE, BW, EW]
-            filterOperators.boolean = [EQ, NE]
-            filterOperators.numeric = [EQ, NE, LT, LE, GT, GE]
-            filterOperators.date = [EQ, NE, LT, LE, GT, GE]
-            filterOperators.enum = [EQ, NE]
-            filterOperators.currency = [EQ, NE]
+            filterOperators.text = [CN, NC, EQ, NE, BW, EW, NU, NN]
+            filterOperators.boolean = [EQ, NE, NU, NN]
+            filterOperators.numeric = [EQ, NE, LT, LE, GT, GE, NU, NN]
+            filterOperators.date = [EQ, NE, LT, LE, GT, GE, NU, NN]
+            filterOperators.enum = [EQ, NE, NU, NN]
+            filterOperators.currency = [EQ, NE, NU, NN]
         }
 
         // predefined column types  (set of configurations)
