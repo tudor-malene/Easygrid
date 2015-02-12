@@ -415,6 +415,9 @@ A: You can raise a github ticket, drop me an email to: tudor.malene@gmail.com, o
 Improvements:
 - https://github.com/tudor-malene/Easygrid/issues/139 - added "is null" and "is not null" operators
 
+Bugs:
+- fixed missing resources
+
 
 ### 1.6.9.1
 Improvements:
