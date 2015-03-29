@@ -48,41 +48,7 @@ class EasygridBuilder {
 
 
                 case ('columns'):   //handle the columns section
-                    gridConfig.columns = new ListMapWrapper<ColumnConfig>('name')
-
-                    // handle the columns section
-                    buildWithDelegate(args[0])
-                            { colName, colArgs -> // method missing
-                                def column = new ColumnConfig()
-                                column.name = colName
-
-                                buildWithDelegate(colArgs[0])
-                                        { colProperty, colValue ->
-                                            switch (colProperty) {
-                                                case 'value':
-                                                    column.value = colValue[0]
-                                                    break
-                                                case 'export':
-                                                    column.export = new ClosureToMapPopulator().populate(colValue[0])
-                                                    break
-                                                default:
-                                                    if (colProperty in GridUtils.findImplementations(grailsApplication?.config?.easygrid)) {
-                                                        column[colProperty] = new RecursiveClosureToMap().populate(colValue[0])
-                                                    } else {
-                                                        column[colProperty] = colValue[0]
-                                                    }
-                                                    break
-                                            }
-                                        }
-
-                                assert column.name
-                                gridConfig.columns.add(column)
-                            }
-                            { colName ->     // handle property missing, the case when you only define the label of the column
-                                def column = new ColumnConfig(property: colName, name: colName)
-                                assert column.name
-                                gridConfig.columns.add(column)
-                            }
+                    gridConfig.columns = evaluateColumns(args[0])
                     break
 
                 case ('filterForm'):   //handle the filter form section
@@ -140,6 +106,50 @@ class EasygridBuilder {
         })
         gridConfig
     }
+
+
+    ListMapWrapper<ColumnConfig> evaluateColumns(Closure columnsClosure) {
+        def result = new ListMapWrapper<ColumnConfig>('name')
+        // handle the columns section
+        buildWithDelegate(columnsClosure)
+                { colName, colArgs -> // method missing
+                    result.add evaluateColumn(colName, colArgs[0])
+                }
+                { colName ->     // handle property missing, the case when you only define the label of the column
+                    def column = new ColumnConfig(property: colName, name: colName)
+                    assert column.name
+                    result.add column
+                }
+        result
+    }
+
+    ColumnConfig evaluateColumn(String colName, Closure columnClosure){
+        def column = new ColumnConfig()
+        column.name = colName
+
+        buildWithDelegate(columnClosure)
+                { colProperty, colValue ->
+                    switch (colProperty) {
+                        case 'value':
+                            column.value = colValue[0]
+                            break
+                        case 'export':
+                            column.export = new ClosureToMapPopulator().populate(colValue[0])
+                            break
+                        default:
+                            if (colProperty in GridUtils.findImplementations(grailsApplication?.config?.easygrid)) {
+                                column[colProperty] = new RecursiveClosureToMap().populate(colValue[0])
+                            } else {
+                                column[colProperty] = colValue[0]
+                            }
+                            break
+                    }
+                }
+
+        assert column.name
+        column
+    }
+
 
     /**
      * utility method that invokes the builderClosure closure with the missingMethod of the delegate set as the delegate closure

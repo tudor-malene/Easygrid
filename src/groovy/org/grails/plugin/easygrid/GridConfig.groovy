@@ -11,6 +11,9 @@ import groovy.transform.Canonical
 class GridConfig extends AbstractDynamicConfig{
 
     String id
+
+    String scope = "global" //or "session"
+
     // the columns
     ListMapWrapper<ColumnConfig> columns = new ListMapWrapper<ColumnConfig>('name')
 

@@ -10,7 +10,6 @@ import org.codehaus.groovy.grails.commons.GrailsControllerClass
 import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.grails.plugin.easygrid.builder.EasygridBuilder
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -64,7 +63,7 @@ class EasygridInitService {
         def closureMap = [
                 html  : {
                     easyGridLogger.debug("entering ${gridName}Html")
-                    def model = easygridService.htmlGridDefinition(gridConfig)
+                    def model = easygridService.htmlGridDefinition(easygridService.getGridConfig( gridConfig))
                     if (model) {
                         model.attrs = [id: params.gridId ?: gridConfig.id, params: params]
                         render(template: gridConfig.gridRenderer, model: model)
@@ -72,11 +71,11 @@ class EasygridInitService {
                 },
                 rows  : {
                     easyGridLogger.debug("entering ${gridName}Rows")
-                    render easygridService.gridData(gridConfig)
+                    render easygridService.gridData(easygridService.getGridConfig( gridConfig))
                 },
                 export: {
                     easyGridLogger.debug("entering ${gridName}Export")
-                    easygridService.export(gridConfig)
+                    easygridService.export(easygridService.getGridConfig( gridConfig))
                 },
         ]
 
@@ -202,7 +201,14 @@ class EasygridInitService {
     }
 
 
-    def initializeFromClosure(gridsClosure) {
+    def initializeColumnFromClosure(GridConfig gridConfig, String name, Closure columnClosure){
+        ColumnConfig columnConfig = new EasygridBuilder(grailsApplication).evaluateColumn(name,columnClosure)
+
+        //add default values
+        addDefaultValuesForColumn(grailsApplication?.config?.easygrid, gridConfig, columnConfig)
+    }
+
+    def initializeFromClosure(Closure gridsClosure) {
         generateConfigForGrids(gridsClosure).collectEntries { gridName, gridConfig ->
 
             gridConfig.id = gridName
@@ -300,71 +306,7 @@ class EasygridInitService {
         gridConfig.beforeApplyingColumnRules?.call(gridConfig)
 
         //add the predefined types  to the columns
-        gridConfig.columns.each { ColumnConfig column ->
-            if (!column[gridConfig.gridImpl]) {
-                column[gridConfig.gridImpl] = [:]
-            }
-            if (!column.export) {
-                column.export = [:]
-            }
-
-            // copy the properties from the predefined type
-            if (column.type) {
-                def type = defaultValues?.columns?.types?."$column.type"
-
-                if (type == null) {
-                    throw new RuntimeException("type ${column.type} not defined for grid ${gridConfig.id}")
-                }
-
-                GridUtils.copyProperties type, column, 1
-                GridUtils.copyProperties type[gridConfig.gridImpl], column[gridConfig.gridImpl]
-                GridUtils.copyProperties type.export, column.export
-                column.type = null
-            }
-
-            // copy the properties for the grid implementation & for the export
-            GridUtils.copyProperties defaultValues?.columns?.defaults, column, 0
-            GridUtils.copyProperties defaultValues?.columns?.defaults[gridConfig.gridImpl], column[gridConfig.gridImpl]
-            GridUtils.copyProperties defaultValues?.columns?.defaults?.export, column.export
-
-            // set the format closure
-            if (column.formatName) {
-                assert defaultValues?.formats[column.formatName]: "No ${column.formatName} formatter defined "
-                column.formatter = defaultValues?.formats[column.formatName]
-            }
-
-            //convention - set the property to the name
-            if (!column.property && !column.value) {
-                log.debug("set default property: ${column.name}")
-                column.property = column.name
-            }
-
-            //set enableFilter false in case the global setting is false
-            if (gridConfig.enableFilter == false) {
-                column.enableFilter = false
-            }
-
-            //set the filterProperty in case
-            if (column.enableFilter && !column.filterProperty && !column.filterClosure) {
-//                column.filterProperty = column.property ?: column.name
-                column.filterProperty = column.property
-            }
-
-
-            if (column.label == null) {
-                def prefix = gridConfig.labelPrefix
-                if (gridConfig.domainClass) {
-                    prefix = prefix ?: GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
-                    assert prefix
-                }
-                if (prefix) {
-                    column.label = gridConfig.labelFormatTemplate.make(labelPrefix: prefix, column: column, gridConfig: gridConfig)
-                } else {
-                    column.label = ''
-                }
-            }
-
-        }
+        gridConfig.columns.each addDefaultValuesForColumn.curry(defaultValues, gridConfig)
 
         if (gridConfig.filterForm) {
             gridConfig.filterForm.fields.each { FilterFieldConfig filterFieldConfig ->
@@ -402,6 +344,72 @@ class EasygridInitService {
         gridConfig.afterInitialization?.call(gridConfig)
 
         gridConfig
+    }
+
+    Closure addDefaultValuesForColumn ={Map defaultValues, GridConfig gridConfig, ColumnConfig column ->
+        if (!column[gridConfig.gridImpl]) {
+            column[gridConfig.gridImpl] = [:]
+        }
+        if (!column.export) {
+            column.export = [:]
+        }
+
+        // copy the properties from the predefined type
+        if (column.type) {
+            def type = defaultValues?.columns?.types?."$column.type"
+
+            if (type == null) {
+                throw new RuntimeException("type ${column.type} not defined for grid ${gridConfig.id}")
+            }
+
+            GridUtils.copyProperties type, column, 1
+            GridUtils.copyProperties type[gridConfig.gridImpl], column[gridConfig.gridImpl]
+            GridUtils.copyProperties type.export, column.export
+            column.type = null
+        }
+
+        // copy the properties for the grid implementation & for the export
+        GridUtils.copyProperties defaultValues?.columns?.defaults, column, 0
+        GridUtils.copyProperties defaultValues?.columns?.defaults[gridConfig.gridImpl], column[gridConfig.gridImpl]
+        GridUtils.copyProperties defaultValues?.columns?.defaults?.export, column.export
+
+        // set the format closure
+        if (column.formatName) {
+            assert defaultValues?.formats[column.formatName]: "No ${column.formatName} formatter defined "
+            column.formatter = defaultValues?.formats[column.formatName]
+        }
+
+        //convention - set the property to the name
+        if (!column.property && !column.value) {
+            log.debug("set default property: ${column.name}")
+            column.property = column.name
+        }
+
+        //set enableFilter false in case the global setting is false
+        if (gridConfig.enableFilter == false) {
+            column.enableFilter = false
+        }
+
+        //set the filterProperty in case
+        if (column.enableFilter && !column.filterProperty && !column.filterClosure) {
+//                column.filterProperty = column.property ?: column.name
+            column.filterProperty = column.property
+        }
+
+
+        if (column.label == null) {
+            def prefix = gridConfig.labelPrefix
+            if (gridConfig.domainClass) {
+                prefix = prefix ?: GrailsNameUtils.getPropertyNameRepresentation(gridConfig.domainClass)
+                assert prefix
+            }
+            if (prefix) {
+                column.label = gridConfig.labelFormatTemplate.make(labelPrefix: prefix, column: column, gridConfig: gridConfig)
+            } else {
+                column.label = ''
+            }
+        }
+        column
     }
 
     /**

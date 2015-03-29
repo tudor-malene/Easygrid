@@ -4,6 +4,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.web.context.request.RequestContextHolder
 
 import static org.grails.plugin.easygrid.EasygridContextHolder.getParams
+import static org.grails.plugin.easygrid.EasygridContextHolder.getSession
 import static org.grails.plugin.easygrid.EasygridContextHolder.storeParams
 import static org.grails.plugin.easygrid.GridUtils.cloneGrid
 import static org.grails.plugin.easygrid.GridUtils.retreiveLastSearch
@@ -153,8 +154,21 @@ class EasygridService {
      * @param attrs
      * @return
      */
-    GridConfig getGridConfig(controller, gridName) {
-        gridRepository[controller][gridName]
+    GridConfig getGridConfig(controller, String gridName) {
+        getGridConfig(gridRepository[controller][gridName])
+    }
+
+    GridConfig getGridConfig(GridConfig masterGrid) {
+        if (masterGrid.scope == 'session') {
+            GridConfig sessionGrid = session[masterGrid.id]
+            if (!sessionGrid) {
+                sessionGrid = cloneGrid masterGrid
+                session[masterGrid.id] = sessionGrid
+            }
+            sessionGrid
+        } else {
+            masterGrid
+        }
     }
 
     def setGridConfig(controller, gridName, GridConfig gridConfig) {
@@ -167,11 +181,11 @@ class EasygridService {
         gridConfig
     }
 
-    def getGridRepository() {
+    Map<String, GridConfig> getGridRepository() {
         grailsApplication.mainContext.servletContext.getAttribute(GRIDS_REPOSITORY)
     }
 
-    def setGridRepository(grids) {
+    def setGridRepository(Map grids) {
         grailsApplication.mainContext.servletContext.setAttribute(GRIDS_REPOSITORY
                 , Collections.synchronizedMap(grids))
     }
